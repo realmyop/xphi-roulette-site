@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xphi — le logo qui regarde</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="identite.css">
+<style>
+  /* Le logo A (l'objectif) en personnage : la pupille regarde, le diaphragme
+     cligne, se plisse, s'écarquille ; le symbole penche la tête.
+     ?t=6.5   image figée à cet instant (captures)
+     ?fond=0  fond transparent (export vidéo avec alpha)
+     ?legende=0  sans la légende de l'état
+     Clic : bascule entre la boucle et « suit la souris ».
+     Bouton Son : les bruits d'objectif (oeil-son.mp3, synthétisés et calés
+     sur la partition) ; l'horloge de l'animation suit alors celle du son. */
+  html, body { margin: 0; height: 100%; background: var(--nuit); color: var(--craie); overflow: hidden; }
+  html.transparent, html.transparent body { background: transparent; }
+  .scene { position: fixed; inset: 0; display: grid; place-items: center; cursor: pointer; }
+  svg.oeil { width: min(62vmin, 640px); height: auto; overflow: visible; }
+  .legende { position: fixed; left: 0; right: 0; bottom: 7vh; text-align: center; font: 400 clamp(15px, 2.2vmin, 22px)/1.3 Inter, system-ui, sans-serif; color: var(--craie-2, #c9c0b2); letter-spacing: .02em; transition: opacity .3s; }
+  .mode { position: fixed; top: 20px; right: 24px; font: 500 12px Inter, system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #8f877b; }
+  .mode a { color: inherit; }
+  .mode button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--craie); background: none; border: 1px solid #3a363a; padding: 6px 12px; cursor: pointer; }
+  .mode button[aria-pressed="true"] { border-color: #8fc0d6; color: #8fc0d6; }
+</style>
+</head>
+<body>
+<div class="scene" title="Clic : la boucle ou « suit la souris »">
+  <svg class="oeil" viewBox="0 0 100 100" aria-label="Le logo Xphi, un diaphragme avec un œil bleu, qui regarde autour de lui">
+    <defs>
+      <radialGradient id="halo"><stop offset="0" stop-color="#8fc0d6" stop-opacity=".9"/><stop offset="1" stop-color="#8fc0d6" stop-opacity="0"/></radialGradient>
+    </defs>
+    <g id="tete">
+      <g fill="none" stroke="currentColor" stroke-linecap="round">
+        <circle cx="50" cy="50" r="31" stroke-width="5.2"/>
+        <g id="lames" stroke-width="2.1" opacity=".9"></g>
+        <path id="tige" d="M50 4 L50 16.999 M50 83.001 L50 96" stroke-width="5.2"/>
+      </g>
+      <circle id="halo-c" cx="50" cy="50" r="10" fill="url(#halo)"/>
+      <circle id="pupille" cx="50" cy="50" r="4.2" fill="#8fc0d6"/>
+      <circle id="reflet" cx="51.4" cy="48.6" r="1" fill="#ffffff" opacity=".75"/>
+    </g>
+  </svg>
+</div>
+<p class="legende" aria-live="polite"></p>
+<p class="mode"><button id="son" type="button">🔈 Son</button> · <span id="mode">boucle</span> · clic sur l’œil pour changer</p>
+
+<script>
+(function () {
+  const q = new URLSearchParams(location.search);
+  const fixe = q.has('t') ? +q.get('t') : null;
+  if (q.get('fond') === '0') document.documentElement.classList.add('transparent');
+  const legEl = document.querySelector('.legende');
+  if (q.get('legende') === '0' || q.get('fond') === '0') legEl.hidden = true;
+  if (fixe !== null || q.get('fond') === '0') document.querySelector('.mode').hidden = true;
+
+  const $ = (id) => document.getElementById(id);
+  const f = (n) => +n.toFixed(2);
+  const R = 31, RIN = R - 5.2 / 2 - 0.4, R0 = 12.5;
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const ease = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+
+  /* Le diaphragme : six lames qui partent des sommets de l'ouverture (hexagone
+     de rayon r, centré là où regarde la pupille) et prolongent leur arête
+     jusqu'à l'anneau. En se fermant, les lames tournent, comme un vrai objectif. */
+  function dessine(s) {
+    const cx = 50 + s.x, cy = 50 + s.y, r = Math.max(0, s.r);
+    const a0 = -90 + (R0 - r) * 2.6;
+    const V = [], U = [];
+    for (let k = 0; k < 6; k++) {
+      const a = ((a0 + 60 * k) * Math.PI) / 180;
+      U.push([Math.cos(a), Math.sin(a)]);
+      V.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+    }
+    let d = '';
+    for (let k = 0; k < 6; k++) {
+      const p = (k + 5) % 6;
+      let dx = U[k][0] - U[p][0], dy = U[k][1] - U[p][1];
+      const L = Math.hypot(dx, dy); dx /= L; dy /= L;
+      const [x0, y0] = V[k], bx = x0 - 50, by = y0 - 50;
+      const b = bx * dx + by * dy, c = bx * bx + by * by - RIN * RIN;
+      const t = -b + Math.sqrt(Math.max(0, b * b - c));
+      d += `M${f(V[p][0])} ${f(V[p][1])} L${f(x0 + dx * t)} ${f(y0 + dy * t)} `;
+    }
+    $('lames').innerHTML = `<path d="${d}"/>`;
+    // La pupille tient dans l'ouverture ; fermée, elle disparaît
+    const pr = Math.min(4.2, r * 0.62) * (s.pup || 1);
+    $('pupille').setAttribute('cx', f(cx)); $('pupille').setAttribute('cy', f(cy));
+    $('pupille').setAttribute('r', f(Math.max(0, pr)));
+    $('reflet').setAttribute('cx', f(cx + pr * 0.33)); $('reflet').setAttribute('cy', f(cy - pr * 0.33));
+    $('reflet').setAttribute('r', f(pr * 0.24));
+    $('halo-c').setAttribute('cx', f(cx)); $('halo-c').setAttribute('cy', f(cy));
+    $('halo-c').setAttribute('r', f(6 + 8 * s.glow));
+    $('halo-c').setAttribute('opacity', f(clamp(s.glow, 0, 1) * Math.min(1, r / 6)));
+    $('tete').setAttribute('transform', `translate(${f(s.dx || 0)} ${f(s.dy || 0)}) rotate(${f(s.rot)} 50 50)`);
+  }
+
+  /* La partition : une petite vie de 18 s, en boucle. Chaque clé donne le
+     regard (x, y), l'ouverture r, l'inclinaison rot, la lueur glow. */
+  const N = { x: 0, y: 0, r: R0, rot: 0, glow: 0.35 };
+  const K = [
+    [0.0, N, 'Bonjour.'],
+    [0.9, N],
+    [1.5, { x: 7, y: 0.5 }, 'Regarde à droite…'],
+    [2.6, { x: 7, y: 0.5 }],
+    [3.1, { x: -7, y: 0.5 }, '… puis à gauche.'],
+    [4.2, { x: -7, y: 0.5 }],
+    [4.6, { x: 0, y: 0 }],
+    [5.0, { r: R0 }, 'Cligne.'],
+    [5.12, { r: 0 }],
+    [5.32, { r: R0 }],
+    [6.0, { x: 5, y: -5, r: 9.5, rot: 9 }, 'Hmm ? Une question.'],
+    [7.6, { x: 5.5, y: -5.5, r: 9, rot: 10 }],
+    [8.0, { x: 0, y: 0, r: 17, rot: 0, glow: 1 }, 'Oh ! Intéressant.'],
+    [9.0, { r: 16.5, glow: 0.9 }],
+    [9.6, { r: R0, glow: 0.35 }],
+    [10.2, { x: -6, y: 1.5, r: 5.5, rot: -4 }, 'Plisse : ça ne colle pas tout à fait.'],
+    [11.6, { x: -6.5, y: 1.5, r: 5, rot: -5 }],
+    [12.0, { x: 0, y: 0, r: R0, rot: 0 }, 'Non, non.'],
+    [12.25, { dx: -2.6 }], [12.5, { dx: 2.6 }], [12.75, { dx: -2 }], [13.0, { dx: 1.2 }], [13.2, { dx: 0 }],
+    [13.6, { r: R0 }, 'Double clignement.'],
+    [13.72, { r: 0 }], [13.88, { r: R0 }], [14.0, { r: 0 }], [14.18, { r: R0 }],
+    [14.8, { x: 0, y: 6.5, r: 11, rot: 0 }, 'Réfléchit…'],
+    [15.9, { x: -1.5, y: 6.5, r: 10.5 }],
+    [16.4, { x: 0, y: 0, r: R0 }, 'Je note.'],
+    [16.7, { dy: 2.2 }], [16.95, { dy: -0.8 }], [17.2, { dy: 0 }],
+    [18.0, N],
+  ];
+  const DUR = 18;
+  // On complète chaque clé avec les valeurs de la précédente (les clés ne disent que ce qui change)
+  const TRACK = [];
+  let cur = { ...N, dx: 0, dy: 0 }, lab = '';
+  for (const [t, v, l] of K) { cur = { ...cur, ...v }; if (l) lab = l; TRACK.push({ t, s: { ...cur }, lab }); }
+
+  function etat(T) {
+    const t = ((T % DUR) + DUR) % DUR;
+    let i = 0;
+    while (i < TRACK.length - 1 && TRACK[i + 1].t <= t) i++;
+    const A = TRACK[i], B = TRACK[Math.min(i + 1, TRACK.length - 1)];
+    const k = B.t > A.t ? ease(clamp((t - A.t) / (B.t - A.t), 0, 1)) : 0;
+    const s = {};
+    for (const key in A.s) s[key] = A.s[key] + (B.s[key] - A.s[key]) * k;
+    // Vie : une respiration de la lueur, un regard qui ne tient jamais tout à fait immobile
+    s.glow += 0.06 * Math.sin(T * 2.1);
+    s.x += 0.35 * Math.sin(T * 1.7); s.y += 0.3 * Math.sin(T * 1.3 + 1);
+    return { s, lab: A.lab };
+  }
+
+  // Mode « suit la souris » : la pupille vise le pointeur, clignements de temps en temps
+  let suivre = false, cible = { x: 0, y: 0 }, regard = { x: 0, y: 0 };
+  addEventListener('pointermove', (e) => {
+    const box = document.querySelector('svg.oeil').getBoundingClientRect();
+    const ox = e.clientX - (box.left + box.width / 2), oy = e.clientY - (box.top + box.height / 2);
+    const d = Math.hypot(ox, oy) || 1, m = Math.min(7.5, d / 40);
+    cible = { x: (ox / d) * m, y: (oy / d) * m };
+  });
+  document.querySelector('.scene').addEventListener('click', () => {
+    suivre = !suivre;
+    $('mode').textContent = suivre ? 'suit la souris' : 'boucle';
+  });
+  function suit(T, dt) {
+    regard.x += (cible.x - regard.x) * Math.min(1, dt * 7);
+    regard.y += (cible.y - regard.y) * Math.min(1, dt * 7);
+    const b = T % 4.3, blink = b < 0.12 ? 1 - b / 0.12 : b < 0.3 ? (b - 0.12) / 0.18 : 1;
+    const near = Math.hypot(cible.x, cible.y) < 2 ? 1 : 0; // la souris sur l'œil : il s'écarquille
+    return { x: regard.x, y: regard.y, r: (R0 + 3.5 * near) * blink, rot: regard.x * 0.6, glow: 0.35 + 0.5 * near, dx: 0, dy: 0 };
+  }
+
+  let lastLab = null;
+  function show(T, dt) {
+    let s, lab = '';
+    if (suivre) s = suit(T, dt);
+    else ({ s, lab } = etat(T));
+    dessine(s);
+    if (lab !== lastLab) { legEl.textContent = lab; lastLab = lab; }
+  }
+  // Pilotage image par image (export vidéo) : window.oeil(T) dessine l'instant T
+  window.oeil = (T) => show(T, 1 / 25);
+
+  if (fixe !== null) { show(fixe, 0); document.title = 'ready'; return; }
+  // Le son : l'animation se cale sur lui pour que chaque bruit tombe sur son geste
+  const audio = new Audio('oeil-son.mp3');
+  audio.loop = true;
+  const bSon = $('son');
+  let tours = 0, lastA = 0;
+  bSon.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    if (audio.paused) { audio.currentTime = 0; tours = 0; lastA = 0; await audio.play(); bSon.setAttribute('aria-pressed', 'true'); bSon.textContent = '🔊 Son'; if (suivre) document.querySelector('.scene').click(); }
+    else { audio.pause(); bSon.setAttribute('aria-pressed', 'false'); bSon.textContent = '🔈 Son'; }
+  });
+  let t0 = null, prev = 0;
+  function loop(now) {
+    if (t0 === null) t0 = now;
+    let T = (now - t0) / 1000;
+    if (!audio.paused) {
+      if (audio.currentTime < lastA) tours++;
+      lastA = audio.currentTime;
+      T = tours * DUR + audio.currentTime;
+      t0 = now - T * 1000;
+    }
+    show(T, Math.min(0.1, T - prev)); prev = T;
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

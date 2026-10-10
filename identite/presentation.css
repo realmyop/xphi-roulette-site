@@ -1,0 +1,298 @@
+/* Présentation du projet : une page de dossier, sombre et peinte. */
+body { font-size: 18px; }
+.bloc { max-width: 1180px; margin: 0 auto; padding: 0 40px; }
+h2 { font-size: clamp(34px, 4.4vw, 56px); line-height: 1.05; letter-spacing: -.035em; font-weight: 620; margin: 10px 0 0; max-width: 20ch; }
+section, section.bloc { margin-top: 140px; }
+section.intro { margin-top: 110px; }
+/* --- Ouverture -------------------------------------------------------------- */
+.ouverture { position: relative; height: min(100vh, 980px); min-height: 640px; overflow: hidden; container-type: inline-size; }
+.ouverture > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 0% 50%; }
+.ouverture .voile { position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(10,10,20,.86) 0%, rgba(10,10,20,.6) 40%, rgba(10,10,20,0) 66%),
+              linear-gradient(0deg, var(--nuit) 0%, rgba(12,11,13,0) 26%); }
+.barre { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 26px 40px; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: rgba(241,233,220,.75); }
+.signature { font-size: 30px; color: rgba(241,233,220,.9); }
+.titre { position: absolute; left: max(40px, calc(50% - 550px)); top: 50%; transform: translateY(-46%); max-width: 640px; }
+.titre .logo { font-size: clamp(64px, 8vw, 118px); }
+.sous-titre { margin: 22px 0 0; font-size: 16px; letter-spacing: .32em; text-transform: uppercase; font-weight: 500; }
+h1 { margin: 54px 0 0; font-size: clamp(26px, 2.6vw, 38px); line-height: 1.22; font-weight: 450; letter-spacing: -.02em; color: var(--craie); text-wrap: balance; }
+
+/* --- Le projet ---------------------------------------------------------------- */
+.grand { font-size: clamp(24px, 2.4vw, 33px); line-height: 1.38; letter-spacing: -.018em; margin: 16px 0 0; max-width: 40ch; font-weight: 420; }
+.clair-obscur { color: var(--craie-2); }
+.chiffres { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 70px; border-top: 1px solid var(--filet); }
+.chiffres div { padding: 24px 20px 0 0; display: flex; flex-direction: column; gap: 6px; }
+.chiffres b { font-size: 50px; font-weight: 300; letter-spacing: -.04em; line-height: 1; }
+.chiffres span { color: var(--gris); font-size: 15px; }
+
+/* --- Principe ----------------------------------------------------------------- */
+.principe ol { list-style: none; padding: 0; margin: 54px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; counter-reset: p; }
+.principe li { border-top: 1px solid var(--craie); padding-top: 26px; }
+.principe svg { width: 120px; height: 80px; fill: none; stroke: var(--craie); stroke-width: 2; overflow: visible; }
+.principe svg .j { stroke: var(--joueur); fill: var(--joueur); }
+.principe svg .gris { stroke: var(--gris); }
+.principe svg .fin { stroke: var(--filet); }
+.principe h3 { font-size: 24px; margin: 22px 0 0; font-weight: 600; letter-spacing: -.015em; }
+.principe li p { color: var(--craie-2); margin: 10px 0 0; font-size: 17px; }
+
+/* --- Histoires ------------------------------------------------------------------ */
+.histoire { display: grid; grid-template-columns: 1.55fr 1fr; gap: 56px; align-items: center; max-width: 1340px; margin: 90px auto 0; padding: 0 40px; }
+.histoire.inverse { grid-template-columns: 1fr 1.55fr; }
+.histoire.inverse .image { order: 2; }
+.histoire .image { margin: 0; }
+.histoire .image img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 3px; box-shadow: 0 30px 80px -30px rgba(0,0,0,.8); }
+.no { font-size: 15px; color: var(--gris); font-weight: 600; letter-spacing: .1em; }
+.histoire h3 { font-size: 44px; letter-spacing: -.035em; margin: 6px 0 0; font-weight: 620; line-height: 1.05; }
+.question { font-size: 21px; line-height: 1.38; font-style: italic; color: var(--craie); margin: 18px 0 0; }
+.histoire p:not(.question) { color: var(--craie-2); font-size: 17px; margin: 16px 0 0; }
+.vignettes { display: flex; gap: 10px; margin-top: 24px; }
+.vignettes img { width: 46%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 2px; opacity: .92; }
+
+/* --- Révélation ------------------------------------------------------------------ */
+.revele { display: grid; grid-template-columns: 1fr 1.1fr; gap: 60px; align-items: center; }
+.revele p:not(.etiquette) { color: var(--craie-2); }
+.graphe { margin: 0; padding: 30px 30px 24px; background: var(--nuit-2); border: 1px solid var(--filet); border-radius: 4px; }
+.graphe svg { width: 100%; height: auto; font-family: inherit; font-size: 13px; overflow: visible; }
+.graphe .grille path { stroke: var(--filet); }
+.graphe .axe { stroke: var(--gris); }
+.graphe .tick text { fill: var(--gris); font-variant-numeric: tabular-nums; }
+.graphe .l1, .graphe .l2 { fill: none; stroke-width: 2.4; stroke-linejoin: round; }
+.graphe .l1 { stroke: var(--craie); }
+.graphe .l2 { stroke: var(--gris); }
+.graphe .lab { fill: var(--craie); font-weight: 600; font-size: 14px; }
+.graphe .lab.gris { fill: var(--gris); }
+.graphe .sub { fill: var(--gris); font-size: 12px; }
+.graphe .vous { fill: var(--joueur); stroke: var(--nuit-2); stroke-width: 3; }
+.graphe .vlab { fill: var(--joueur); font-weight: 600; }
+.graphe figcaption { font-size: 14px; color: var(--gris); margin-top: 14px; line-height: 1.5; }
+.fake { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; border: 1px solid var(--gris); padding: 2px 6px; margin-right: 8px; color: var(--craie-2); }
+
+/* --- Narratrice ------------------------------------------------------------------ */
+.narratrice { display: grid; grid-template-columns: 380px 1fr; gap: 70px; align-items: center; }
+.phi-grand { aspect-ratio: 1; background: radial-gradient(circle at 50% 45%, #1d2226, var(--nuit) 70%); border-radius: 50%; display: grid; place-items: center; }
+.phi-grand [data-phi] { width: 56%; }
+.narratrice p:not(.etiquette) { color: var(--craie-2); }
+.repliques { list-style: none; padding: 0; margin: 28px 0 0; }
+.repliques li { font-size: 20px; line-height: 1.42; padding: 14px 0; border-top: 1px solid var(--filet); letter-spacing: -.01em; }
+.lien { margin-top: 18px; font-size: 15px; }
+
+/* --- Fiche ------------------------------------------------------------------------ */
+.fiche dl { display: grid; grid-template-columns: 200px 1fr; margin: 22px 0 0; border-top: 1px solid var(--craie); }
+.fiche dt, .fiche dd { padding: 18px 0; border-bottom: 1px solid var(--filet); margin: 0; }
+.fiche dt { font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--gris); padding-top: 22px; }
+.fiche dd { color: var(--craie-2); }
+
+.pied { max-width: 1180px; margin: 130px auto 0; padding: 30px 40px 60px; display: flex; gap: 24px; align-items: center; font-size: 14px; color: var(--gris); border-top: 1px solid var(--filet); }
+.pied .logo { font-size: 34px; color: var(--craie); flex: none; }
+.pied p { margin: 0; }
+
+@media (max-width: 900px) {
+  .bloc, .histoire { padding: 0 18px; }
+  .barre { padding: 18px; }
+  .ouverture > img { object-position: 52% 50%; }
+  .barre span:last-child { display: none; }
+  .titre { left: 18px; right: 18px; }
+  .chiffres, .principe ol { grid-template-columns: 1fr 1fr; }
+  .histoire, .histoire.inverse, .revele, .narratrice { grid-template-columns: 1fr; gap: 28px; }
+  .histoire.inverse .image { order: 0; }
+  .narratrice .phi-grand { width: 240px; }
+  .fiche dl { grid-template-columns: 1fr; }
+  .fiche dt { border-bottom: 0; padding-bottom: 0; }
+  .pied { padding: 30px 18px 50px; }
+}
+
+/* Récit-cadre : l'alignement */
+.alignement h3 { font-size: 20px; letter-spacing: -.01em; margin: 0 0 10px; }
+.alignement p:not(.etiquette):not(.grand) { color: var(--craie-2); line-height: 1.6; }
+.alignement .lettre { margin-top: 56px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 40px; align-items: start; }
+.alignement .lettre .etiquette { grid-column: 1 / -1; margin-bottom: -16px; }
+.alignement blockquote { margin: 0; padding: 28px 32px; border-left: 2px solid var(--filet); background: rgba(255,255,255,.025); font-size: 19px; line-height: 1.55; letter-spacing: -.008em; }
+.alignement blockquote p { margin: 0 0 14px; color: var(--craie, #efe6d6); }
+.alignement blockquote p:last-child { margin-bottom: 0; }
+.alignement blockquote.fin .etiquette { margin: 0 0 14px; }
+.alignement .trois { margin-top: 64px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+.alignement .ethique { margin-top: 64px; padding-top: 36px; border-top: 1px solid var(--filet); max-width: 860px; }
+.alignement .ethique blockquote { margin: 18px 0; font-style: italic; }
+@media (max-width: 900px) {
+  .alignement .lettre, .alignement .trois { grid-template-columns: 1fr; gap: 28px; }
+  .alignement .lettre .etiquette { margin-bottom: 0; }
+}
+.alignement .pause { margin-top: 64px; padding-top: 36px; border-top: 1px solid var(--filet); max-width: 860px; }
+.alignement .pause .note { font-size: 15px; margin-top: 22px; }
+.phi-grand .oeil-grand { display: block; width: 70%; color: var(--craie); }
+
+/* --- Le parcours d'un internaute ----------------------------------------------
+   Deux étages : le voyage complet (A → B), puis l'histoire « Les deux pilules »,
+   dont les choix ne bifurquent pas. Grand écran : de gauche à droite ; sous
+   900 px, le même schéma se replie de haut en bas. Le laiton : le chemin d'un joueur. */
+.parcours { --trait: rgba(241,233,220,.55); }
+.parcours .chapeau { color: var(--craie-2); font-size: 19px; max-width: 46ch; margin: 18px 0 0; }
+.parcours .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.parcours h4 { font-size: 17px; font-weight: 620; letter-spacing: -.01em; line-height: 1.25; margin: 0; color: var(--craie); }
+.parcours p { margin: 0; }
+.voyage, .arbre { max-width: 1340px; margin: 64px auto 0; padding: 0 40px; }
+.etage { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--craie-2); margin: 0 0 34px; padding-top: 22px; border-top: 1px solid var(--filet); }
+.etage-no { display: inline-grid; place-items: center; width: 28px; height: 28px; border: 1.5px solid var(--craie-2); border-radius: 50%; font-size: 14px; letter-spacing: 0; }
+
+/* Étage 1 : le voyage, une ligne de craie et ses stations */
+.etapes { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(7, 1fr); column-gap: 26px; row-gap: 40px; }
+.etapes li { position: relative; padding-top: 54px; }
+.etapes .noeud { position: absolute; left: 0; top: 0; width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--craie); display: grid; place-items: center; font-size: 15px; font-weight: 600; background: var(--nuit); z-index: 1; }
+/* le trait jusqu'à la station suivante, et sa pointe */
+.etapes li:not(:last-child)::after { content: ""; position: absolute; top: 17px; left: 44px; right: -18px; border-top: 1.5px solid var(--trait); }
+.etapes li:not(:last-child)::before { content: ""; position: absolute; top: 13px; right: -17px; width: 8px; height: 8px; border-top: 1.5px solid var(--trait); border-right: 1.5px solid var(--trait); transform: rotate(45deg); }
+.etapes li p { font-size: 15px; line-height: 1.5; color: var(--craie-2); margin-top: 8px; }
+.etapes li .marque { color: var(--craie); border-left: 2px solid var(--craie-2); padding-left: 10px; margin-top: 12px; }
+.etapes .cache .noeud { border-style: dashed; color: var(--craie-2); }
+.etapes .fort .noeud { background: var(--craie); color: var(--nuit); }
+.etapes .plus-tard .noeud { border-style: dashed; }
+.etapes li:nth-child(6)::after { border-top-style: dashed; }
+
+/* Étage 2 : les deux rails */
+.arbre { margin-top: 90px; }
+.lecture { font-size: 19px; line-height: 1.5; max-width: 52ch; color: var(--craie); }
+.legende { list-style: none; padding: 0; margin: 22px 0 40px; display: flex; flex-wrap: wrap; gap: 12px 34px; font-size: 15px; color: var(--craie-2); }
+.legende li { display: flex; align-items: center; gap: 10px; }
+.legende li.joueur { color: var(--joueur); }
+.lg-rails { width: 46px; height: 10px; border-top: 1.5px solid var(--trait); border-bottom: 1.5px solid var(--trait); flex: none; }
+.lg-laiton { width: 46px; border-top: 2.5px solid var(--joueur); flex: none; }
+.fourche { width: 46px; height: 19px; flex: none; fill: none; stroke: var(--trait); stroke-width: 1.6; overflow: visible; }
+.fourche .j { stroke: var(--joueur); stroke-width: 2.2; }
+
+.rails { position: relative; display: grid; column-gap: 20px; row-gap: 0;
+  grid-template-columns: 40px 1fr 1fr 1.75fr 1fr 1fr 1.1fr .95fr;
+  grid-template-rows: auto minmax(auto, 1fr) minmax(auto, 1fr);
+  grid-template-areas:
+    ".  h1 h2 h3 h4 h5 h6 h7"
+    "da a1 a2 a3 a4 m5 c6 c7"
+    "db b1 b2 b3 b4 m5 c6 c7"; }
+.h1 { grid-area: h1; } .h2 { grid-area: h2; } .h3 { grid-area: h3; } .h4 { grid-area: h4; }
+.h5 { grid-area: h5; } .h6 { grid-area: h6; } .h7 { grid-area: h7; }
+.a1 { grid-area: a1; } .a2 { grid-area: a2; } .a3 { grid-area: a3; } .a4 { grid-area: a4; }
+.b1 { grid-area: b1; } .b2 { grid-area: b2; } .b3 { grid-area: b3; } .b4 { grid-area: b4; }
+.m5 { grid-area: m5; } .c6 { grid-area: c6; } .c7 { grid-area: c7; }
+.da { grid-area: da; } .db { grid-area: db; }
+
+/* les rails : A en laiton (le parcours de l'exemple), B en pointillé */
+.rail { z-index: 0; align-self: center; border-top: 1.5px solid var(--trait); pointer-events: none; }
+.rail.j { border-top: 2.5px solid var(--joueur); }
+.rail.ra { grid-row: 2; grid-column: 1 / 6; margin-right: -20px; }
+.rail.rb { grid-row: 3; grid-column: 1 / 6; margin-right: -20px; border-top-style: dashed; }
+.rail.un { grid-row: 2 / 4; grid-column: 7 / 8; margin-left: -20px; margin-right: -20px; }
+/* le dernier tronçon s'arrête sur le point final */
+.voie.c7::before { content: ""; position: absolute; left: 0; right: 50%; top: 50%; margin-top: -1px; border-top: 2.5px solid var(--joueur); }
+.jonction { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; overflow: visible; }
+.jonction path { vector-effect: non-scaling-stroke; stroke: var(--trait); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.jonction path.pa { stroke: var(--joueur); stroke-width: 2.5; stroke-dasharray: none; }
+.jonction.etroit { display: none; }
+.noeud-j { position: absolute; left: 62%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: var(--joueur); box-shadow: 0 0 0 5px var(--nuit); }
+.m5 { position: relative; min-height: 120px; }
+
+.dep { z-index: 1; align-self: center; justify-self: start; margin: 0; background: var(--nuit); display: flex; }
+.dep .lettre { width: 36px; height: 36px; display: grid; place-items: center; border: 1.5px dashed var(--craie-2); border-radius: 50%; font-weight: 600; font-size: 16px; color: var(--craie); background: var(--nuit); }
+.dep.j .lettre { color: var(--joueur); border: 2px solid var(--joueur); }
+
+/* en-têtes des stations */
+.tete { z-index: 1; padding: 0 0 26px; border-top: 1px solid var(--craie); padding-top: 16px; background: var(--nuit); }
+.tete .no { font-size: 14px; font-weight: 600; color: var(--gris); letter-spacing: .08em; }
+.tete h4 { margin-top: 4px; }
+.tete p { font-size: 15px; line-height: 1.5; color: var(--craie-2); margin-top: 6px; }
+.tete .q { color: var(--craie); font-weight: 500; }
+
+/* les voies : ce qui se passe sur chaque rail, à chaque station */
+.voie { z-index: 1; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 18px 0; }
+.voie > *:not(svg):not(.noeud-j) { position: relative; }
+.voie .boutons, .voie .citation { background: var(--nuit); }
+.voie .citation { font-size: 15px; line-height: 1.5; font-style: italic; color: var(--craie); margin: 0; padding: 12px 14px; border: 1px dashed rgba(241,233,220,.3); border-radius: 4px 6px 4px 7px; background: var(--nuit-2); }
+.voie.a3 .citation { border: 1.5px solid var(--joueur); }
+.voie .fourche { background: var(--nuit); }
+.arret { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--craie-2); background: var(--nuit); }
+.voie.j .arret { border: 2px solid var(--joueur); }
+.arret.fin { width: 22px; height: 22px; background: var(--joueur); box-shadow: 0 0 0 5px var(--nuit), 0 0 0 6.5px var(--joueur); }
+
+.boutons { margin: 0; padding: 0 4px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.bouton { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; line-height: 1.2; padding: 6px 9px; border: 1px solid var(--trait); border-radius: 3px; color: var(--craie-2); white-space: nowrap; }
+.bouton.j { border: 1.5px solid var(--joueur); color: var(--joueur); font-weight: 600; }
+.pt { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.pt.bleu { background: #3f78c9; } .pt.rouge { background: #c8423a; }
+
+@media (max-width: 1180px) {
+  .etapes { grid-template-columns: repeat(4, 1fr); }
+  .etapes li:nth-child(4)::after, .etapes li:nth-child(4)::before { display: none; }
+}
+/* Sous 1100 px, l'histoire se lit de haut en bas : rail A à gauche, rail B à droite */
+@media (max-width: 1100px) {
+  .rails { max-width: 640px; margin: 0 auto; column-gap: 0;
+    grid-template-columns: 1fr 1fr; grid-template-rows: none;
+    grid-template-areas: "da db" "h1 h1" "a1 b1" "h2 h2" "a2 b2" "h3 h3" "a3 b3" "h4 h4" "a4 b4" "h5 h5" "m5 m5" "h6 h6" "c6 c6" "h7 h7" "c7 c7"; }
+  .rail { align-self: stretch; justify-self: center; border-top: 0; border-left: 1.5px solid var(--trait); margin: 0; }
+  .rail.j { border-top: 0; border-left: 2.5px solid var(--joueur); }
+  .rail.ra { grid-column: 1; grid-row: 1 / 10; }
+  .rail.rb { grid-column: 2; grid-row: 1 / 10; border-top: 0; border-left-style: dashed; }
+  .rail.ra, .rail.rb, .rail.un { margin: 0; }
+  .rail.un { grid-column: 1 / 3; grid-row: 11 / 15; margin-top: -1px; }
+  .voie.c7::before { left: 50%; right: auto; top: 0; bottom: 50%; margin: 0 0 0 -1px; border-top: 0; border-left: 2.5px solid var(--joueur); }
+  .dep { justify-self: center; padding-bottom: 10px; }
+  .tete { padding: 14px 0 12px; }
+  .voie { padding: 14px 8px 22px; }
+  .m5 { min-height: 90px; }
+  .jonction.large { display: none; } .jonction.etroit { display: block; }
+  .noeud-j { left: 50%; top: 62%; }
+}
+@media (max-width: 900px) {
+  .voyage, .arbre { padding: 0 18px; margin-top: 48px; }
+  .arbre { margin-top: 70px; }
+  .etapes { grid-template-columns: 1fr; row-gap: 0; }
+  .etapes li { padding: 4px 0 30px 56px; }
+  .etapes li:not(:last-child)::after { top: 44px; bottom: 8px; left: 18px; right: auto; border-top: 0; border-left: 1.5px solid var(--trait); }
+  .etapes li:not(:last-child)::before { top: auto; bottom: 8px; right: auto; left: 14px; transform: rotate(135deg); }
+  .etapes li:nth-child(6)::after { border-left-style: dashed; }
+  .etapes li:nth-child(4)::after, .etapes li:nth-child(4)::before { display: block; }
+  .legende { flex-direction: column; gap: 10px; }
+  .lecture, .chapeau { font-size: 17px; }
+}
+.chapo-histoires { color: var(--craie-2); max-width: 62ch; line-height: 1.6; margin: 18px 0 0; }
+/* Le format : une question par émission, posée à toute l'Europe */
+.format .europe { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 56px; padding-top: 32px; border-top: 1px solid var(--filet); }
+.format h3 { font-size: 20px; letter-spacing: -.01em; margin: 0 0 10px; }
+.format .europe p { color: var(--craie-2); line-height: 1.6; margin: 0; }
+@media (max-width: 900px) { .format .europe { grid-template-columns: 1fr; gap: 28px; } }
+/* L'émission : les cinq temps (largeur = durée) et l'analyse par groupes */
+.emission .temps { list-style: none; padding: 0; margin: 56px 0 0; display: flex; gap: 6px; }
+.emission .temps li { flex: calc(var(--m) + 4) 1 0; border-top: 3px solid var(--craie); padding-top: 16px; min-width: 0; }
+.emission .temps li:nth-child(even) { border-top-color: var(--craie-2); }
+.emission .temps .duree { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--gris); }
+.emission .temps .no { display: inline-block; margin-top: 10px; font-size: 14px; color: var(--gris); }
+.emission .temps h3 { font-size: 19px; letter-spacing: -.01em; margin: 4px 0 8px; }
+.emission .temps p { color: var(--craie-2); font-size: 15px; line-height: 1.55; margin: 0; padding-right: 14px; }
+.emission .captures { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 64px; }
+.emission figure { margin: 0; }
+.emission figure img { width: 100%; height: auto; display: block; }
+.emission figcaption { color: var(--craie-2); font-size: 15px; line-height: 1.5; margin-top: 12px; }
+.emission figcaption b { color: var(--craie); font-weight: 600; }
+.emission .src { display: block; color: var(--gris); font-size: 14px; }
+.emission .lien-separe { display: grid; grid-template-columns: 1fr 1.1fr; gap: 56px; margin-top: 72px; padding-top: 40px; border-top: 1px solid var(--filet); align-items: start; }
+.emission .lien-separe h3 { font-size: 26px; letter-spacing: -.02em; margin: 0 0 14px; }
+.emission .lien-separe p { color: var(--craie-2); line-height: 1.6; }
+.emission .lien-separe .note { font-size: 15px; }
+.emission .groupes .titre-g { margin: 18px 0 8px; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; color: var(--gris); }
+.emission .groupes .titre-g .src { display: inline; margin-left: 8px; color: #8fc0d6; letter-spacing: .08em; }
+.emission .ligne { display: grid; grid-template-columns: 130px 1fr 72px; align-items: center; gap: 12px; margin: 6px 0; font-size: 15px; }
+.emission .ligne .piste { height: 14px; border-bottom: 1px solid var(--filet); position: relative; }
+.emission .ligne .piste i { position: absolute; left: 0; top: 0; bottom: 0; background: repeating-linear-gradient(45deg, rgba(143,192,214,.85) 0 2px, rgba(143,192,214,.25) 2px 6px); border: 1px solid #8fc0d6; }
+.emission .ligne .v { text-align: right; font-variant-numeric: tabular-nums; }
+.emission .ligne.vide .piste { border: 1px dashed var(--filet); height: 12px; }
+.emission .ligne.vide .piste i { display: none; }
+.emission .ligne.vide .v { color: var(--gris); font-size: 14px; }
+.emission .groupes .pied-g { color: var(--gris); font-size: 14px; margin-top: 16px; }
+.emission .capture-large { margin-top: 48px; }
+@media (max-width: 900px) {
+  .emission .temps { flex-direction: column; gap: 22px; }
+  .emission .captures, .emission .lien-separe { grid-template-columns: 1fr; gap: 28px; }
+  .emission .ligne { grid-template-columns: 110px 1fr 64px; }
+}
+/* Confiance : humains vérifiés, comptes facultatifs, page de résultats */
+.confiance .trois-c { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 56px; padding-top: 32px; border-top: 1px solid var(--filet); }
+.confiance h3 { font-size: 20px; letter-spacing: -.01em; margin: 0 0 10px; }
+.confiance .trois-c p { color: var(--craie-2); line-height: 1.6; margin: 0; }
+@media (max-width: 900px) { .confiance .trois-c { grid-template-columns: 1fr; gap: 28px; } }

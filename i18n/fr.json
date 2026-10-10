@@ -1,0 +1,159 @@
+{
+  "_lisezmoi": "Textes du film (français). Une réplique = une chaîne. {frac}, {f}… sont remplacés par le site (ne pas les traduire). Les clés \"3\" et \"2\" de l’Acte 1 : récit à la 3e et à la 2e personne.",
+  "commun": {
+    "fin": "Fin",
+    "revoir": "Revoir le film"
+  },
+  "acte1": {
+    "textes": {
+      "intro": "Je vais vous raconter une histoire.",
+      "maison": "Une maison, un début d’après‑midi.",
+      "chambre": "À l’étage, un bébé fait la sieste.",
+      "bebe": "Il dort profondément.",
+      "porte": {
+        "2": "Vous poussez la porte. Vous entrez, sans bruit.",
+        "3": "La porte s’ouvre. Quelqu’un entre, sans bruit."
+      },
+      "personne": {
+        "2": "Vous vous penchez sur le berceau. Vous tenez un revolver.",
+        "3": "Cette personne s’approche du berceau. Elle tient un revolver."
+      },
+      "barillet": {
+        "2": "Vous y glissez une seule balle, puis faites tourner le barillet.",
+        "3": "Elle y glisse une seule balle, puis fait tourner le barillet."
+      },
+      "visee": {
+        "2": "Vous visez le bébé.",
+        "3": "Elle vise le bébé."
+      },
+      "arret": "Arrêtons l’image un instant.",
+      "question": {
+        "2": "Que faites‑vous ?",
+        "3": "Que fait‑elle ?"
+      },
+      "change": "Et avec un autre barillet ?",
+      "reprise": "Reprenons.",
+      "garde": {
+        "2": "Reprenons. Vous gardez le barillet à {frac}.",
+        "3": "Reprenons. Elle garde le barillet à {frac}."
+      },
+      "reprend": {
+        "2": "Reprenons. Vous reprenez le barillet à {frac}.",
+        "3": "Reprenons. Elle reprend le barillet à {frac}."
+      },
+      "detente": {
+        "2": "Vous appuyez sur la détente.",
+        "3": "Elle appuie sur la détente."
+      },
+      "clic": "Clic.",
+      "rate": "Le coup n’est pas parti. Le bébé n’a rien senti.",
+      "rateB": "Le coup n’est pas parti. Mais le bébé s’est réveillé : il a vu l’arme.",
+      "part": "Le coup est parti.",
+      "baisse": {
+        "2": "Vous baissez l’arme.",
+        "3": "Elle baisse l’arme."
+      },
+      "sortie": {
+        "2": "Vous repartez, sans bruit.",
+        "3": "Elle repart, sans bruit."
+      },
+      "fin": "Le bébé dort toujours. Il ne saura jamais rien.",
+      "finB": "Il finira par se rendormir. Il ne saura jamais ce qu’il a vu.",
+      "note": "Maquette : ici viendraient deux questions, de 1 à 7.",
+      "noteRefus": "Maquette : le site raconterait ensuite qu’une autre personne a tiré, à 1 sur 6, et vous demanderait d’en juger."
+    },
+    "boutons": {
+      "tirer": "Tirer",
+      "ne-pas-tirer": "Ne pas tirer"
+    }
+  },
+  "acte2": {
+    "textes": {
+      "intro": "Une autre histoire.",
+      "dehors": "Un appartement en ville, un matin.",
+      "cuisine": "Ce couple voudrait un enfant.",
+      "mains": "Ils ont fait un test génétique. Le résultat vient d’arriver.",
+      "lettre": "Leur enfant pourrait naître avec une maladie grave et douloureuse.",
+      "couple": "Ils peuvent concevoir cet enfant, ou y renoncer.",
+      "seuil": "La chambre d’à côté est encore vide.",
+      "arret": "Arrêtons l’image un instant.",
+      "question": "Que fait le couple ?",
+      "change": "Et avec un autre barillet ?",
+      "reprise": "Reprenons.",
+      "garde": "Reprenons. Le couple garde le risque à {frac}.",
+      "reprend": "Reprenons. Le couple revient au risque à {frac}.",
+      "naissance": "Ils ont conçu cet enfant. Le voici, quelques jours après sa naissance.",
+      "fin": "Nul ne sait encore s’il sera malade.",
+      "renonce": "Ils ont renoncé. Cet enfant‑là ne naîtra pas.",
+      "note": "Maquette : ici viendraient deux questions, de 1 à 7."
+    },
+    "boutons": {
+      "concevoir": "Concevoir",
+      "renoncer": "Renoncer"
+    }
+  },
+  "acte3": {
+    "textes": {
+      "intro": "Une troisième histoire.",
+      "paume": "En 2023, une question a fait le tour d’internet.",
+      "pilules": [
+        "Chacun choisit une pilule, bleue ou rouge.",
+        "Si plus de la moitié prend la bleue, tout le monde survit.",
+        "Sinon, seuls ceux qui ont pris la rouge survivent."
+      ],
+      "qPilule": "Laquelle prenez-vous ?",
+      "concret": "Rendons la règle concrète.",
+      "ouverture": [
+        "Cent personnes, sur un lac, à l’aube.",
+        "Un pied sur chaque ponton."
+      ],
+      "ecart": "Les pontons s’écartent : chacun doit choisir le sien.",
+      "pieds": "Personne ne voit ce que choisissent les autres.",
+      "dessous": "Sous le ponton bleu, un dispositif.",
+      "qPonton": "Quel ponton choisissez-vous ?",
+      "alice": [
+        "Même lac, mêmes règles.",
+        "Mais Alice est attachée sur le ponton bleu."
+      ],
+      "aliceRegle": "Elle ne sera sauvée que si la majorité monte sur le bleu.",
+      "qAlice": "Et maintenant ?",
+      "derniere": "Une dernière chose.",
+      "lue": "Vous avez lu la règle d’une certaine façon.",
+      "autrement": "La voici dite autrement :",
+      "meme": "C’est exactement la même situation.",
+      "phi1": "Chez Monsieur Phi, près de 10 000 personnes ont répondu.",
+      "phi2": "Selon la formulation, le ponton bleu passe de 65 % à 13 %.",
+      "milliard": "Vous devez présenter ce dilemme à un milliard de personnes.",
+      "qFormulation": "Quelle formulation choisissez-vous ?",
+      "fin": [
+        "Ne blâmez pas seulement les joueurs.",
+        "Regardez qui explique les règles."
+      ],
+      "note": "Maquette : formulation {f} tirée au sort. Ici viendraient les réponses des autres joueurs, selon la formulation lue."
+    },
+    "regle": {
+      "A": [
+        "Si la majorité monte sur le ponton bleu, le dispositif s’éteint : tout le monde vit.",
+        "Sinon, il se déclenche : seuls ceux du ponton rouge survivent."
+      ],
+      "B": [
+        "Sur le ponton rouge, il ne vous arrive rien.",
+        "Sur le ponton bleu, vous mourez, sauf si la majorité y monte aussi."
+      ]
+    },
+    "boutons": {
+      "pilules": {
+        "bleue": "Bleue",
+        "rouge": "Rouge"
+      },
+      "pontons": {
+        "bleu": "Le bleu",
+        "rouge": "Le rouge"
+      },
+      "formulation": {
+        "lue": "Celle que j’ai lue",
+        "autre": "L’autre"
+      }
+    }
+  }
+}

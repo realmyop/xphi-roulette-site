@@ -1,0 +1,130 @@
+/* ==========================================================================
+   Le film : deux traitements pour la même mise en scène.
+   - « trait »  : dessin à l'encre sur papier chaud, qui se trace à l'ouverture.
+   - « ombres » : théâtre d'ombres, silhouettes sur un mur éclairé.
+   Toujours monochrome et chaud ; l'accent reste réservé au joueur
+   (la balle, son choix). Le 16:9 passe en nuit pour la télévision.
+   ========================================================================== */
+
+/* Page (téléphone) : papier chaud plutôt que blanc pur */
+html:not(.screen) { --bg: #f3eee4; --ink: #2a2622; --grey: #8b8377; }
+:root { --accent: #e4502a; }
+html.screen { --accent: #ff6a3d; }
+
+/* --- Palettes ------------------------------------------------------------- */
+html.st-trait {
+  --wall: #f3eee4; --floor: #e9e2d4; --fill: #f3eee4; --fig: #dcd3c2; --glow: #fffcf5;
+  --curtain: #e4dccd; --rug: #e2d9c8; --line: #2a2622; --beam: #ffffff; --beam-o: .5;
+  --dust: #9b9384; --iris: #1f1c19; --pov-wall: #e4dccd; --pov-leaf: #ece5d8;
+  --ins-bg: #f3eee4; --ins-ink: #2a2622;
+}
+html.st-trait.screen {
+  --wall: #141210; --floor: #1a1815; --fill: #141210; --fig: #2a2622; --glow: #3a352d;
+  --curtain: #221f1b; --rug: #1f1c18; --line: #ebe4d6; --beam: #fff3dc; --beam-o: .06;
+  --dust: #cfc6b4; --iris: #000; --pov-wall: #1d1a17; --pov-leaf: #24211d;
+  --ins-bg: #0e0d0b; --ins-ink: #ebe4d6;
+}
+html.st-ombres {
+  --wall: #d8d0c0; --floor: #c3b9a6; --sil: #1e1b18; --glow: #fbf6ea; --rug: #b1a793;
+  --line: #1e1b18; --beam: #fff8e6; --beam-o: .4; --dust: #fffaf0; --iris: #161412;
+  --pov-wall: #1e1b18; --pov-leaf: #2c2824; --ins-bg: #1e1b18; --ins-ink: #efe8da;
+}
+html.st-ombres.screen {
+  --wall: #3b362f; --floor: #2f2b25; --sil: #0f0e0c; --glow: #e8dfcb; --rug: #282420;
+  --line: #0f0e0c; --beam: #fff1d2; --beam-o: .14; --dust: #fff3da; --iris: #000;
+  --pov-wall: #0f0e0c; --pov-leaf: #1c1a17; --ins-bg: #0b0a09; --ins-ink: #efe8da;
+}
+
+/* --- Décor ---------------------------------------------------------------- */
+#scene .wall { fill: var(--wall); }
+#scene .floor { fill: var(--floor); fill-opacity: var(--fillk, 1); }
+#scene .ink { fill: none; stroke: var(--line); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+#scene .solid { fill: var(--fill); stroke: var(--line); stroke-width: 3.2; stroke-linejoin: round; fill-opacity: var(--fillk, 1); }
+#scene .fig { fill: var(--fig); stroke: var(--line); stroke-width: 3.2; stroke-linejoin: round; fill-opacity: var(--fillk, 1); }
+#scene .soft { fill: var(--glow); stroke: var(--line); stroke-width: 3.2; fill-opacity: var(--fillk, 1); }
+#scene .bar { stroke: var(--line); stroke-width: 4.5; stroke-linecap: round; }
+#scene .curtain { fill: var(--curtain); stroke: var(--line); stroke-width: 3.2; fill-opacity: var(--fillk, 1); }
+#scene .rug { fill: var(--rug); stroke: var(--line); stroke-width: 2.4; fill-opacity: var(--fillk, 1); }
+#scene .glow { fill: var(--glow); fill-opacity: var(--fillk, 1); }
+#scene .beam { fill: var(--beam); opacity: calc(var(--beam-o) * var(--fillk, 1)); }
+#scene .patch { fill: var(--beam); opacity: calc(var(--beam-o) * 1.3 * var(--fillk, 1)); }
+#scene .dust { fill: var(--dust); }
+#scene .iris { fill: var(--iris); }
+#scene .pov-wall { fill: var(--pov-wall); }
+#scene .pov-leaf { fill: var(--pov-leaf); stroke: var(--line); stroke-width: 3.2; stroke-linejoin: round; }
+
+/* Ombres : tout objet devient silhouette, sans contour ni détail */
+html.st-ombres #scene .solid,
+html.st-ombres #scene .fig,
+html.st-ombres #scene .soft,
+html.st-ombres #scene .curtain { fill: var(--sil); stroke: none; }
+html.st-ombres #scene .ink { stroke: var(--sil); }
+html.st-ombres #scene .detail,
+html.st-ombres #scene .edge { display: none; }
+html.st-ombres #scene .bar { stroke: var(--sil); stroke-width: 7; }
+html.st-ombres #scene .rug { fill: var(--rug); stroke: none; }
+html.st-ombres #scene .pov-leaf { stroke: none; }
+
+/* --- Gros plan du barillet ------------------------------------------------ */
+#insert { --ins-ink-medal: #efe8da; visibility: hidden; }
+#insert .i-bg { fill: var(--ins-bg); }
+#insert .i-guide { fill: none; stroke: var(--ins-ink-now); stroke-opacity: .28; stroke-width: .8; }
+#insert .i-line { fill: none; stroke: var(--ins-ink-now); stroke-width: 1.1; }
+#insert .i-ch { fill: none; stroke: var(--ins-ink-now); stroke-width: 1.3; }
+#insert .i-dot { fill: var(--ins-ink-now); }
+#insert .i-bullet { fill: var(--accent); }
+#insert .i-halo { fill: none; stroke: var(--accent); stroke-width: 1; }
+#insert .i-mark { stroke: var(--ins-ink-now); stroke-width: 1.8; stroke-linecap: round; }
+#insert .i-frac { fill: var(--ins-ink-now); font-weight: 700; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+#insert .i-phrase { fill: var(--ins-ink-now); fill-opacity: .72; }
+
+/* --- Mise en page téléphone : l'image en haut, le récit dessous ----------- */
+.film { padding: 0 !important; }
+.viewport { position: relative; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; background: var(--wall); flex: none; }
+.viewport svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.dock { flex: 1; display: flex; flex-direction: column; padding: 18px 22px 24px; }
+.sub { display: flex; gap: 12px; align-items: flex-start; }
+.phi-mini { width: 42px; flex: none; color: var(--ink); line-height: 0; margin-top: 1px; }
+.phi-mini svg { width: 100%; height: auto; }
+.phi-mini g, .phi-mini .talk-mouth { display: none; }
+.phi-mini[data-expr="neutre"] .x-neutre,
+.phi-mini[data-expr="curieux"] .x-curieux,
+.phi-mini[data-expr="malicieux"] .x-malicieux { display: inline; }
+.phi-mini.talk .talk-mouth { display: inline; }
+.phi-mini.talk .mouth { display: none; }
+#sub-text { margin: 0; font-size: 21px; line-height: 1.32; font-weight: 450; letter-spacing: -.012em; min-height: 2.64em; }
+
+.choices { margin-top: auto; padding-top: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.choices[hidden] { display: none; }
+.choices.single { grid-template-columns: 1fr; }
+.choice {
+  height: 58px; border: 1.5px solid var(--ink); background: transparent; color: var(--ink);
+  font-size: 17px; font-weight: 600; cursor: pointer; border-radius: 0;
+}
+.choice[hidden] { display: none; }
+.choice.picked { background: var(--accent); border-color: var(--accent); color: #fff; }
+.choice.ghost { opacity: .3; }
+.endlinks { display: flex; justify-content: space-between; gap: 12px; margin-top: 12px; font-size: 13px; color: var(--grey); }
+.endlinks[hidden] { display: none; }
+.endlinks a { color: var(--ink); margin-left: 6px; }
+.endlinks a[aria-current] { color: var(--accent); text-decoration: none; font-weight: 700; }
+
+/* --- 16:9 : l'image plein cadre, les sous-titres posés dessus ------------- */
+html.screen .viewport { position: absolute; inset: 0; aspect-ratio: auto; }
+html.screen .viewport::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 42%;
+  background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,.72)); pointer-events: none;
+}
+html.screen .dock { position: absolute; left: 340px; right: 340px; bottom: 64px; padding: 0; color: #f4efe6; }
+html.screen .sub { justify-content: center; align-items: center; gap: 28px; }
+html.screen .phi-mini { width: 86px; color: #f4efe6; }
+html.screen #sub-text { font-size: 46px; min-height: 0; max-width: 30ch; }
+html.screen .choices { margin: 34px auto 0; padding: 0; width: 760px; gap: 20px; }
+html.screen .choice { height: 92px; font-size: 32px; border: 2px solid #f4efe6; color: #f4efe6; }
+html.screen .choice.picked { border-color: var(--accent); }
+html.screen .endlinks { font-size: 22px; color: #b9b1a3; justify-content: center; gap: 60px; }
+html.screen .endlinks a { color: #f4efe6; }
+
+/* Aide à la relecture */
+.debug { position: fixed; right: 8px; bottom: 8px; z-index: 9; padding: 4px 8px; font: 12px/1.3 ui-monospace, monospace; background: rgba(0,0,0,.7); color: #fff; }
+html.screen .debug { font-size: 20px; }

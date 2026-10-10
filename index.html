@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xphi — Maquettes</title>
+<link rel="stylesheet" href="shared/base.css">
+<style>
+  /* Page d'index : présente les trois directions côte à côte.
+     Chaque écran est chargé deux fois : téléphone (390×844) et 16:9 (1920×1080, réduit). */
+  body { padding: 40px 32px 80px; max-width: 1240px; margin: 0 auto; }
+  h1 { font-size: 34px; letter-spacing: -.03em; margin: 0; font-weight: 680; }
+  .intro { color: var(--ink-2); font-size: 16px; line-height: 1.5; max-width: 70ch; margin: 10px 0 0; }
+  section { margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--ink); }
+  h2 { font-size: 26px; margin: 0; letter-spacing: -.02em; display: flex; align-items: center; gap: 12px; }
+  h2 i { width: 16px; height: 16px; border-radius: 50%; display: inline-block; }
+  .desc { color: var(--ink-2); font-size: 15px; line-height: 1.5; max-width: 80ch; margin: 8px 0 0; }
+  .row { display: flex; gap: 24px; align-items: flex-start; margin-top: 28px; flex-wrap: wrap; }
+  .row h3 { flex-basis: 100%; margin: 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--grey); }
+  #film .row h3 { text-transform: none; letter-spacing: 0; font-size: 14px; font-weight: 500; color: var(--ink-2); }
+  figure { margin: 0; }
+  figcaption { font-size: 12px; color: var(--grey); margin-top: 8px; }
+  figcaption a { color: var(--ink); }
+  .frame { overflow: hidden; border: 1px solid var(--line); position: relative; background: var(--bg); }
+  .frame iframe { border: 0; transform-origin: 0 0; position: absolute; left: 0; top: 0; }
+  .phone { width: 215px; height: 465px; border-radius: 18px; }
+  .phone iframe { width: 390px; height: 844px; transform: scale(.551); }
+  .tv { width: 683px; height: 384px; }
+  .tv iframe { width: 1920px; height: 1080px; transform: scale(.3557); }
+  @media (max-width: 960px) { .tv { width: 341px; height: 192px; } .tv iframe { transform: scale(.1776); } }
+</style>
+</head>
+<body>
+<h1>Xphi — maquettes</h1>
+<p class="intro">L’histoire se raconte comme un petit film d’animation ; les résultats gardent le langage sobre des écrans fixes plus bas.</p>
+
+<section>
+  <h2><i style="background:#f1e9dc;box-shadow:0 0 0 1px #0a0a0a inset"></i>Identité et présentation</h2>
+  <p class="desc">Quatre pistes de logo « Xphi » (objectif, barillet, craie, antenne), le narrateur « Phi » en IA de laboratoire (trois dessins, quatre expressions, palette, charte de ton et dix répliques), et une page de présentation du projet pour un diffuseur. <a href="identite/" target="_blank">Planche d’identité</a> · <a href="identite/presentation.html" target="_blank">Présentation du projet</a></p>
+</section>
+
+<section>
+  <h2><i style="background:#d9a64a"></i>Le film — Acte 1, « Le barillet »</h2>
+  <p class="desc">Un petit film d’animation peint : la maison, la chambre, le bébé, la porte, la personne, le barillet, la visée. Au moment de choisir, l’image se fige et le narrateur dessine à la craie le barillet de l’expérience de pensée (mille chambres, cent, six, quatre). Puis le film reprend jusqu’à sa fin. Les aperçus ci-dessous se jouent tout seuls (choix scriptés) ; pour jouer, ouvrez un lien. Clavier : espace = pause, → = étape suivante, R = recommencer.</p>
+  <div class="row">
+    <figure><div class="frame phone"><iframe loading="lazy" src="cinema/?auto=1"></iframe></div>
+      <figcaption><a href="cinema/" target="_blank">Jouer (téléphone)</a> · variantes <a href="cinema/?variant=A" target="_blank">A</a> <a href="cinema/?variant=B" target="_blank">B</a> <a href="cinema/?variant=C" target="_blank">C</a> <a href="cinema/?variant=D" target="_blank">D</a></figcaption></figure>
+    <figure><div class="frame tv"><iframe loading="lazy" src="cinema/?auto=1&screen=1"></iframe></div>
+      <figcaption><a href="cinema/?screen=1" target="_blank">Jouer (16:9 · 1920×1080)</a> · <a href="cinema/?screen=1&variant=D" target="_blank">vue subjective (D)</a></figcaption></figure>
+  </div>
+  <p class="desc"><b>Acte 2, « La conception »</b> : même grammaire, un autre foyer. <a href="cinema/?acte=2" target="_blank">Jouer (téléphone)</a> · <a href="cinema/?acte=2&screen=1" target="_blank">16:9</a></p>
+  <p class="desc"><b>Acte 3, « Les deux pilules »</b> : le dilemme de la pilule bleue ou rouge, puis le lac et ses deux pontons ; la règle est dite d’une de deux façons, tirée au sort. <a href="cinema/?acte=3" target="_blank">Jouer (téléphone)</a> · <a href="cinema/?acte=3&screen=1" target="_blank">16:9</a> · formulation <a href="cinema/?acte=3&formulation=A" target="_blank">A</a> <a href="cinema/?acte=3&formulation=B" target="_blank">B</a></p>
+  <p class="desc"><b>Résultats de l’Acte 3</b> : sept écrans dans la langue du film. Le lac figé et assombri, et le narrateur (une IA qui étudie l’humanité, curieuse et polie) trace à la craie les vrais chiffres du questionnaire de Monsieur Phi (près de 10 000 répondants) : 65,5 % de A avec une formulation, 12,6 % avec l’autre, les prédictions, le billet de 100 €, la lucidité, gauche/droite et femmes/hommes. Le dernier écran place le joueur (point de laiton) parmi les autres, en données fictives. Flèches ou clic pour avancer. <a href="resultats-a3/" target="_blank">Téléphone</a> · <a href="resultats-a3/?screen=1" target="_blank">16:9</a></p>
+  <div class="row">
+    <figure><div class="frame phone"><iframe loading="lazy" src="resultats-a3/?still=1&i=2"></iframe></div>
+      <figcaption><a href="resultats-a3/?i=2" target="_blank">Écran clé : la formulation</a></figcaption></figure>
+    <figure><div class="frame tv"><iframe loading="lazy" src="resultats-a3/?still=1&screen=1&i=2"></iframe></div>
+      <figcaption><a href="resultats-a3/?screen=1" target="_blank">16:9 · 1920×1080</a></figcaption></figure>
+  </div>
+  <p class="desc"><a href="film/">Première version (trait, ombres)</a>, pour mémoire.</p>
+</section>
+
+<h2 style="margin-top:72px">Écrans fixes et résultats</h2>
+<p class="intro">Même contrainte pour les trois : noir et blanc, un seul accent réservé au joueur, Inter seule, barillet géométrique, personnage au trait. Chaque écran existe en téléphone vertical et en 16:9 sombre (<code>?screen=1</code>). Les animations sont figées ici ; ouvrez un écran seul pour voir les fondus. Le cran se change avec <code>?cran=1</code> à <code>4</code>.</p>
+<div id="dirs"></div>
+<script>
+  // Description des trois directions
+  const DIRS = [
+    { id: 'editorial', name: 'Éditorial', color: '#ff4f1f',
+      desc: 'Une page de magazine. Texte aligné à gauche, très grand et serré ; filets fins et petites étiquettes en capitales. Le barillet est une illustration à côté du texte, l’échelle des quatre crans reste visible. Accent vermillon : franc, lisible à la télévision, mais c’est aussi la couleur la plus chargée des trois.' },
+    { id: 'cadran', name: 'Cadran', color: '#2f5bff',
+      desc: 'Un instrument de mesure. Tout est centré, le barillet occupe le milieu de l’écran, le texte est en graisse fine. La progression est un simple trait ; aucun libellé superflu. Accent cobalt : neutre, froid, sans connotation de danger. La plus calme et la plus « Apple ».' },
+    { id: 'dialogue', name: 'Dialogue', color: '#00a88f',
+      desc: 'Une conversation avec Phi. Le personnage est en buste ; ses répliques s’empilent, les anciennes passent au gris. Les choix sont vos répliques. Le barillet arrive dans la conversation, dans un cadre. Accent vert d’eau. La plus proche du ton « Il était une fois… » et de l’émission, où Phi parle à l’antenne.' },
+  ];
+  const SCREENS = [['accueil', 'Accueil'], ['cran', 'Un cran du barillet'], ['resultats', 'Résultats']];
+  const root = document.getElementById('dirs');
+  DIRS.forEach((d, k) => {
+    const s = document.createElement('section');
+    s.innerHTML = `<h2><i style="background:${d.color}"></i>${k + 1}. ${d.name}</h2><p class="desc">${d.desc}</p>`;
+    SCREENS.forEach(([f, label]) => {
+      const url = `${d.id}/${f}.html`;
+      const extra = f === 'cran'
+        ? ' · crans : ' + [1, 2, 3, 4].map((c) => `<a href="${url}?cran=${c}" target="_blank">${c}</a>`).join(' ')
+        : '';
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `<h3>${label}</h3>
+        <figure><div class="frame phone"><iframe loading="lazy" src="${url}?still=1"></iframe></div>
+          <figcaption><a href="${url}" target="_blank">Téléphone</a>${extra}</figcaption></figure>
+        <figure><div class="frame tv"><iframe loading="lazy" src="${url}?still=1&screen=1"></iframe></div>
+          <figcaption><a href="${url}?screen=1" target="_blank">16:9 · 1920×1080 · sombre</a></figcaption></figure>`;
+      s.append(row);
+    });
+    root.append(s);
+  });
+</script>
+</body>
+</html>

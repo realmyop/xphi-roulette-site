@@ -1,0 +1,68 @@
+/* ==========================================================================
+   Identité Xphi — feuille commune aux deux pages (planche et présentation).
+   Salle obscure comme le film ; la craie est l'encre ; le laiton est au joueur.
+   Inter servie en local, aucun appel externe.
+   ========================================================================== */
+@font-face {
+  font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: block;
+  src: url("../shared/fonts/inter-latin-opsz-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2190-2199, U+2212, U+2215;
+}
+@font-face {
+  font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: block;
+  src: url("../shared/fonts/inter-latin-ext-opsz-normal.woff2") format("woff2");
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Inter"; font-style: italic; font-weight: 100 900; font-display: block;
+  src: url("../shared/fonts/inter-latin-opsz-italic.woff2") format("woff2");
+}
+
+:root {
+  --nuit: #0c0b0d;      /* la salle */
+  --nuit-2: #151417;
+  --nuit-3: #1e1c20;
+  --craie: #f1e9dc;     /* l'encre du narrateur */
+  --craie-2: #c9c0b2;
+  --gris: #8f877b;
+  --filet: #2b2826;
+  --papier: #f4eee4;    /* fond clair */
+  --encre: #17151a;
+  --labo: #8fc0d6;      /* la petite lumière du narrateur */
+  --joueur: #d7a548;    /* le laiton : vos choix, et rien d'autre */
+  --tableau: #1f2a27;   /* tableau noir de la version craie */
+  --bg: var(--nuit); --ink: var(--craie);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: "Inter", system-ui, sans-serif; font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  font-size: 17px; line-height: 1.55;
+}
+a { color: inherit; text-underline-offset: .2em; text-decoration-thickness: 1px; }
+img { display: block; max-width: 100%; }
+.clair { --bg: var(--papier); --ink: var(--encre); background: var(--bg); color: var(--ink); }
+.sombre { --bg: var(--nuit); --ink: var(--craie); background: var(--bg); color: var(--ink); }
+
+/* --- Logos ---------------------------------------------------------------- */
+[data-logo], [data-phi] { display: inline-block; line-height: 0; color: var(--ink); }
+[data-logo] svg, [data-phi] svg { overflow: visible; }
+.sym { width: 100%; height: auto; display: block; }
+.lock { display: inline-flex; align-items: center; gap: .32em; line-height: 1; }
+.lock .sym { width: 1.28em; height: 1.28em; flex: none; }
+.mot.txt { font-size: .74em; letter-spacing: -.045em; line-height: 1; }
+.mot.txt[data-k="objectif"] { letter-spacing: .02em; }
+.lock-craie { gap: .12em; }
+.lock-craie .sym { width: 1.3em; height: 1.3em; }
+.lock-craie .mot { height: .86em; width: auto; }
+.lock-antenne { gap: 0; }
+.lock-antenne .mot { height: 1em; width: auto; color: inherit; }
+.lock-antenne .sym { width: 1em; height: 1em; }
+[data-logo] svg.mot { overflow: visible; }
+
+.etiquette {
+  font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--gris);
+}
+.joueur { color: var(--joueur); }

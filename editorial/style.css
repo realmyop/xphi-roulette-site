@@ -1,0 +1,90 @@
+/* ==========================================================================
+   Direction 1 — « Éditorial »
+   Une page de magazine : texte aligné à gauche, très grand et très serré,
+   filets fins, petites étiquettes grises en capitales. Le barillet est une
+   illustration posée à côté du texte. Accent : vermillon.
+   ========================================================================== */
+:root { --accent: #ff4f1f; }
+html.screen { --accent: #ff5a2c; }
+
+.meta {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--grey);
+  padding-bottom: 10px; border-bottom: 1px solid var(--ink);
+}
+.meta b { color: var(--ink); font-weight: 600; }
+
+.byline { display: flex; align-items: center; gap: 12px; margin: 28px 0 0; }
+.byline .phi { width: 52px; }
+.byline span { font-size: 13px; color: var(--grey); line-height: 1.35; }
+.byline .phi { color: var(--ink); }
+.byline span b { color: var(--ink); font-weight: 600; display: block; }
+
+.say { margin: 22px 0 0; font-size: 34px; line-height: 1.08; letter-spacing: -.028em; font-weight: 640; }
+.say .soft { color: var(--grey); }
+.aside { margin: 18px 0 0; font-size: 17px; line-height: 1.4; color: var(--ink-2); max-width: 30ch; }
+
+.push { flex: 1; min-height: 24px; }
+.btn {
+  display: block; width: 100%; height: 56px; border: 1.5px solid var(--ink); border-radius: 0;
+  background: transparent; font-size: 17px; font-weight: 600; letter-spacing: -.01em; cursor: pointer;
+  transition: background var(--slow) var(--ease), color var(--slow) var(--ease);
+}
+.btn.solid { background: var(--ink); color: var(--bg); }
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.note { margin: 14px 0 0; font-size: 12px; color: var(--grey); }
+.rule { border-top: 1px solid var(--line); margin: 22px 0 0; }
+
+/* Cran */
+.cran-art { margin: 26px 0 0; width: 62%; max-width: 230px; }
+.risk { margin: 22px 0 0; font-size: 58px; font-weight: 720; letter-spacing: -.045em; line-height: .95;
+  font-variant-numeric: tabular-nums; }
+.risk-phrase { margin: 8px 0 0; font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+.story { margin: 12px 0 0; font-size: 17px; line-height: 1.4; color: var(--ink-2); }
+.ladder { margin: 22px 0 18px; }
+
+/* Résultats */
+.title { margin: 22px 0 0; font-size: 30px; line-height: 1.05; letter-spacing: -.03em; font-weight: 680; }
+.lede { margin: 8px 0 0; font-size: 15px; line-height: 1.4; color: var(--grey); }
+.chart-wrap { margin: 22px 0 0; }
+.caption { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--line);
+  font-size: 15px; line-height: 1.4; }
+.caption small { display: block; color: var(--grey); font-size: 12px; margin-top: 6px; }
+.chart .c-line { stroke-width: 1.6; }
+
+/* --- Écran 16:9 ----------------------------------------------------------- */
+html.screen .meta { font-size: 18px; padding-bottom: 18px; }
+html.screen .byline { margin-top: 64px; gap: 22px; }
+html.screen .byline .phi { width: 96px; }
+html.screen .byline span { font-size: 22px; }
+html.screen .say { font-size: 76px; margin-top: 40px; max-width: 19ch; }
+html.screen .aside { font-size: 30px; margin-top: 34px; max-width: 34ch; }
+html.screen .note { font-size: 20px; }
+html.screen .btn { height: 96px; font-size: 30px; border-width: 2px; }
+html.screen .start { width: 420px; }
+
+html.screen .cran-grid { flex: 1; display: grid; grid-template-columns: 520px 1fr; gap: 90px; align-items: center; }
+html.screen .cran-art { width: 520px; max-width: none; margin: 0; }
+html.screen .risk { font-size: 150px; margin-top: 0; }
+html.screen .risk-phrase { font-size: 44px; margin-top: 18px; }
+html.screen .story { font-size: 30px; margin-top: 18px; }
+html.screen .choices { margin-top: 54px; gap: 18px; }
+html.screen .ladder { margin: 0; gap: 26px; justify-content: flex-start; padding-top: 22px; border-top: 1px solid var(--line); }
+html.screen .ladder-item { flex: 0 0 120px; font-size: 18px; }
+html.screen .ladder-item .barillet { max-width: 70px; }
+
+html.screen .title { font-size: 72px; margin-top: 44px; }
+html.screen .lede { font-size: 26px; }
+html.screen .chart-wrap { margin-top: 30px; }
+html.screen .caption { font-size: 28px; padding-top: 20px; margin-top: 20px; }
+html.screen .caption small { font-size: 20px; }
+html.screen .chart .c-line { stroke-width: 3; }
+
+/* Téléphone : l'échelle des crans en haut, les choix en bas sous le pouce. */
+html:not(.screen) .ladder { order: 1; margin: 16px 0 0; }
+html:not(.screen) .cran-grid { order: 2; flex: 1; display: flex; flex-direction: column; }
+html:not(.screen) .cran-grid > div:last-child { flex: 1; display: flex; flex-direction: column; }
+html:not(.screen) .cran-grid + .push { display: none; }
+html:not(.screen) .choices { margin-top: 24px; }
+html:not(.screen) .cran-art { margin-top: 22px; }

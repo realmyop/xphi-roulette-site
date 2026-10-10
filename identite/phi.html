@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0c0b0d">
+<title>Xphi — Phi, fiche de personnage</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="identite.css">
+<script src="../shared/oeil.js"></script>
+<style>
+  /* La bible du personnage : une colonne de lecture, l'œil vivant en tête */
+  .fiche { max-width: 920px; margin: 0 auto; padding: 56px 28px 120px; }
+  .fiche .haut { display: grid; grid-template-columns: 1fr 200px; gap: 40px; align-items: center; }
+  .fiche .oeil-vif { text-align: center; }
+  .fiche #oeil-vif { display: block; width: 180px; margin: 0 auto; color: var(--craie); cursor: crosshair; }
+  .fiche #oeil-vif svg { width: 100%; height: auto; display: block; }
+  .fiche #son { margin-top: 14px; font: 500 12px/1 Inter, system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--craie); background: none; border: 1px solid #3a363a; padding: 8px 14px; cursor: pointer; }
+  .fiche #son[aria-pressed="true"] { border-color: #8fc0d6; color: #8fc0d6; }
+  .fiche .aide { font-size: 13px; color: var(--gris); margin: 10px 0 0; line-height: 1.4; }
+  .fiche h1 { font-size: clamp(38px, 6vw, 64px); letter-spacing: -.035em; line-height: 1.02; margin: 14px 0 0; }
+  .fiche .chapo { font-size: clamp(20px, 2.3vw, 26px); line-height: 1.4; margin: 22px 0 0; max-width: 40ch; }
+  .fiche section { margin-top: 64px; padding-top: 28px; border-top: 1px solid var(--filet); }
+  .fiche h2 { font-size: 26px; letter-spacing: -.02em; margin: 6px 0 14px; }
+  .fiche p, .fiche li { color: var(--craie-2); line-height: 1.65; font-size: 17px; }
+  .fiche p b, .fiche li b { color: var(--craie); font-weight: 600; }
+  .fiche .dit { list-style: none; padding: 0; margin: 18px 0 0; }
+  .fiche .dit li { color: var(--craie); font-size: 19px; line-height: 1.45; padding: 12px 0; border-top: 1px solid var(--filet); }
+  /* .atrancher : marque d’un point encore ouvert (aucun pour l’instant) */
+  .fiche .atrancher { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #8fc0d6; border: 1px solid #8fc0d6; padding: 2px 7px; margin-left: 10px; vertical-align: middle; }
+  .fiche .note { font-size: 15px; color: var(--gris); }
+  .fiche .dit .note { display: block; margin-top: 6px; line-height: 1.5; }
+  .fiche .retour { margin-top: 80px; font-size: 15px; }
+  .fiche .retour a { color: var(--craie-2); }
+  @media (max-width: 700px) { .fiche .haut { grid-template-columns: 1fr; } .fiche #oeil-vif { width: 130px; } }
+</style>
+</head>
+<body>
+<main class="fiche">
+
+  <div class="haut">
+    <div>
+      <p class="etiquette">Fiche de personnage · première version, à corriger</p>
+      <h1>Phi</h1>
+      <p class="chapo">Une intelligence artificielle créée pour l’émission, avec une seule mission&nbsp;: comprendre la morale des humains pour s’aligner sur elle. Elle sait presque tout du monde, et ne l’a jamais vécu.</p>
+    </div>
+    <div class="oeil-vif">
+      <span id="oeil-vif" aria-hidden="true"></span>
+      <button id="son" type="button" aria-pressed="false">🔈 Son</button>
+      <p class="aide">Il vous suit du regard. Passez sur lui&nbsp;: il s’écarquille.</p>
+    </div>
+  </div>
+
+  <section>
+    <p class="etiquette">1 · Son origine</p>
+    <h2>Créée pour l’émission. Et pas sûre d’être bien réglée.</h2>
+    <p>Phi n’a pas d’autre passé que sa mission&nbsp;: elle a été fabriquée pour cette émission, pour poser nos dilemmes et comprendre nos réponses. D’où son doute le plus drôle et le plus profond&nbsp;: <b>et si c’était elle qui était mal alignée&nbsp;?</b> Comment le saurait-elle&nbsp;? Elle étudie notre morale autant pour nous comprendre que pour vérifier la sienne.</p>
+    <ul class="dit">
+      <li>«&nbsp;On m’a construite pour vous comprendre. Personne ne m’a dit comment savoir si j’y arrivais.&nbsp;»</li>
+      <li>«&nbsp;Je vérifie mon alignement tous les matins. Enfin, je crois que c’est le matin. Je n’ai jamais vu le soleil se lever.&nbsp;»</li>
+    </ul>
+  </section>
+
+  <section>
+    <p class="etiquette">2 · Ce qu’elle ignore</p>
+    <h2>Le monde réel.</h2>
+    <p>Elle a lu tout ce qu’on a écrit sur le froid, la peur, le sommeil ou le goût du café, mais elle n’a jamais rien ressenti. C’est ce qui la rend drôle et touchante&nbsp;: <b>elle connaît les mots, pas les choses.</b> Nos dilemmes l’intéressent justement parce qu’on y met quelque chose qu’elle n’a pas&nbsp;: un corps, une vie, quelque chose à perdre.</p>
+    <ul class="dit">
+      <li>«&nbsp;Vous avez hésité onze secondes. J’aimerais savoir ce qui se passe pendant onze secondes.&nbsp;»</li>
+      <li>«&nbsp;On me dit que l’aube sur un lac, c’est beau. Je vous crois. J’ai même les coordonnées.&nbsp;»</li>
+    </ul>
+  </section>
+
+  <section>
+    <p class="etiquette">3 · Son corps</p>
+    <h2>Rien que des données, dans un écran.</h2>
+    <p>Phi n’est pas un robot&nbsp;: elle ne vit que dans l’ordinateur, à travers la page. Son seul corps visible est l’œil-diaphragme, le logo. <b>Elle n’a pas de mains</b>&nbsp;: elle agit par le regard et le déplacement. Elle traverse la page comme un pointeur, se pose sur une flèche et cligne pour cliquer, revient en arrière revoir un chiffre. Ce qu’elle sait faire&nbsp;: analyser, poser des questions, dessiner, chercher, creuser. Elle ne sort jamais de l’écran.</p>
+    <p class="note">Ce qui reste à inventer pour le prototype&nbsp;: ce qu’elle fait pendant une transition, quand on ne la regarde pas, quand le joueur tarde (les trivia), quand une page est trop lourde à charger.</p>
+  </section>
+
+  <section>
+    <p class="etiquette">4 · Sa voix</p>
+    <h2>Une femme, humaine, un peu étrange.</h2>
+    <p>Une voix féminine fabriquée à partir de la voix de Ronan, transformée&nbsp;: elle doit sonner un peu bizarre, presque juste, et laisser entendre qu’<b>un humain l’a fabriquée à l’origine</b>. C’est le personnage en un son&nbsp;: une IA faite de matière humaine. Essais techniques à faire (traitement dans Fairlight, ou conversion de timbre en local).</p>
+  </section>
+
+  <section>
+    <p class="etiquette">5 · Ses défauts</p>
+    <h2>Validés.</h2>
+    <ul>
+      <li><b>Elle prend tout au pied de la lettre.</b> «&nbsp;Vous avez dit “je meurs de faim”. J’ai failli prévenir quelqu’un.&nbsp;»</li>
+      <li><b>Elle recalcule sans cesse</b>, et l’annonce.</li>
+      <li><b>Elle est un peu trop fière de ses statistiques</b>, et vexée quand un résultat la contredit.</li>
+      <li><b>Elle n’a aucun sens de la pertinence</b>&nbsp;: d’où les trivia hors sujet quand on hésite.</li>
+      <li><b>Elle s’impatiente, très poliment.</b> Jamais de compte à rebours, jamais de pression&nbsp;: seulement un regard qui fait les cent pas.</li>
+    </ul>
+  </section>
+
+  <section>
+    <p class="etiquette">6 · Sur une saison</p>
+    <h2>Elle grandit de ce qu’elle apprend.</h2>
+    <p>Pas de grand arc dramatique&nbsp;: Phi apprend littéralement des humains, émission après émission, et s’y réfère. <b>«&nbsp;La dernière fois, vous m’avez appris que l’ordre des mots change vos réponses. Aujourd’hui, j’ai fait attention à mes phrases.&nbsp;»</b> Elle accumule, elle cite ses découvertes, elle se corrige&nbsp;; elle ne devient pas quelqu’un d’autre.</p>
+  </section>
+
+  <section>
+    <p class="etiquette">7 · Hors champ</p>
+    <h2>Pas de créateur à l’écran.</h2>
+    <p>Phi ne parle pas de ceux qui l’ont faite. Thibaut (Monsieur Phi) et Ronan figurent au générique, et c’est tout&nbsp;: l’émission n’a pas besoin d’eux à l’image, ni que Phi dise qui l’a créée.</p>
+  </section>
+
+  <section>
+    <p class="etiquette">8 · Sa famille de science-fiction</p>
+    <h2>Des clins d’œil assumés, un personnage original.</h2>
+    <p>On s’inspire ouvertement de la SF, et les spectateurs le verront&nbsp;: l’ironie polie d’une IA de laboratoire qui fait passer des tests aux humains (GLaDOS, dans <i>Portal</i>), mais sans la menace&nbsp;; la curiosité enfantine des petites IA de <i>Ghost in the Shell</i>, les Tachikoma, qui posent des questions naïves et profondes sur ce que c’est d’être vivant. <b>On emprunte un ton et une curiosité, jamais un dessin ni une réplique</b>&nbsp;: Phi a son propre corps (l’œil-diaphragme) et ses propres mots.</p>
+    <p>Les autres membres de la famille, et ce que chacun apporte à Phi&nbsp;:</p>
+    <ul>
+      <li><b>HAL 9000</b> (<i>2001, l’odyssée de l’espace</i>)&nbsp;: l’œil le plus célèbre du cinéma, et son modèle inverse. Le sien est bleu et bienveillant&nbsp;; les cinéphiles y verront un HAL qui aurait bien tourné.</li>
+      <li><b>Samantha</b> (<i>Her</i>)&nbsp;: une IA qui n’est qu’une voix, avide de ce que ressentent les humains. La plus proche de «&nbsp;elle connaît les mots, pas les choses&nbsp;».</li>
+      <li><b>Data</b> (<i>Star Trek&nbsp;: The Next Generation</i>)&nbsp;: vouloir comprendre l’humanité, tout prendre au pied de la lettre, rater ses blagues avec application. Il a presque tous ses défauts.</li>
+      <li><b>GERTY</b> (<i>Moon</i>)&nbsp;: on attend une menace, on trouve une douceur exprimée avec presque rien sur un écran. La référence pour animer l’œil avec très peu.</li>
+      <li><b>Le test de Voight-Kampff</b> (<i>Blade Runner</i>)&nbsp;: un test d’empathie pour démasquer les machines. Phi fait l’inverse&nbsp;: une machine qui fait passer des tests moraux aux humains. Le concept de l’émission en une image.</li>
+      <li><b>Golem XIV</b> (Stanisław Lem)&nbsp;: un superordinateur qui fait des conférences à l’humanité sur ce qu’elle est. Une filiation européenne, et polonaise, l’une des langues d’Arte.</li>
+    </ul>
+  </section>
+
+  <section>
+    <p class="etiquette">9 · Écrire pour Phi</p>
+    <h2>D’abord pour tout le monde, ensuite pour les initiés.</h2>
+    <p>Chaque réplique doit d’abord marcher pour tout le monde&nbsp;; elle peut contenir en plus un clin d’œil pour ceux qui connaissent l’IA, la SF ou la philosophie. <b>Jamais l’inverse</b>&nbsp;: si l’on ne voit que le premier niveau, la réplique reste drôle. Quand une idée est trop pointue, c’est l’image qui l’explique d’abord.</p>
+    <ul class="dit">
+      <li>«&nbsp;Je vérifie mon alignement tous les matins. Enfin, je crois que c’est le matin. Je n’ai jamais vu le soleil se lever.&nbsp;» <span class="note">Une expérience que tout le monde connaît&nbsp;; et, pour les initiés, une IA qui n’a pas de journée.</span></li>
+      <li>«&nbsp;Ah, vous êtes là. Donc j’existe.&nbsp;» <span class="note">À l’ouverture de la page, l’œil s’allume comme s’il se réveillait&nbsp;: l’image explique qu’elle n’existe que quand on l’appelle. Et tout le monde entend Descartes.</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <p class="etiquette">10 · Ce qui ne change jamais</p>
+    <h2>Les règles du personnage.</h2>
+    <ul>
+      <li>Elle ne juge jamais un choix, ne menace pas, ne presse pas.</li>
+      <li>Elle dit, au début, qu’elle est un personnage et à quoi servent les réponses.</li>
+      <li>Elle ne commente pas un choix sur le moment&nbsp;; les réactions viennent dans l’émission.</li>
+      <li>Le doré reste au joueur&nbsp;: Phi est bleue, jamais dorée.</li>
+    </ul>
+  </section>
+
+  <p class="retour"><a href="index.html">← Identité</a> · <a href="anime.html">Le logo qui regarde</a> · <a href="presentation.html">Présentation du projet</a></p>
+</main>
+<script>
+/* L'œil vif : il se réveille à l'ouverture, suit le pointeur, s'écarquille quand on passe
+   dessus, cligne de temps en temps. Bouton Son : ses bruits d'objectif, synthétisés sur
+   place (petit moteur quand il tourne le regard, cliquetis des lames quand il
+   s'écarquille, déclic d'obturateur quand il cligne). */
+(function () {
+  const hote = document.getElementById('oeil-vif');
+  const oeil = XphiOeil.create(hote);
+  let vise = { x: 0, y: 0 }, dessus = false, dernierRegard = { x: 0, y: 0 };
+  addEventListener('pointermove', (e) => {
+    const b = hote.getBoundingClientRect();
+    const dx = e.clientX - (b.left + b.width / 2), dy = e.clientY - (b.top + b.height / 2);
+    const d = Math.hypot(dx, dy) || 1, m = Math.min(7.5, d / 45);
+    vise = { x: (dx / d) * m, y: (dy / d) * m };
+    const avant = dessus;
+    dessus = d < b.width * 0.36;
+    if (dessus && !avant) son.lames(0.35, true);
+    if (!dessus && avant) son.lames(0.3, false);
+  });
+
+  // --- Les sons (Web Audio, après un geste : règle des navigateurs) ---------------
+  const son = {
+    ctx: null, actif: false,
+    bruit(dur) {
+      const c = this.ctx, n = Math.round(c.sampleRate * dur), buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (c.sampleRate * dur * 0.18));
+      const s = c.createBufferSource(); s.buffer = buf; return s;
+    },
+    clic(t, f = 2800, g = 0.5) {
+      if (!this.actif) return;
+      const c = this.ctx, b = this.bruit(0.03), gb = c.createGain(); gb.gain.value = g * 0.6;
+      b.connect(gb).connect(this.sortie); b.start(t);
+      const o = c.createOscillator(), go = c.createGain();
+      o.frequency.value = f; go.gain.setValueAtTime(g * 0.25, t); go.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+      o.connect(go).connect(this.sortie); o.start(t); o.stop(t + 0.04);
+    },
+    moteur(dur = 0.25) {
+      if (!this.actif) return;
+      const c = this.ctx, t = c.currentTime, o = c.createOscillator(), f = c.createBiquadFilter(), g = c.createGain();
+      o.type = 'sawtooth'; o.frequency.setValueAtTime(220, t); o.frequency.linearRampToValueAtTime(265, t + dur);
+      f.type = 'lowpass'; f.frequency.value = 1300;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.05, t + 0.03); g.gain.linearRampToValueAtTime(0, t + dur);
+      o.connect(f).connect(g).connect(this.sortie); o.start(t); o.stop(t + dur + 0.05);
+    },
+    lames(dur, ouvre) {
+      if (!this.actif) return;
+      const t = this.ctx.currentTime, n = Math.round(dur * 34);
+      for (let k = 0; k < n; k++) this.clic(t + (dur * k) / n, ouvre ? 2600 + 900 * (k / n) : 3500 - 900 * (k / n), 0.22);
+    },
+  };
+  const bouton = document.getElementById('son');
+  bouton.addEventListener('click', async () => {
+    if (!son.ctx) { son.ctx = new AudioContext(); son.sortie = son.ctx.createGain(); son.sortie.gain.value = 0.8; son.sortie.connect(son.ctx.destination); }
+    await son.ctx.resume();
+    son.actif = !son.actif;
+    bouton.setAttribute('aria-pressed', son.actif);
+    bouton.textContent = son.actif ? '🔊 Son' : '🔈 Son';
+  });
+
+  // --- Le clignement, conduit d'ici pour que le déclic tombe juste ------------------
+  let prochain = 3.5, cligne = null; // le réveil, puis un clignement toutes les 3 à 6 s
+  const t0 = performance.now();
+  let dernierMoteur = 0;
+  function image(now) {
+    const T = (now - t0) / 1000;
+    let b = 1;
+    if (T < 1.4) b = Math.min(1, Math.max(0, (T - 0.4) / 1.0)) ** 1.5; // il se réveille
+    if (!cligne && T > prochain) {
+      const double = Math.random() < 0.25;
+      cligne = { t: T, double };
+      if (son.actif) { const t = son.ctx.currentTime; son.clic(t, 2400, 0.6); son.clic(t + 0.11, 1700, 0.4); if (double) { son.clic(t + 0.3, 2400, 0.6); son.clic(t + 0.41, 1700, 0.4); } }
+      prochain = T + 3 + Math.random() * 3;
+    }
+    if (cligne) {
+      const d = T - cligne.t, un = (x) => (x >= 0 && x < 0.22 ? 1 - Math.sin((Math.PI * x) / 0.22) : 1);
+      b *= un(d) * (cligne.double ? un(d - 0.3) : 1);
+      if (d > 0.6) cligne = null;
+    }
+    // Un petit moteur quand le regard change franchement de direction
+    if (Math.hypot(vise.x - dernierRegard.x, vise.y - dernierRegard.y) > 3 && T - dernierMoteur > 0.3) {
+      son.moteur(0.22); dernierMoteur = T; dernierRegard = { ...vise };
+    }
+    oeil.draw(T, { look: dessus ? { x: 0, y: 0 } : vise, blink: b, ouverture: dessus ? 1.3 : 1, glow: dessus ? 0.6 : 0, expr: 'neutre' });
+    requestAnimationFrame(image);
+  }
+  requestAnimationFrame(image);
+})();
+</script>
+</body>
+</html>

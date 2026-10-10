@@ -1,0 +1,169 @@
+/* ==========================================================================
+   Socle commun aux trois directions de maquettes.
+   - Police : Inter servie en local (aucun appel à un service tiers).
+   - Deux formats, un seul code :
+       · par défaut  → téléphone vertical, fond clair ;
+       · ?screen=1   → scène fixe 1920×1080, mode sombre, sans curseur
+                       (mise à l'échelle pour tenir dans la fenêtre).
+   - Chaque direction redéfinit les jetons de couleur et la mise en page.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/inter-latin-opsz-normal.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2190-2199, U+2212, U+2215;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/inter-latin-ext-opsz-normal.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/inter-latin-opsz-italic.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: block;
+}
+
+/* Jetons par défaut (mode clair, téléphone). Les directions surchargent --accent. */
+:root {
+  --bg: #ffffff;
+  --ink: #0a0a0a;
+  --ink-2: #3c3c3c;
+  --grey: #8a8a8a;
+  --line: #e4e4e4;
+  --accent: #ff4f1f;
+  --accent-ink: #ffffff; /* texte posé sur l'accent */
+  --slow: 1200ms;        /* durée des fondus : lente et discrète */
+  --ease: cubic-bezier(.4, 0, .2, 1);
+}
+
+/* Mode écran : même esthétique, inversée. */
+html.screen {
+  --bg: #0b0b0b;
+  --ink: #f2f2f2;
+  --ink-2: #c4c4c4;
+  --grey: #7d7d7d;
+  --line: #262626;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Inter", system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button { font: inherit; color: inherit; }
+
+/* --- Scène --------------------------------------------------------------- */
+/* Téléphone : toute la hauteur, colonne étroite. */
+.stage {
+  position: relative;
+  min-height: 100svh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 22px 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Écran 16:9 : scène fixe, centrée et mise à l'échelle par format.js. */
+html.screen, html.screen body { height: 100%; overflow: hidden; }
+/* Le curseur se cache quand la souris ne bouge plus (mockup.js), et revient dès qu'elle bouge */
+html.screen.idle, html.screen.idle body, html.screen.idle * { cursor: none !important; }
+html.screen .stage {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 1920px; height: 1080px;
+  max-width: none; min-height: 0;
+  margin: 0;
+  padding: 0;
+  transform: translate(-50%, -50%) scale(var(--fit, 1));
+  transform-origin: center center;
+}
+/* Zone centrale commune : c'est là que vivent les éléments clés
+   (texte du personnage, barillet, choix) dans les deux formats. */
+html.screen .safe {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 1200px; height: 920px;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column;
+}
+.safe { flex: 1; display: flex; flex-direction: column; }
+
+/* --- Apparition lente (démonstration du ton) ----------------------------- */
+.reveal { opacity: 0; transform: translateY(6px); animation: reveal var(--slow) var(--ease) forwards; }
+.reveal.d1 { animation-delay: 300ms; }
+.reveal.d2 { animation-delay: 900ms; }
+.reveal.d3 { animation-delay: 1500ms; }
+.reveal.d4 { animation-delay: 2100ms; }
+@keyframes reveal { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { animation: none; opacity: 1; transform: none; }
+}
+/* Dans l'index, on fige tout pour comparer d'un coup d'œil. */
+html.still .reveal { animation: none; opacity: 1; transform: none; }
+
+/* Bandeau « données fictives » : toujours visible, jamais dans l'accent. */
+.fake-data {
+  display: inline-block;
+  font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  border: 1px solid var(--ink); color: var(--ink);
+  padding: 4px 8px;
+}
+html.screen .fake-data { font-size: 16px; padding: 6px 12px; }
+
+/* --- Barillet : styles par défaut ---------------------------------------- */
+.barillet { display: block; width: 100%; height: auto; overflow: visible; }
+.barillet .b-guide { fill: none; stroke: var(--line); }
+.barillet .b-axis  { fill: none; stroke: var(--ink); }
+.barillet .b-mark  { stroke: var(--ink); stroke-linecap: round; }
+.barillet .b-ch    { fill: none; stroke: var(--ink); }
+.barillet .b-dot   { fill: var(--ink); }
+.barillet .b-bullet { fill: var(--accent); stroke: var(--accent); }
+.barillet .b-halo  { fill: none; stroke: var(--accent); }
+
+/* --- Personnage ----------------------------------------------------------- */
+.phi { display: inline-block; color: var(--ink); line-height: 0; }
+.phi svg { width: 100%; height: auto; }
+.phi .p-fill { fill: currentColor; stroke: none; }
+
+/* --- Graphique : styles par défaut ---------------------------------------- */
+.chart { display: block; width: 100%; height: auto; overflow: visible; font-family: inherit; }
+.chart .c-grid { stroke: var(--line); stroke-width: 1; }
+.chart .c-axis { stroke: var(--grey); stroke-width: 1; }
+.chart .c-tick { fill: var(--grey); font-variant-numeric: tabular-nums; }
+.chart .c-line { stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart .c-line.arme { stroke: var(--ink); }
+.chart .c-line.conception { stroke: var(--grey); }
+.chart .c-pt.arme { fill: var(--ink); }
+.chart .c-pt.conception { fill: var(--grey); }
+.chart .c-label { font-weight: 600; }
+.chart .c-label.arme { fill: var(--ink); }
+.chart .c-label.conception { fill: var(--grey); }
+.chart .c-sub { fill: var(--grey); font-size: .85em; }
+.chart .c-you { fill: var(--accent); stroke: var(--bg); stroke-width: 2; }
+.chart .c-you-label { fill: var(--accent); font-weight: 600; }
+
+/* --- Échelle des crans ---------------------------------------------------- */
+.ladder { display: flex; gap: 10px; }
+.ladder-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  font-size: 10px; color: var(--grey); font-variant-numeric: tabular-nums; }
+.ladder-item .barillet { width: 100%; max-width: 44px; }
+.ladder-item.past { opacity: .35; }
+.ladder-item.next { opacity: .35; }
+.ladder-item.now { color: var(--ink); font-weight: 600; }
+.ladder-item:not(.now) .b-bullet, .ladder-item:not(.now) .b-halo { fill: var(--grey); stroke: var(--grey); }
+.ladder-item:not(.now) .b-halo { fill: none; }
