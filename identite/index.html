@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0c0b0d">
+<title>Xphi — Identité</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="identite.css">
+<link rel="stylesheet" href="planche.css">
+<script src="marques.js"></script>
+<script src="../shared/oeil.js"></script>
+</head>
+<body>
+
+<header class="tete">
+  <div class="bandeau">
+    <span data-logo="objectif" class="mini-logo"></span>
+    <nav><a href="#logo">Le logo</a><a href="#narrateur">Le narrateur</a><a href="#ton">Le ton</a><a href="anime.html">Le logo qui regarde</a><a href="phi.html">La fiche de Phi</a><a href="presentation.html">Présentation du projet →</a></nav>
+  </div>
+  <p class="etiquette">Maquette · identité · octobre 2026</p>
+  <div class="tete-oeil"><span data-oeil data-expr="neutre" aria-hidden="true"></span><a href="anime.html">Le logo retenu, vivant →</a></div>
+  <h1>Une identité pour Xphi</h1>
+  <p class="chapo">Quatre pistes de logo, un narrateur et sa façon de parler. Tout est dessiné à la main en SVG, dans la palette du film : la salle obscure, la craie du narrateur, et le laiton, qui reste la couleur du joueur.</p>
+</header>
+
+<!-- =================================================================== -->
+<section id="logo" class="partie">
+  <div class="partie-tete">
+    <span class="num">1</span>
+    <div><h2>Le logo</h2>
+    <p>Une même idée pour les quatre pistes : <b>Xphi</b>, c’est la philosophie expérimentale (« X-Phi »), et la lettre Φ est déjà le visage du narrateur. Chaque piste est montrée sur fond sombre et clair, en petite taille (onglet, icône) et en habillage 16:9 avec le sous-titre de l’émission.</p></div>
+  </div>
+  <div id="pistes"></div>
+</section>
+
+<!-- =================================================================== -->
+<section id="narrateur" class="partie">
+  <div class="partie-tete">
+    <span class="num">2</span>
+    <div><h2>Le narrateur</h2>
+    <p>Phi est une intelligence de laboratoire chargée d’étudier les humains. Elle ne sait pas tout, elle note tout. Elle fait passer des expériences de pensée comme on pose une question à un ami, et nos incohérences l’émerveillent au lieu de la décevoir. C’est l’observateur naïf des <i>Lettres persanes</i> ou de <i>Micromégas</i> : un regard venu d’ailleurs, poli et curieux, qui ne juge jamais un choix.</p></div>
+  </div>
+
+  <div class="carte-identite">
+    <div class="portrait"><span data-phi="trait" data-expr="curieux" data-parle data-sw="2.2"></span></div>
+    <dl>
+      <dt>Nom</dt><dd>Phi (provisoire). Elle se présente simplement : « Je suis Phi. »</dd>
+      <dt>Ce qu’elle est</dt><dd>Une IA de laboratoire, et un personnage. Elle le dit dès l’écran de consentement.</dd>
+      <dt>Ce qu’elle fait</dt><dd>Raconte, pose les questions, note les réponses, s’étonne. Les arguments restent ceux de Thibaut ; les apartés sont à elle.</dd>
+      <dt>Ce qu’elle aime</dt><dd>Les questions bien posées, les chiffres ronds, les humains qui changent d’avis.</dd>
+      <dt>Ce qu’elle ne fait jamais</dt><dd>Juger, menacer, presser, faire peur, deviner ce que vous pensez.</dd>
+      <dt>Signe distinctif</dt><dd>Un petit voyant bleu au sommet du Φ, qui s’allume quand elle parle. Elle ne porte jamais le laiton : c’est la couleur du joueur.</dd>
+    </dl>
+  </div>
+
+  <h3 class="sous">Trois dessins possibles</h3>
+  <div class="variantes">
+    <article>
+      <div class="scene"><span data-phi="trait" data-expr="neutre" data-parle></span></div>
+      <h4>1. Le trait <small>évolution du Φ-visage actuel</small></h4>
+      <p>On garde le visage d’aujourd’hui et on lui ajoute un seul signe de laboratoire : le <b>voyant</b> au sommet du trait, qui s’allume quand elle parle. Le reste ne change pas : une tête, un trait, deux yeux, une bouche.</p>
+      <p class="pc"><span>Pour</span> continuité avec les maquettes, se dessine en 4 traits, s’anime facilement (bouche, voyant).<br><span>Contre</span> le plus sage des trois ; « IA » ne se lit que grâce au voyant et aux textes.</p>
+    </article>
+    <article>
+      <div class="scene"><span data-phi="loupe" data-expr="neutre"></span></div>
+      <h4>2. La loupe <small>le cercle devient une lentille</small></h4>
+      <p>Le Φ est une loupe : le cercle est la lentille, le bas du trait devient le manche. Phi est littéralement un instrument d’observation. Quand elle est curieuse, l’œil derrière le verre grossit.</p>
+      <p class="pc"><span>Pour</span> on comprend tout de suite « elle nous étudie » ; un gag visuel par expression.<br><span>Contre</span> la loupe évoque aussi le détective ; le Φ se lit moins.</p>
+    </article>
+    <article>
+      <div class="scene"><span data-phi="nuage" data-expr="neutre"></span></div>
+      <h4>3. Le nuage <small>fait de vos réponses</small></h4>
+      <p>Phi est faite de points, disposés comme le barillet de mille chambres. L’idée : une IA qui se compose de toutes les réponses reçues. À l’antenne, les points peuvent se détacher pour devenir les graphiques.</p>
+      <p class="pc"><span>Pour</span> le lien le plus fort avec les résultats ; très beau en grand, à l’écran.<br><span>Contre</span> fragile en petit ; plus coûteuse à animer.</p>
+    </article>
+  </div>
+
+  <h3 class="sous">Ses expressions</h3>
+  <div class="expressions">
+    <div class="ex-tete"><span></span><span>Neutre</span><span>Curieuse</span><span>Malicieuse</span><span>Émue</span></div>
+    <div class="ex-ligne" data-var="trait"><b>Le trait</b></div>
+    <div class="ex-ligne" data-var="loupe"><b>La loupe</b></div>
+    <div class="ex-ligne" data-var="nuage"><b>Le nuage</b></div>
+    <p class="note">Neutre : elle raconte. Curieuse : avant un choix, ou devant une réponse inattendue. Malicieuse : les apartés, les chiffres qui se contredisent. Émue : quand quelqu’un explique sa réponse, et à la fin. L’émotion ne dépend jamais du choix fait : la même expression suit « oui » et « non ».</p>
+  </div>
+
+  <h3 class="sous">Palette</h3>
+  <div class="palette">
+    <div style="--c:#0c0b0d"><i></i><b>Nuit</b><span>#0c0b0d</span><em>La salle, le fond de l’antenne.</em></div>
+    <div style="--c:#f1e9dc"><i></i><b>Craie</b><span>#f1e9dc</span><em>Le trait de Phi, son écriture, le texte.</em></div>
+    <div style="--c:#8f877b"><i></i><b>Cendre</b><span>#8f877b</span><em>Ce qui est passé, les autres joueurs.</em></div>
+    <div style="--c:#8fc0d6"><i></i><b>Lumière de labo</b><span>#8fc0d6</span><em>Le voyant, la larme, rien d’autre. Toujours petit.</em></div>
+    <div style="--c:#d7a548" class="reserve"><i></i><b>Laiton</b><span>#d7a548</span><em>Réservé au joueur : votre balle, votre point, votre choix. Jamais Phi.</em></div>
+    <div style="--c:#f4eee4"><i></i><b>Papier</b><span>#f4eee4</span><em>Fond clair (presse, dossier, téléphone de jour).</em></div>
+  </div>
+</section>
+
+<!-- =================================================================== -->
+<section id="ton" class="partie">
+  <div class="partie-tete">
+    <span class="num">3</span>
+    <div><h2>Charte de ton</h2>
+    <p>Phi parle comme on écrit une bonne note de bas de page : précis, court, avec une blague cachée dedans. Le ton est celui de Monsieur Phi ; la politesse est celle d’une invitée qui trouve votre maison fascinante.</p></div>
+  </div>
+
+  <div class="regles">
+    <div><h4>Elle vouvoie, et s’efface</h4><p>« Vous » toujours. Des phrases courtes. Une idée par réplique. Le joueur doit avoir le temps de lire avant de choisir.</p></div>
+    <div><h4>Elle ne juge jamais un choix</h4><p>Ni « bon », ni « courageux », ni « dommage ». Elle note, elle remercie, elle compare plus tard, avec tout le monde.</p></div>
+    <div><h4>Elle s’émerveille de nos incohérences</h4><p>Quand deux réponses se contredisent, c’est la meilleure nouvelle de sa journée. Jamais une faute, toujours une découverte.</p></div>
+    <div><h4>Elle est drôle à ses dépens</h4><p>L’humour vient de sa position d’observatrice un peu maladroite, pas du joueur ni du sujet. On ne plaisante jamais sur le bébé, le risque ou la mort.</p></div>
+    <div><h4>Elle ne menace pas, ne presse pas</h4><p>Pas de compte à rebours, pas de « vous n’avez pas le choix », pas de sous-entendus sur ce qui arrivera au joueur. Rien de sinistre.</p></div>
+    <div><h4>Elle dit ce qu’elle est</h4><p>Un personnage, écrit par une équipe ; une expérience, menée pour une émission et pour la recherche. Elle ne prétend pas être consciente.</p></div>
+  </div>
+
+  <div class="ouinon">
+    <div><span class="etiquette">Elle dit</span><p>« Noté. »</p><p>« Beaucoup de gens hésitent ici. »</p><p>« Tiens. Gardez ce chiffre en tête. »</p></div>
+    <div><span class="etiquette">Elle ne dit jamais</span><p class="barre">« Bon choix ! »</p><p class="barre">« Vous êtes sûr ? Vraiment ? »</p><p class="barre">« Je savais que vous diriez ça. »</p></div>
+  </div>
+
+  <h3 class="sous">Dix répliques d’exemple</h3>
+  <div class="repliques" id="repliques"></div>
+
+  <h3 class="sous">À l’écran</h3>
+  <div class="ecrans">
+    <figure class="tv">
+      <img src="img/chambre.png" alt="La chambre du premier acte, image figée">
+      <div class="voile"></div>
+      <div class="soustitre"><span data-phi="trait" data-expr="curieux" data-parle data-small></span><p>Même question, une chambre de moins. Rien d’autre n’a changé. Je le précise, c’est tout.</p></div>
+      <figcaption>16:9, au cœur du film : Phi parle sur l’image figée, son voyant allumé.</figcaption>
+    </figure>
+    <figure class="tel">
+      <div class="tel-img"><img src="img/pilules.png" alt="La paume et les deux gélules"></div>
+      <div class="tel-bas">
+        <div class="soustitre"><span data-phi="trait" data-expr="malicieux" data-small></span><p>Deux pilules. Je ne vous dirai pas laquelle je prendrais : je n’ai pas de main.</p></div>
+        <div class="choix"><span>Bleue</span><span class="pris">Rouge</span></div>
+      </div>
+      <figcaption>Téléphone : le choix du joueur passe au laiton, pas Phi.</figcaption>
+    </figure>
+  </div>
+
+  <aside class="avis">
+    <span class="etiquette">Si l’on devait choisir aujourd’hui</span>
+    <p><b>Logo retenu</b> : la piste A, « L’objectif ». Animée, elle devient le visage de Phi : la pupille regarde, le diaphragme cligne, se plisse, s’écarquille (<a href="anime.html">le logo qui regarde</a>). C’est elle qui parle à côté des sous-titres dans les trois histoires. La piste D, « L’antenne », reste possible comme signature d’écran. <b>Narrateur</b> : l’œil remplace désormais les trois dessins de Phi ci-dessus ; le nuage de points reste une idée pour les séquences de résultats à l’antenne.</p>
+  </aside>
+</section>
+
+<footer class="pied">
+  <span data-logo="antenne"></span>
+  <p>Maquette d’identité · tout est dessiné en SVG dans <code>identite/marques.js</code> · <a href="presentation.html">voir la présentation du projet</a> · <a href="../">retour aux maquettes</a></p>
+</footer>
+
+<script src="planche.js"></script>
+</body>
+</html>

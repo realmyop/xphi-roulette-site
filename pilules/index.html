@@ -1,0 +1,1310 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Les deux pilules</title>
+<style>
+/* Polices hébergées avec la page (SIL OFL), sans aucun appel externe. */
+@font-face { font-family: "DotGothic16"; src: url("fonts/dotgothic16-latin.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+/* Mise en scène : une seule toile 16:9 plein écran, letterbox sur fond nuit ; HUD discret en bas à droite. */
+:root {
+  --nuit: #0c0b0d;
+  --craie: #f1e9dc;
+  --gris: #8f877b;
+  --filet: #2b2826;
+  --labo: #8fc0d6;
+  --joueur: #d7a548;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; margin: 0; background: var(--nuit); color: var(--craie); overflow: hidden; }
+#scene { display: block; width: 100%; height: 100%; object-fit: contain; cursor: pointer; outline: none; }
+#scene:focus-visible { box-shadow: inset 0 0 0 2px var(--labo); }
+#hud {
+  position: fixed; right: 16px; bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end;
+  font: 12px/1 var(--mono); letter-spacing: .08em; color: var(--gris);
+  font-variant-numeric: tabular-nums; pointer-events: none;
+}
+#hud .piste { width: 160px; height: 3px; background: var(--filet); }
+#hud .piste div { height: 100%; width: 0; background: var(--craie); }
+#hud b { color: var(--craie); font-weight: 500; }
+</style>
+
+<canvas id="scene" width="1920" height="1080" tabindex="0" aria-label="Animation interactive : Xphi présente le dilemme des deux pilules, bleue et rouge"></canvas>
+<div id="hud"><span id="etape"></span><span id="aide"></span><div class="piste"><div id="prog"></div></div></div>
+
+<script>
+(() => {
+  // ================================================================ base
+  const W = 1920, H = 1080;
+  const S = /4k/.test(location.hash) ? 2 : 1;
+  const cv = document.getElementById('scene');
+  cv.width = W * S; cv.height = H * S;
+  const ctx = cv.getContext('2d');
+
+  const CRAIE = '#f1e9dc', GRIS = '#8f877b', NUIT = '#0c0b0d', LABO = '#8fc0d6', LAITON = '#d7a548';
+  const BLEU = '#4f86e8', BLEU_TXT = '#6f9cf0', ROUGE = '#d9483b', ROUGE_TXT = '#e2675b', GRIS_FIG = '#a39a8c';
+  const MONO = '"IBM Plex Mono", ui-monospace, monospace';
+  const PIX = '"DotGothic16", "IBM Plex Mono", monospace';
+  const G = '01·:+*#%xφ'.split('');
+
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const eIO = k => (k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+  const eOut = k => 1 - Math.pow(1 - k, 3);
+  const eIn = k => k * k * k;
+  const eBack = k => { const c = 1.70158; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  // un nombre fixe dans [0, 1[ pour chaque entier (le premier tirage de rng(n)) : le hasard du sujet, rejouable, sans rien allouer
+  const hache = n => { let t = (n | 0) + 0x6D2B79F5 | 0; t = Math.imul(t ^ t >>> 15, 1 | t); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const mix = (a, b, k) => { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], k))).join(',')})`; };
+  const rgba = (h, a) => { const [r, g, b] = hex(h); return `rgba(${r},${g},${b},${a})`; };
+
+  // Une valeur animée : set(v, t, durée) part de la valeur qu'elle a à l'instant t.
+  class V {
+    constructor(v) { this.a = v; this.b = v; this.t0 = 0; this.d = 0; }
+    set(v, t, d = .8) { this.a = this.get(t); this.b = v; this.t0 = t; this.d = d; }
+    get(t) { if (this.d <= 0) return this.b; return lerp(this.a, this.b, eIO(seg(t, this.t0, this.t0 + this.d))); }
+  }
+
+  // ================================================================ le sujet : une grille de 11×12 cases, décrite en lettres
+  // Une case = 4 px à la taille réelle : 44×48 px, du haut de la coiffe (cy - 24) aux pieds (cy + 24) ; la grille du morceau (pas de 50×62) ne bouge pas.
+  // . rien · B le corps (la couleur de sens) · O l'ombre · L la lumière (venue d'en haut, de Phi) · E l'œil, la bouche (la nuit)
+  // · G la goutte de sueur (la craie), dans la peur seulement
+  // Le corps est un assemblage de calques : jambes, puis corps et bras, puis tête, coiffe, yeux, bouche.
+  // Chaque calque est une pose dessinée case par case ; rien n'est copié, tout est donnée.
+  const SW = 11, SH = 12, CS = 4;
+  const LETTRE = { B: 1, O: 2, L: 3, E: 4, G: 5 };
+  const calque = (y0, lignes) => { const out = []; lignes.forEach((l, j) => [...l].forEach((c, x) => { if (LETTRE[c]) out.push([x, y0 + j, LETTRE[c]]); })); return out; };
+  const TETE = calque(1, [
+    '...LLBBB...',
+    '..LBBBBBO..',
+    '..BBBBBBO..',
+    '..BBBBBBO..',
+    '...BBBBO...',
+  ]);
+  // la lumière vient de Phi : la tête est dessinée en miroir quand Phi est à droite du sujet (un bit de plus dans la clé de l'atlas)
+  const miroir = cal => cal.map(([x, y, c]) => [SW - 1 - x, y, c]);
+  const TETES = [TETE, miroir(TETE)];          // 0 : lumière à gauche ; 1 : Phi est à droite, la lumière aussi
+  // les coiffes : de l'ombre posée sur la tête, pour qu'on ne soit pas cent clones, sans toucher à la couleur de sens
+  const COIFFES = [
+    [],                                                                     // ras
+    calque(0, ['.....O.....']),                                             // épi
+    calque(1, ['...OOOOO...', '..O.....O..']),                              // calot
+    calque(0, ['....OOO....', '...OOOOO...']),                              // chignon
+    calque(1, ['...OOOOO...', '..O.....O..', '..O.....O..', '..O.....O..']), // longs
+    calque(1, ['...OOOOO...', '..OOOOOOO..']),                              // frange
+    calque(0, ['......OO...', '...OOOOO...', '..OO.......']),               // mèche
+  ];
+  const ECHARPE = calque(6, ['...OOOOO...']);  // de l'ombre au cou : jamais de couleur hors sens
+  const CORPS = {
+    bas: calque(6, [        // au repos, bras le long du corps
+      '....OBO....',
+      '...BBBBB...',
+      '..O.BBB.O..',
+      '..O.BBB.O..',
+    ]),
+    hop: calque(6, [        // le saut du choix : les bras s'écartent pour l'équilibre
+      '....OBO....',
+      '.OOBBBBBOO.',
+      '....BBB....',
+      '....BBB....',
+    ]),
+    leves: calque(3, [      // la vie : les bras au ciel
+      'O.........O',
+      'O.........O',
+      '.O.......O.',
+      '..O.OBO.O..',
+      '...BBBBB...',
+      '....BBB....',
+      '....BBB....',
+    ]),
+    serres: calque(6, [     // la peur : les bras collés au corps, raide ; plus de jour entre les bras et le ventre
+      '....OBO....',
+      '...OBBBO...',
+      '...OBBBO...',
+      '...OBBBO...',
+    ]),
+    croises: calque(6, [    // celui qui ne prend rien : les bras croisés, large
+      '....OBO....',
+      '...BBBBB...',
+      '..OOOOOOO..',
+      '....BBB....',
+    ]),
+  };
+  const JAMBES = {
+    droit: calque(10, ['....O.O....', '...OO.OO...']),
+    saut: calque(10, ['...O...O...']),
+    serre: calque(10, ['.....O.....', '....O.O....']),
+  };
+
+  // une image du sujet, case par case. p : { bras, jambes, yx, yy (le regard, -1..1), yeux ('o' ouverts, 'f' fermés, 'g' grands),
+  //   bouche (0, 1 un « o », 2 le rire), goutte (0, ou 1..2 : la goutte qui glisse le long de la tempe), bob (la tête descend d'une case : l'expiration), acc (tout le haut descend : accroupi), coiffe,
+  //   detail (1 : l'écharpe), mir (1 : Phi est à droite, la tête est éclairée à droite) }
+  function grille(p) {
+    const g = new Uint8Array(SW * SH);
+    const peint = (cal, dy) => { for (const [x, y, c] of cal) { const yy = y + dy; if (yy >= 0 && yy < SH) g[yy * SW + x] = c; } };
+    peint(JAMBES[p.jambes], 0);
+    peint(CORPS[p.bras], p.acc);
+    if (p.detail) peint(ECHARPE, p.acc);
+    const dt = p.acc + p.bob;
+    peint(TETES[p.mir], dt); peint(COIFFES[p.coiffe], dt);
+    const ey = 3 + dt + p.yy;
+    for (const x of [4 + p.yx, 6 + p.yx]) {
+      g[ey * SW + x] = p.yeux === 'f' ? 2 : 4;
+      if (p.yeux === 'g') g[(ey - 1) * SW + x] = 4;
+    }
+    if (p.goutte) for (const y of [1, 2]) g[(y + p.acc + p.goutte) * SW + 9] = 5;
+    // la bouche suit le regard : le visage entier se tourne
+    if (p.bouche && p.yy < 1) for (let x = p.bouche === 2 ? 4 : 5; x <= (p.bouche === 2 ? 6 : 5); x++) g[(4 + dt) * SW + x + p.yx] = 4;
+    return g;
+  }
+
+  // ================================================================ les cent sujets (données fixes)
+  const SPRITE = [];
+  [[2, 0, 3, 3], [1, 3, 5, 4], [1, 7, 2, 2], [4, 7, 2, 2]].forEach(([x0, y0, w, h]) => { for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) SPRITE.push([x, y]); });
+  const RF = rng(99);
+  const melange = n => { const a = [...Array(n).keys()]; for (let i = n - 1; i > 0; i--) { const j = Math.floor(RF() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const FOULE = [...Array(100).keys()].map(i => ({
+    i, cx: 175 + (i % 20) * 50, cy: 360 + Math.floor(i / 20) * 62, r1: RF(), r2: RF(), r3: RF(),
+    // cel n'est plus dessiné : ses tirages de RF fixent LOTS, ORDRE, MAUVAIS
+    cel: SPRITE.map(([x, y]) => ({ x, y, ph: RF() * 6.283, v: .6 + RF() * .8, g: G[Math.floor(RF() * G.length)], d: (8 - y) / 8 * .45 })),
+    // la coiffe (7) et l'écharpe (un sur cinq environ) sont tirées par hache(i), jamais par RF : les tirages de RF (et donc les LOTS) ne bougent pas
+    coiffe: Math.floor(hache(i * 7 + 3) * COIFFES.length), detail: hache(i * 17 + 11) < .2 ? 1 : 0,
+  }));
+  const ensemble = n => new Set(melange(100).slice(0, n));
+  const LOTS = { b62: ensemble(62), b40: ensemble(40), b100: ensemble(100), b0: ensemble(0), b25: ensemble(25), b75: ensemble(75) };
+  const ORDRE = melange(100);
+  const MAUVAIS = new Set(melange(100).slice(0, 13));
+  const FOCUS = 47;    // le sujet sur lequel on zoome
+  const ABSTIENT = 52; // celui qui ne prend rien
+
+  // ================================================================ état de la scène
+  let st, file;            // st : tout ce qui se voit ; file : actions programmées
+  let debut = 0, cur = -1; // cur : étape en cours (-1 = ouverture)
+  const at = (t, fn) => file.push({ t, fn });
+  function vide(jusqua) {
+    file.sort((a, b) => a.t - b.t);
+    while (file.length && file[0].t <= jusqua) { const it = file.shift(); it.fn(it.t); }
+  }
+  function etatInitial() {
+    file = [];
+    st = {
+      oeil: { ex: new V(960), ey: new V(420), es: new V(330), a: new V(0), x: new V(0), y: new V(0), r: new V(0), rot: new V(0), glow: new V(.35) },
+      // le regard de Phi : les cibles de l'étape (regard), et la saccade en cours (regardPhi) : d'où (px, py) vers où (x, y, ou v : vous)
+      regards: [], rg: { px: 960, py: 420, x: 960, y: 420, v: true, t0: -99, d: .1, A: 9, sel: -1, tsel: -99, gx: 0, gy: 0, w: 1 },
+      secoue: -99,
+      pil: [0, 1].map(i => ({ px: new V(i ? 920 : 380), py: new V(560), ps: new V(.9), a: new V(1), hl: new V(0), t0: Infinity, lab: Infinity, eclat: Infinity })),
+      figs: FOULE.map(f => ({ ...f, ta: null, te: null, prev: GRIS_FIG, col: GRIS_FIG, tc: 0, pop: false, td: null, tp: null, tr: null, tck: null, mauvais: false })),
+      lueur: -99, vague: -99, chaud: new V(0), clair: new V(0), jauge: new V(0),
+      regles: [], reglesA: new V(0), reglesH: new V(0), pulse: -99,
+      verifs: null, corrige: null,
+      tampon: null, zoom: new V(0), focus: FOCUS, zmode: 'prive', abstient: null,
+      dlg: null, dlgOuvre: Infinity,
+      quiz: null, choix: null, fin: false,
+    };
+  }
+
+  // ================================================================ Xphi
+  function oeilVers(t, o, d = 1.1) { for (const k in o) st.oeil[k].set(o[k], t, d); }
+  // l'humeur donne la forme de l'œil (r, rot, glow) ; son x/y n'est que la pose de la pupille quand Phi vous regarde (voir regardPhi)
+  function humeur(t, h) {
+    const base = { x: 0, y: 0, r: 12.5, rot: 0, glow: .35 };
+    const M = {
+      neutre: base,
+      grand: { ...base, r: 17, glow: 1 },
+      plisse: { x: 0, y: 5, r: 6, rot: -4, glow: .2 },
+      doute: { x: -3, y: 2, r: 10, rot: -6, glow: .35 },
+      curieux: { x: 5, y: -5, r: 9.5, rot: 9, glow: .4 },
+      bas: { ...base, y: 6, r: 11 },
+    }[h];
+    for (const k in M) st.oeil[k].set(M[k], t, .5);
+    if (h === 'grand') st.vague = t;   // Phi s'allume : la vague des regards
+  }
+  function secoue(t) { st.secoue = t; }
+  function cligne(T) {
+    const f = d => d < .1 ? 1 - d / .1 : d < .26 ? (d - .1) / .16 : 1;
+    return Math.min(f(T % 5.3), f((T + 2.1) % 7.9));
+  }
+  function dessineOeil(cx, cy, size, s, alpha) {
+    if (alpha <= .001 || size <= 0) return;
+    const R0 = 12.5, RIN = 31 - 2.6 - .4;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(cx, cy); ctx.scale(size / 100, size / 100); ctx.translate(-50 + (s.dx || 0), -50);
+    ctx.translate(50, 50); ctx.rotate(s.rot * Math.PI / 180); ctx.translate(-50, -50);
+    const ox = 50 + s.x, oy = 50 + s.y, r = Math.max(0, s.r);
+    const ha = clamp(s.glow, 0, 1) * Math.min(1, r / 6), hr = (6 + 8 * s.glow) * 1.7;
+    if (ha > 0) {
+      const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, hr);
+      g.addColorStop(0, rgba(LABO, .9 * ha)); g.addColorStop(1, rgba(LABO, 0));
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ox, oy, hr, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.strokeStyle = CRAIE; ctx.lineCap = 'round';
+    ctx.lineWidth = 5.2;
+    ctx.beginPath(); ctx.arc(50, 50, 31, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(50, 4); ctx.lineTo(50, 17); ctx.moveTo(50, 83); ctx.lineTo(50, 96); ctx.stroke();
+    // le diaphragme : six lames qui partent des sommets de l'ouverture et rejoignent l'anneau
+    const a0 = -90 + (R0 - r) * 2.6, Vx = [], U = [];
+    for (let k = 0; k < 6; k++) { const a = (a0 + 60 * k) * Math.PI / 180; U.push([Math.cos(a), Math.sin(a)]); Vx.push([ox + r * Math.cos(a), oy + r * Math.sin(a)]); }
+    ctx.lineWidth = 2.1; ctx.globalAlpha = alpha * .9; ctx.beginPath();
+    for (let k = 0; k < 6; k++) {
+      const p = (k + 5) % 6; let dx = U[k][0] - U[p][0], dy = U[k][1] - U[p][1]; const L = Math.hypot(dx, dy); dx /= L; dy /= L;
+      const [x0, y0] = Vx[k], bx = x0 - 50, by = y0 - 50, b = bx * dx + by * dy, c = bx * bx + by * by - RIN * RIN;
+      const t = -b + Math.sqrt(Math.max(0, b * b - c));
+      ctx.moveTo(Vx[p][0], Vx[p][1]); ctx.lineTo(x0 + dx * t, y0 + dy * t);
+    }
+    ctx.stroke(); ctx.globalAlpha = alpha;
+    const pr = Math.min(4.2, r * .62);
+    if (pr > .05) {
+      ctx.fillStyle = LABO; ctx.beginPath(); ctx.arc(ox, oy, pr, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.beginPath(); ctx.arc(ox + pr * .33, oy - pr * .33, pr * .24, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+  function oeil(T) {
+    const O = st.oeil, R = st.rg, e = { x: O.x.get(T), y: O.y.get(T), r: O.r.get(T), rot: O.rot.get(T), glow: O.glow.get(T) };
+    // le regard (repère de l'écran) ramené dans le repère tourné de l'œil, pour qu'une tête penchée regarde encore juste ;
+    // la pose de l'humeur pèse R.w (1 quand Phi vous regarde, 0 dès qu'il regarde quelque chose)
+    const [mx, my] = microsaccade(T), gx = R.gx + mx, gy = R.gy + my, a = -e.rot * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+    e.x = e.x * R.w + gx * ca - gy * sa; e.y = e.y * R.w + gx * sa + gy * ca;
+    e.r *= cligne(T);
+    e.glow += .06 * Math.sin(T * 2.1);
+    const k = T - st.secoue; e.dx = k >= 0 && k < .9 ? Math.sin(k * 22) * 3 * (1 - k / .9) : 0;
+    dessineOeil(O.ex.get(T), O.ey.get(T) + Math.sin(T * .9) * 4, O.es.get(T), e, O.a.get(T));
+  }
+
+  // ---------------------------------------------------------------- Phi suit des yeux
+  // Thibaut : « j'ai pas intégré le fait que phi suive des yeux aussi ».
+  // Phi regarde un point de la scène (1920×1080). La pupille y va par saccades : un saut de 50 à 150 ms, puis elle tient,
+  // avec de petits sauts de fixation ; une cible qui bouge est rattrapée par une nouvelle saccade, jamais par un glissement.
+  // La cible, par priorité (cibleRegard) :
+  //   1. ce que montre l'étape, regard(t, d, cible) : la plus récente l'emporte, une plus ancienne reprend quand elle finit
+  //      (les pilules qui se forment, la foule qui apparaît, saute, s'illumine, meurt, le sujet en gros plan,
+  //      la règle qui s'écrit, le tampon, la jauge) ;
+  //   2. le geste : la réponse ou la pilule choisie (souris ou clavier), pendant 2,5 s après chaque changement ; même règle,
+  //      le plus récent l'emporte : il passe devant les regards de l'étape lancés avant lui (on peut répondre pendant que
+  //      la foule saute ou que la jauge tombe : Phi regarde la réponse), et cède à ceux lancés après (la réponse validée,
+  //      la pilule qui éclate) ;
+  //   3. la souris qui bouge sur la toile ; elle s'efface après 2,5 s d'immobilité ;
+  //   4. le repos : des fixations de 0,4 à 2 s, tirées par hache, entre vous, la foule, le texte qui s'écrit, les règles…
+  // L'humeur garde la forme de l'œil (r, rot, glow). Son x/y cède la place au regard : c'est la pose de la pupille quand
+  // Phi vous regarde (le doute de côté, la curiosité en haut, « bas » les yeux baissés), et elle s'efface dès qu'il regarde
+  // quelque chose. Un regard qui tombe juste sur ce qu'il regarde est plus vivant qu'une pose ajoutée qui le fausse.
+  // Tout est fonction de T et de st (hache, jamais Math.random) ; seule la saccade en cours (st.rg) dépend des images
+  // déjà jouées, et etatInitial la remet à zéro : allerA rejoue juste.
+  let souris = null;   // { x, y, t } : le pointeur sur la toile, et quand il a bougé
+  const VOUS = () => ({ vous: true });   // vous regarder : la pupille au centre, posée par l'humeur
+  const point = (x, y) => () => ({ x, y });
+  function regard(t, d, cible, pause = .3) { st.regards.push({ t, d, cible, pause }); st.regards.sort((a, b) => a.t - b.t); }
+  // la pupille (unités de l'œil, repère de l'écran) pour regarder (x, y) depuis l'œil en (ex, ey) : un globe qui regarde
+  // une scène posée à ZR px devant lui ; A borne l'écart pour que l'ouverture reste dans l'anneau
+  const ZR = 220;
+  function decalage(x, y, ex, ey, A) {
+    const dx = x - ex, dy = y - ey, m = Math.hypot(dx, dy);
+    if (m < .001) return [0, 0, 0];
+    const k = A / Math.sqrt(m * m + ZR * ZR);
+    return [dx * k, dy * k, m];
+  }
+  // les petits sauts de fixation : toutes les 0,3 à 1,5 s, moins d'une unité ; un saut, pas une dérive
+  function microsaccade(T) {
+    let n = Math.floor(T / .3);
+    for (let j = 0; j < 4 && hache(n * 13 + 7) > .45; j++) n--;
+    return [(hache(n * 31 + 1) - .5) * 1.5, (hache(n * 31 + 2) - .5) * 1.5];
+  }
+  // ce que Phi peut regarder : des fonctions de T qui rendent un point de la scène, VOUS, ou null (rien à voir : on passe)
+  const visible = (f, T) => f.ta !== null && T > f.ta + .3 && (f.te === null || T < f.te) && (f.td === null || T < f.td + 1);
+  function visage(f, T) { const c = camera(T); return { x: c.cx + (f.cx - c.F.cx) * c.z, y: c.cy + (f.cy - 12 - c.F.cy) * c.z }; }
+  const sujet = i => T => visage(st.figs[i], T);
+  // le sujet qui vient de… : quand(f) rend l'instant où f l'a fait (ou null) ; le plus récent avant T, depuis moins de duree
+  const dernier = (quand, duree = Infinity) => T => {
+    let best = null, bt = -Infinity;
+    for (const f of st.figs) { const t = quand(f); if (t !== null && t <= T && T < t + duree && t > bt) { bt = t; best = f; } }
+    return best && visage(best, T);
+  };
+  // un sujet visible tiré par h (0..1), parmi ceux qui vérifient ok ; parmi : un nouveau tirage par créneau de P secondes
+  function auHasard(T, h, ok) {
+    const i0 = Math.floor(h * 100);
+    for (let j = 0; j < 100; j++) { const f = st.figs[(i0 + j * 37) % 100]; if (visible(f, T) && ok(f, T)) return visage(f, T); }
+    return null;
+  }
+  const parmi = (ok, P = .55) => T => auHasard(T, hache(Math.floor(T / P) * 97 + 3), ok);
+  const pilule = i => T => { const E = st.pil[i]; return T >= E.t0 && E.a.get(T) > .05 && T < E.eclat + 1 ? { x: E.px.get(T), y: E.py.get(T) } : null; };
+  const bouton = i => () => { const b = boutons()[i]; return b ? { x: b.x + b.w / 2, y: b.y + b.h / 2 } : null; };
+  // la plume : le dernier caractère écrit du dialogue (regle(i) : celui de la règle i, qui s'écrit dans la fenêtre RÈGLES)
+  const plume = T => {
+    const d = st.dlg; if (!d || !d.pos || T < d.t0 || T < st.dlgOuvre + .4 || dlgFini(T)) return null;
+    const [x, y] = d.pos[clamp(Math.floor((T - d.t0) * CPS), 0, d.n - 1)];
+    return { x, y };
+  };
+  const yRegle = i => { let y = RY + 92; for (const r of st.regles) { if (r.i === i) return y; y += REGLES[r.i].length * RLH + RGAP; } return null; };
+  const regle = i => T => {
+    const r = st.regles.find(r => r.i === i), y = yRegle(i); if (!r) return null;
+    let n = clamp(Math.floor((T - r.t) * 70), 0, longueur(REGLES[i]) - 1);
+    for (const [li, l] of REGLES[i].entries()) { const m = longueur([l]); if (n < m) return { x: RX + 24 + n * 12.6, y: y + li * RLH - 8 }; n -= m; }
+    return null;
+  };
+  const fenetreRegles = T => ({ x: RX + RW / 2, y: RY + Math.max(64, st.reglesH.get(T)) / 2 });
+  // la jauge : Phi regarde la frontière entre le bleu et le rouge, de quel côté du 50 % elle tombe
+  const jaugeC = T => {
+    if (st.jauge.get(T) < .5) return null;
+    let nb = 0, nr = 0;
+    for (const f of st.figs) { if (f.ta === null) continue; const c = couleur(f, T); if (c === BLEU) nb++; else if (c === ROUGE) nr++; }
+    return { x: 150 + 10 * (nb + (100 - nb - nr) / 2), y: 699 };
+  };
+  // 4. le repos : un créneau de 0,4 à 2 s (bornes tirées par hache), une cible tirée parmi ce qui se voit
+  function repos(T) {
+    const P = 1.15, j = n => (hache(n * 7 + 1) - .5) * .7 * P, n0 = Math.floor(T / P);
+    const n = T < n0 * P + j(n0) ? n0 - 1 : T >= (n0 + 1) * P + j(n0 + 1) ? n0 + 1 : n0;
+    const h = hache(n * 131 + 17), h2 = hache(n * 53 + 5), C = [[3, { vous: true }]];
+    const ajoute = (w, c) => { if (c) C.push([w, c]); };
+    ajoute(3, plume(T));                                                       // le texte qui s'écrit
+    const cam = camera(T);
+    ajoute(3, cam.k > .5 ? sujet(st.focus)(T) : auHasard(T, h2, () => true));   // la foule (dans l'isoloir : le sujet)
+    if (st.reglesA.get(T) > .5 && st.regles.length) { const r = st.regles[Math.floor(h2 * st.regles.length)]; ajoute(1, { x: RX + 60 + h2 * 300, y: yRegle(r.i) - 8 }); }
+    ajoute(.8, pilule(0)(T)); ajoute(.8, pilule(1)(T));
+    ajoute(1, jaugeC(T));
+    const bs = zonesQuestion();
+    if (bs.length) { const b = bs[st.quiz.sel >= 0 && h2 < .6 ? st.quiz.sel : Math.floor(h2 * bs.length)]; ajoute(2.5, { x: b.x + b.w / 2, y: b.y + b.h / 2 }); }
+    ajoute(.6, { x: 150 + hache(n * 29 + 3) * 1620, y: 80 + hache(n * 41 + 9) * 520 });   // nulle part : Phi rêvasse
+    let v = h * C.reduce((a, c) => a + c[0], 0);
+    for (const c of C) { v -= c[0]; if (v < 0) return c[1]; }
+    return C[0][1];
+  }
+  function cibleRegard(T) {
+    const R = st.rg, geste = R.sel >= 0 && T - R.tsel < 2.5 ? (R.sel < 10 ? bouton(R.sel)(T) : pilule(R.sel - 10)(T)) : null;
+    for (let i = st.regards.length - 1; i >= 0; i--) {   // 1. l'étape : rangées par début, la plus récente d'abord…
+      const r = st.regards[i];
+      if (geste && r.t <= R.tsel) break;                  // … jusqu'au geste, qui passe devant celles d'avant lui
+      if (T >= r.t && T < r.t + r.d) { const c = r.cible(T); if (c) return { ...c, pause: r.pause }; }
+    }
+    if (geste) return { ...geste, pause: .12 };                                                                                           // 2. le geste
+    if (souris && T >= souris.t && T - souris.t < 2.5) return { x: souris.x, y: souris.y, pause: .12 };                                   // 3. la souris
+    return { ...repos(T), pause: .25 };                                                                                                 // 4. le repos
+  }
+  // à chaque image, avant la foule (qui croise ce regard) et l'œil : choisit la cible, lance la saccade, pose R.gx, R.gy, R.w
+  function regardPhi(T) {
+    const R = st.rg, O = st.oeil, ex = O.ex.get(T), ey = O.ey.get(T) + Math.sin(T * .9) * 4;
+    const q = st.quiz, ch = st.choix;
+    const sel = q && q.phase === 'pose' && q.sel >= 0 ? q.sel : ch && ch.fait === null && ch.sel >= 0 ? 10 + ch.sel : -1;
+    if (sel !== R.sel) { R.sel = sel; R.tsel = T; }
+    if (st.regards.length > 30) st.regards = st.regards.filter(r => r.t + r.d > T);
+    const A = Math.min(9, 23 - O.r.get(T));   // grand ouvert (r 17), l'œil a moins de place pour regarder de côté
+    const ou = k => [lerp(R.px, R.v ? ex : R.x, k), lerp(R.py, R.v ? ey : R.y, k)];   // le point visé, au cours de la saccade
+    const c = cibleRegard(T), cx = c.vous ? ex : c.x, cy = c.vous ? ey : c.y;
+    // une saccade quand la cible change ou s'est éloignée de plus de 14 px, pas plus tôt que sa pause après la précédente
+    if ((!!c.vous !== R.v || (!c.vous && Math.hypot(cx - R.x, cy - R.y) > 14)) && T - R.t0 >= c.pause) {
+      const [vx, vy] = ou(eOut(seg(T, R.t0, R.t0 + R.d)));
+      const [ax, ay] = decalage(vx, vy, ex, ey, A), [bx, by] = decalage(cx, cy, ex, ey, A);
+      R.px = vx; R.py = vy; R.x = cx; R.y = cy; R.v = !!c.vous; R.t0 = T; R.d = .05 + .007 * Math.hypot(bx - ax, by - ay); R.A = A;
+    }
+    // l'écart est gelé d'une saccade à l'autre (R.A) : quand l'œil s'ouvre grand ou se referme, la pupille ne glisse pas avec
+    // l'ouverture ; si l'écart permis s'éloigne de plus de 1,5, elle se recale d'un coup, comme un petit saut de fixation
+    else if (Math.abs(A - R.A) > 1.5) R.A = A;
+    const [px, py] = ou(eOut(seg(T, R.t0, R.t0 + R.d)));
+    const [gx, gy, m] = decalage(px, py, ex, ey, R.A);
+    R.gx = gx; R.gy = gy; R.w = 1 - seg(m, 0, 140);
+  }
+
+  // ================================================================ décor
+  const sol = [];
+  for (let r = 0; r < 13; r++) {
+    const k = r / 12, y = 640 + 440 * k * k, step = 26 + 110 * k * k;
+    for (let x = 960 % step - step; x < W + step; x += step) sol.push({ x, y, r: .9 + 2 * k, a: .06 + .3 * k });
+  }
+  const poussiere = (() => { const R = rng(41), out = []; for (let i = 0; i < 170; i++) out.push({ x: R() * W, y: R() * H, vx: (R() - .5) * 14, vy: -4 - R() * 10, a: .05 + R() * .14, g: G[Math.floor(R() * G.length)], c: R() < .5 ? LABO : CRAIE, sz: 10 + Math.round(R() * 8) }); return out; })();
+  let trame = null;
+  function fond(T) {
+    const chaud = st.chaud.get(T), clair = st.clair.get(T);
+    let inner = mix('#121a2a', '#2b1a10', chaud);
+    if (clair > .01) inner = mix('#121a2a', '#18273f', clair);
+    const g = ctx.createRadialGradient(760, 470, 40, 760, 470, 1250);
+    g.addColorStop(0, inner); g.addColorStop(.75, NUIT); g.addColorStop(1, NUIT);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const foule = st.figs.some(f => f.ta !== null && (f.te === null || T < f.te + .5));
+    const aSol = seg(T, 4.0, 5.6) * (foule ? .45 : 1);
+    if (aSol > 0) { ctx.fillStyle = LABO; for (const d of sol) { ctx.globalAlpha = d.a * aSol; ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, 6.283); ctx.fill(); } }
+    const aP = seg(T, 3.8, 5.4);
+    if (aP > 0) {
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      for (const p of poussiere) {
+        const x = ((p.x + p.vx * T) % W + W) % W, y = ((p.y + p.vy * T) % H + H) % H;
+        ctx.globalAlpha = p.a * aP; ctx.fillStyle = p.c; ctx.font = `${p.sz}px ${MONO}`; ctx.fillText(p.g, x, y);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+  function voile() {
+    if (!trame) { const c = document.createElement('canvas'); c.width = 1; c.height = 3 * S; const x = c.getContext('2d'); x.fillStyle = 'rgba(0,0,0,.16)'; x.fillRect(0, 0, 1, S); trame = ctx.createPattern(c, 'repeat'); }
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = trame; ctx.fillRect(0, 0, cv.width, cv.height); ctx.restore();
+    const v = ctx.createRadialGradient(960, 540, 520, 960, 540, 1180);
+    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.6)');
+    ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+  }
+
+  // ================================================================ terminal d'ouverture
+  const TERM = [
+    { t0: .3, txt: '> charger test_01.pilules', c: CRAIE },
+    { t0: 1.5, txt: '  sujets : 100 · choix simultanés', c: GRIS },
+    { t0: 2.6, txt: '  rendu : constellation', c: GRIS },
+  ];
+  let carsTerm = [];
+  function prepareTerminal() {
+    ctx.font = `34px ${MONO}`; const cw = ctx.measureText('M').width; const R = rng(7);
+    carsTerm = [];
+    TERM.forEach((l, li) => [...l.txt].forEach((ch, i) => {
+      if (ch === ' ') return;
+      carsTerm.push({ ch, c: l.c, x: 110 + i * cw, y: 160 + li * 54, t: l.t0 + i / 24, td: 3.7 + R() * .9, a: R() * Math.PI * 2, d: 90 + R() * 240, g: G[Math.floor(R() * G.length)] });
+    }));
+  }
+  function terminal(T) {
+    if (T > 5.6) return;
+    ctx.font = `34px ${MONO}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    for (const c of carsTerm) {
+      if (T < c.t) continue;
+      const k = seg(T, c.td, c.td + 1.3); if (k >= 1) continue;
+      const e = eOut(k);
+      ctx.globalAlpha = 1 - k; ctx.fillStyle = k > 0 ? mix(c.c, LABO, Math.min(1, k * 2)) : c.c;
+      ctx.fillText(k > .12 ? c.g : c.ch, c.x + Math.cos(c.a) * c.d * e, c.y + Math.sin(c.a) * c.d * e - 40 * e);
+    }
+    const last = TERM[2], fin = last.t0 + last.txt.length / 24;
+    if (T > fin && T < 3.7 && Math.floor(T * 2.4) % 2 === 0) {
+      ctx.globalAlpha = 1; ctx.fillStyle = LABO; const cw = ctx.measureText('M').width;
+      ctx.fillRect(110 + last.txt.length * cw + 6, 160 + 2 * 54 - 18, cw * .9, 36);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // ================================================================ pilules en nuages de caractères
+  const TAILLES = [10, 13, 16, 20, 24];
+  function nuage(seed, col) {
+    const R = rng(seed), L = 190, RAY = 85, out = [];
+    for (let i = 0; i < 380; i++) {
+      const t = (R() * 2 - 1) * (L + RAY); let u = (R() * 2 - 1) * RAY;
+      const over = Math.max(0, Math.abs(t) - L), lim = Math.sqrt(Math.max(0, RAY * RAY - over * over));
+      if (Math.abs(u) > lim) u = Math.sign(u) * lim * R();
+      const z = lim > 0 ? Math.sqrt(Math.max(0, 1 - (u / lim) ** 2)) : 0, front = R() < .55 ? 1 : .55;
+      const shine = u < -RAY * .35 && Math.abs(t) < L * .6 && R() < .5;
+      const ang = R() * Math.PI * 2;
+      out.push({
+        lx: t, ly: u, si: clamp(Math.round(z * front * 4), 0, 4), al: .22 + .78 * z * front, c: shine ? CRAIE : col,
+        g: Math.floor(R() * G.length), fl: R() < .25 ? 1 + R() * 3 : 0, ph: R() * 6.283, w: 1 + R() * 2,
+        sx: R() * W, sy: R() * H * .8, delay: R() * 1.3, sw: (R() - .5) * 260, bx: Math.cos(ang), by: Math.sin(ang), bd: 300 + R() * 700,
+      });
+    }
+    return out.sort((a, b) => a.si - b.si);
+  }
+  const PILULES = [
+    { nom: 'BLEUE', col: BLEU, txt: BLEU_TXT, ang: -22, pts: nuage(11, BLEU), ph: 0 },
+    { nom: 'ROUGE', col: ROUGE, txt: ROUGE_TXT, ang: 22, pts: nuage(23, ROUGE), ph: 2 },
+  ];
+  const POSES = {
+    icones: [[400, 196, .3], [900, 196, .3]],
+    choix: [[380, 450, .8], [920, 450, .8]],
+  };
+  function pilulesVers(t, pose, d = 1.3) {
+    POSES[pose].forEach(([x, y, s], i) => { const p = st.pil[i]; p.px.set(x, t, d); p.py.set(y, t, d); p.ps.set(s, t, d); });
+  }
+  function espace(txt, x, y, sp) {
+    const ws = [...txt].map(c => ctx.measureText(c).width), tot = ws.reduce((a, b) => a + b, 0) + sp * (ws.length - 1);
+    let cx = x - tot / 2; ctx.textAlign = 'left';
+    [...txt].forEach((c, i) => { ctx.fillText(c, cx, y); cx += ws[i] + sp; });
+    ctx.textAlign = 'center';
+  }
+  function pilules(T) {
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    PILULES.forEach((P, i) => {
+      const E = st.pil[i];
+      if (T < E.t0) return;
+      const px = E.px.get(T), py = E.py.get(T), hl = E.hl.get(T), A = E.a.get(T);
+      const ps = E.ps.get(T) * (1 + .07 * hl);
+      if (A <= .01) return;
+      const ek = T >= E.eclat ? eOut(seg(T, E.eclat, E.eclat + 1.6)) : 0;
+      if (ek >= 1) return;
+      const a = P.ang * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+      const fl = Math.sin(T * 1.1 + P.ph) * 6 * ps;
+      let cur = -1;
+      for (const p of P.pts) {
+        const k = eOut(clamp((T - E.t0 - p.delay) / 1.4, 0, 1));
+        if (k <= 0) continue;
+        const hx = px + ps * (p.lx * ca - p.ly * sa), hy = py + fl + ps * (p.lx * sa + p.ly * ca);
+        const dx = hx - p.sx, dy = hy - p.sy, len = Math.hypot(dx, dy) || 1, sw = Math.sin(Math.PI * k) * p.sw;
+        let x = p.sx + dx * k - dy / len * sw, y = p.sy + dy * k + dx / len * sw;
+        if (ek > 0) { x += p.bx * p.bd * ek; y += p.by * p.bd * ek; }
+        ctx.globalAlpha = Math.min(1, A * (1 - ek) * p.al * (.62 + .38 * Math.sin(T * p.w + p.ph)) * Math.min(1, k * 1.6) * (1 + .35 * hl));
+        ctx.fillStyle = p.c;
+        if (ps < .5) { const s = Math.max(1.6, TAILLES[p.si] * ps * .6); ctx.fillRect(x - s / 2, y - s / 2, s, s); }
+        else {
+          if (p.si !== cur) { cur = p.si; ctx.font = `${Math.round(TAILLES[cur] * ps)}px ${MONO}`; }
+          ctx.fillText(G[(p.g + (p.fl ? Math.floor(T * p.fl) : 0)) % G.length], x, y);
+        }
+      }
+      const la = seg(T, E.lab, E.lab + .8) * A * (1 - ek), grand = seg(ps, .6, .8), petit = 1 - seg(ps, .35, .55);
+      ctx.fillStyle = P.txt;
+      if (la * grand > 0) { ctx.globalAlpha = la * grand; ctx.font = `500 26px ${MONO}`; espace(P.nom, px, py + 200 * ps, 12); }
+      if (la * petit > 0) { ctx.globalAlpha = la * petit; ctx.font = `500 16px ${MONO}`; espace(P.nom, px, py + 70, 6); }
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  // ================================================================ la foule
+  let oeilFoule = { x: 650, y: 160 };   // l'œil de Phi dans le repère de la foule (fouleCamera le recalcule à chaque image)
+  let regardFoule = null;               // le visage que Phi fixe, dans le repère de la foule, et depuis quand (ou null)
+  // ---------------------------------------------------------------- pré-rendu : un atlas de toutes les images déjà vues, par (couleur, image)
+  // Chaque image n'est peinte qu'une fois (une case = un pixel), puis drawImage l'agrandit sans lissage :
+  // cent sujets = cent drawImage par image, à toutes les échelles (×1, ×4,2 dans l'isoloir, 4K).
+  // L'atlas est rangé en pages d'une rangée (170 images de 11×12 px, 157 pages au plus : 26 690 places) : une image nouvelle
+  // ne touche qu'une petite page. Dans une seule grande toile déjà posée dans l'image en cours, chaque image nouvelle
+  // la faisait recopier en entier (16 Mo) : des images de 200 à 450 ms à la première lueur et à la première peur.
+  const tons = col => [null, col, mix(col, NUIT, .45), mix(col, CRAIE, .4), '#0c0b0d', CRAIE];
+  const PAGES = [], CASES = new Map();
+  function sprite(col, p) {
+    const cle = [col, p.goutte, p.bras, p.jambes, p.yx, p.yy, p.yeux, p.bouche, p.bob, p.acc, p.coiffe, p.detail, p.mir].join('|');
+    let c = CASES.get(cle);
+    if (!c) {
+      if (CASES.size >= 170 * 157) { CASES.clear(); PAGES.length = 0; }   // atlas plein : on repart de zéro
+      const n = CASES.size, sx = (n % 170) * (SW + 1), g = grille(p), T = tons(col);
+      if (n % 170 === 0) { const pg = document.createElement('canvas'); pg.width = 170 * (SW + 1); pg.height = SH; PAGES.push(pg); }
+      const im = PAGES[Math.floor(n / 170)], ax = im.getContext('2d');
+      g.forEach((v, k) => { if (v) { ax.fillStyle = T[v]; ax.fillRect(sx + k % SW, Math.floor(k / SW), 1, 1); } });
+      c = { im, sx, g, T };
+      CASES.set(cle, c);
+    }
+    return c;
+  }
+  // les caractères de la dissolution, eux aussi pré-rendus : (couleur, pas vers la craie, glyphe), dessinés à 36 px, posés à 12 px
+  const COULEURS = [GRIS_FIG, BLEU, ROUGE], GW = 40;
+  let GLY = null;
+  function prepareGlyphes() {
+    GLY = document.createElement('canvas'); GLY.width = GW * G.length * COULEURS.length; GLY.height = GW * 6;
+    const g = GLY.getContext('2d'); g.font = `36px ${MONO}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    COULEURS.forEach((col, ci) => { for (let s = 0; s < 6; s++) { g.fillStyle = mix(col, CRAIE, s / 5); G.forEach((ch, gi) => g.fillText(ch, (ci * G.length + gi) * GW + GW / 2, s * GW + GW / 2)); } });
+  }
+  const HALOS = new Map();
+  function halo(col) {
+    if (!HALOS.has(col)) {
+      const c = document.createElement('canvas'); c.width = c.height = 80; const g = c.getContext('2d');
+      const r = g.createRadialGradient(40, 40, 0, 40, 40, 40); r.addColorStop(0, rgba(col, .45)); r.addColorStop(1, rgba(col, 0));
+      g.fillStyle = r; g.fillRect(0, 0, 80, 80); HALOS.set(col, c);
+    }
+    return HALOS.get(col);
+  }
+
+  // ---------------------------------------------------------------- ce que fait le sujet à l'instant T
+  function regardeVers(p, c, cx, cy) {
+    const dx = c.x - cx, dy = c.y - cy;
+    p.yx = Math.abs(dx) > 40 + Math.abs(dy) * .3 ? Math.sign(dx) : 0;
+    p.yy = dy < -30 ? -1 : dy > 30 ? 1 : 0;
+  }
+  // e : { col, mode ('repos'|'saut'|'vie'|'peur'|'rien'|'prive'|'penaud'), t0 (début du saut), k (intensité 0..1), phi ({x, y} : l'œil de Phi),
+  //       cible ({x, y} : l'œil de Phi, ou le voisin), fixe (regarde la cible maintenant), reflet (Phi a l'œil ouvert),
+  //       dis (0..1 : la dissolution), a (alpha) }
+  function pose(f, e, T, cx, cy) {
+    const p = { bras: 'bas', jambes: 'droit', yx: 0, yy: 0, yeux: 'o', bouche: 0, goutte: 0, bob: 0, acc: 0, coiffe: f.coiffe, detail: f.detail, mir: e.phi.x > cx ? 1 : 0 };
+    let dx = 0, dy = 0;
+    // le repos : une case de respiration, un clignement, un regard qui se promène, et parfois les yeux levés vers Phi
+    const pr = 2.6 + f.r1 * 1.4; p.bob = (T / pr + f.r2) % 1 < .42 ? 1 : 0;
+    const pb = 2.8 + f.r2 * 3.4; if ((T + f.r3 * pb) % pb < .13) p.yeux = 'f';
+    const pl = 1.1 + f.r3 * 1.5, n = Math.floor((T + f.r1 * 17) / pl), h = hache(f.i * 7919 + n * 104729);
+    let vers = !!e.fixe;
+    if (!vers) { if (h < .16) p.yx = -1; else if (h < .32) p.yx = 1; else if (h < .38) p.yy = 1; else if (h < .5) vers = true; }
+    if (vers && e.cible) regardeVers(p, e.cible, cx, cy);
+    const m = e.mode, k = T - (e.t0 ?? -99), I = e.k ?? 1;
+    if (m === 'saut') {          // le choix : on s'accroupit, on saute, la couleur change en l'air, on retombe
+      if (k >= -.16 && k < -.04) { p.acc = 1; p.bob = 0; }
+      else if (k >= -.04 && k < .3) {
+        const u = (k + .04) / .34; dy = -2.4 * Math.sin(Math.PI * u);
+        p.bras = 'hop'; p.jambes = u > .15 && u < .85 ? 'saut' : 'droit'; p.bob = 0; p.yx = 0; p.yy = -1;
+      }
+      else if (k >= .3 && k < .42) { p.acc = 1; p.bob = 0; }
+    } else if (m === 'vie') {    // la lueur de vie : bras au ciel, bouche ouverte, petits bonds
+      p.bras = 'leves'; p.bouche = 2; p.yy = -1; p.yx = 0; p.bob = 0;
+      const u = (T * 1.9 + f.r1) % 1; dy = -1.6 * Math.abs(Math.sin(Math.PI * u)) * I;
+      if (u < .08 || u > .92) p.acc = 1; else if (dy < -.8) p.jambes = 'saut';
+    } else if (m === 'peur') {   // la rouge l'emporte : raide, accroupi, grands yeux qui cherchent, une goutte de sueur, ça tremble
+      const gt = (T * .9 + f.r3) % 1; p.goutte = gt < .4 ? 1 : gt < .75 ? 2 : 0;
+      p.bras = 'serres'; p.jambes = 'serre'; p.yeux = p.yeux === 'f' ? 'f' : 'g'; p.bouche = 1; p.bob = 0; p.acc = 1; p.yy = 0;
+      p.yx = Math.floor(T * 2.7 + f.r2 * 5) % 2 ? -1 : 1;
+      dx = (Math.floor(T * 26 + f.r1 * 9) % 2 ? .25 : -.25) * I;
+    } else if (m === 'rien') {   // celui qui ne prend rien : bras croisés, le nez en l'air, il regarde ailleurs
+      p.bras = 'croises'; p.yy = -1; p.yx = Math.floor(T / 1.7 + f.r1 * 2) % 2 ? 1 : -1;
+    } else if (m === 'prive') {  // en choix privé : on lorgne vers le N°48, sans rien savoir (de côté, ou vers le haut ou le bas selon le rang)
+      if (e.cible) regardeVers(p, e.cible, cx, cy);
+    } else if (m === 'penaud') { // il s'est trompé au test : il regarde ses pieds
+      p.yx = 0; p.yy = 1;
+    }
+    if (e.dis > 0) { p.yeux = 'f'; p.bouche = 0; p.goutte = 0; }
+    return { p, dx, dy };
+  }
+
+  // dessineSujet(f, cx, cy, cs, e, T) : le sujet f, centré en (cx, cy), avec des cases de cs px (4 × l'échelle d'apparition) ;
+  // le zoom de l'isoloir passe par la transformation du contexte et reste net (drawImage sans lissage).
+  // Coût : un drawImage par sujet ; pendant la dissolution, un drawImage par case.
+  // Il rend imageSmoothingEnabled tel qu'il l'a trouvé ; il touche à globalAlpha et fillStyle.
+  function dessineSujet(f, cx, cy, cs, e, T) {
+    const a = e.a ?? 1; if (a <= .001) return;
+    const { p, dx, dy } = pose(f, e, T, cx, cy);
+    const s = sprite(e.col, p), ox = Math.round(cx - SW * cs / 2 + dx * cs), oy = Math.round(cy - SH * cs / 2 + dy * cs), lisse = ctx.imageSmoothingEnabled;
+    if (e.mode === 'vie' && !(e.dis > 0)) {
+      const r = 40 * cs / CS;
+      ctx.globalAlpha = a * (e.k ?? 1) * (.6 + .4 * Math.sin(T * 5 + cx * .01));
+      ctx.drawImage(halo(e.col), cx - r, cy - r + dy * cs, 2 * r, 2 * r);
+    }
+    if (!(e.dis > 0)) {
+      ctx.globalAlpha = a; ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(s.im, s.sx, 0, SW, SH, ox, oy, SW * cs, SH * cs);
+      ctx.imageSmoothingEnabled = lisse;
+      // le reflet de Phi : une demi-case LABO dans chaque œil ouvert, du côté de Phi ; il s'éteint quand Phi cligne
+      if (e.reflet && p.yeux !== 'f') {
+        const ey = 3 + p.acc + p.bob + p.yy - (p.yeux === 'g' ? 1 : 0), cote = e.phi.x >= cx ? .5 : 0;
+        ctx.fillStyle = LABO;
+        for (const x of [4 + p.yx, 6 + p.yx]) ctx.fillRect(ox + (x + cote) * cs, oy + ey * cs, cs / 2, cs / 2);
+      }
+      return;
+    }
+    // la mort, comme avant : les cases s'envolent en caractères, en partant des pieds, et virent à la craie
+    if (e.dis >= 1) return;
+    const ci = Math.max(0, COULEURS.indexOf(e.col)), gs = 12 * cs / CS;
+    ctx.imageSmoothingEnabled = true;
+    for (let k = 0; k < s.g.length; k++) {
+      const v = s.g[k]; if (!v) continue;
+      const x = k % SW, y = (k - x) / SW, d = (SH - 1 - y) / (SH - 1) * .45;
+      const q = clamp((e.dis * 2 - d) / 1.4, 0, 1); if (q >= 1) continue;
+      const hz = hache(f.i * 997 + k * 31), ph = hz * 6.283, vit = .6 + hache(k * 131 + f.i) * .8;
+      const px = ox + x * cs + Math.sin(q * 5 + ph) * 14 * q * cs / CS, py = oy + y * cs - Math.pow(q, 1.4) * 170 * vit * cs / CS;
+      ctx.globalAlpha = a * (1 - q) * .95;
+      if (q > .15) { const gi = Math.floor(hz * 1000) % G.length; ctx.drawImage(GLY, (ci * G.length + gi) * GW, Math.round(q * 5) * GW, GW, GW, px + cs / 2 - gs * .55, py + cs / 2 - gs * .55, gs * 1.1, gs * 1.1); }
+      else { ctx.fillStyle = s.T[v]; ctx.fillRect(px, py, cs, cs); }
+    }
+    ctx.imageSmoothingEnabled = lisse;
+  }
+
+  const couleur = (f, t) => (t < f.tc ? f.prev : f.col);
+  function fouleMontre(t) { st.figs.forEach(f => { f.ta = t + f.r1 * 1.4; f.te = null; }); regard(t + .2, 2.2, dernier(f => f.ta)); }   // Phi les regarde arriver
+  function fouleCache(t) { st.figs.forEach(f => { if (f.ta !== null) f.te = t + f.r2 * .8; }); }
+  function fouleChoisit(t, lot, sauf = -1) {
+    st.figs.forEach(f => {
+      if (f.i === sauf) { f.prev = f.col = couleur(f, t); f.tc = t; f.pop = false; return; }
+      f.prev = couleur(f, t); f.col = lot.has(f.i) ? BLEU : ROUGE; f.tc = t + .3 + ORDRE.indexOf(f.i) * .022; f.pop = true;
+    });
+    regard(t + .35, 2.3, dernier(f => f.pop ? f.tc : null, .5));   // Phi suit les sauts, de saccade en saccade…
+    regard(t + 2.6, 1.1, jaugeC);                                  // … puis regarde où tombe la jauge (si elle est là)
+  }
+  function fouleRemet(t) {
+    st.figs.forEach(f => {
+      if (f.td !== null && t >= f.td) f.tr = t;
+      f.td = null; f.prev = couleur(f, t); f.col = GRIS_FIG; f.tc = t + f.r3 * .4; f.pop = false;
+    });
+    st.chaud.set(0, t, .8);
+    // la lueur de vie s'éteint quand on remet la foule (en 1 s : chacun baisse les bras en redevenant gris) ;
+    // sans quoi ceux que l'étape suivante recolore fêteraient la vie avant qu'on en parle, ou avant le vote
+    st.lueur = Math.min(st.lueur, t - 3.2);
+  }
+  function fouleTue(t, tous = false) {
+    st.figs.forEach(f => { if (f.ta !== null && (tous || couleur(f, t + 5) === BLEU)) { f.td = t + f.r2 * 1.0; f.tp = t - .8; } });   // tp : la peur commence avec la sentence
+    st.chaud.set(1, t, 1.2);
+    regard(t - .6, 1, parmi(f => f.td !== null));   // Phi regarde les condamnés qui tremblent…
+    regard(t, 3, dernier(f => f.td, 2));            // … puis chacun qui part en caractères
+  }
+  function fouleLueur(t) { st.lueur = t; st.clair.set(1, t, .8); at(t + 3.4, tt => st.clair.set(0, tt, 1)); regard(t + .25, 3, parmi((f, T) => couleur(f, T) !== GRIS_FIG)); }
+  function verifs(t) {
+    st.verifs = t; st.figs.forEach(f => { f.tck = t + .3 + ORDRE.indexOf(f.i) * .025; f.mauvais = MAUVAIS.has(f.i); });
+    regard(t + .1, 2.7, dernier(f => f.tck !== null ? f.tck - .3 : null, .3), .25);   // Phi regarde celui qu'il mesure
+  }
+  // l'état du sujet à l'instant T, pour dessineSujet ; l'ordre des cas est voulu
+  function etatSujet(f, T, col, fa, dis, lu, zk) {
+    const e = { col, a: fa, dis, mode: 'repos', phi: oeilFoule, cible: oeilFoule, fixe: false, reflet: cligne(T) > .5 };
+    const dw = Math.hypot(f.cx - oeilFoule.x, f.cy - oeilFoule.y) / 900;   // la vague part de Phi
+    const mesure = st.verifs !== null && f.tck !== null;
+    const tfix = st.corrige !== null ? st.corrige + f.r3 * 1.2 : Infinity;
+    const rf = regardFoule, vu = rf ? Math.hypot(f.cx - rf.x, f.cy - 12 - rf.y) : Infinity;   // à quelle distance de son visage Phi regarde
+    e.fixe = (T > f.ta + .45 && T < f.ta + 1.6)                   // en arrivant, on lève les yeux vers Phi
+      || (T > st.vague + .3 + dw && T < st.vague + 2 + dw)        // Phi s'allume : de proche en proche
+      || (mesure && T > f.tck - .3 && T < f.tck + .6)             // Phi le mesure
+      || (mesure && f.mauvais && T > tfix && T < tfix + 1.2)      // corrigé : il relève la tête
+      || (vu < 60 && T > rf.t + .15 + vu / 160);                   // Phi le fixe : il lui rend son regard, puis ses voisins
+    if (dis > 0) {   // on part en caractères dans la pose où la sentence nous a pris : la peur, ou les bras croisés
+      e.mode = st.abstient !== null && f.i === ABSTIENT && T >= st.abstient ? 'rien' : f.td !== null && T >= f.tp ? 'peur' : 'repos';
+      return e;
+    }
+    if (f.pop && T > f.tc - .2 && T < f.tc + .45) { e.mode = 'saut'; e.t0 = f.tc; }
+    else if (lu > 0 && col !== GRIS_FIG) { e.mode = 'vie'; e.k = lu; }
+    else if (st.abstient !== null && f.i === ABSTIENT && T >= st.abstient) e.mode = 'rien';   // avant la peur : il reste bras croisés même quand tout le monde meurt
+    else if (f.td !== null && T >= f.tp) e.mode = 'peur';   // les condamnés, de la sentence à leur dissolution
+    else if (zk > .2 && st.zmode === 'prive') {
+      e.mode = 'prive';   // les voisins lorgnent vers le N°48 ; lui cherche les autres des yeux, en vain, d'une paroi à l'autre
+      const F = FOULE[st.focus];   // un point { x, y } : FOULE n'a que cx, cy (sinon regardeVers rend NaN, et tous regardent droit devant)
+      e.cible = f.i === st.focus ? { x: f.cx + (Math.floor(T / 1.1) % 2 ? 900 : -900), y: f.cy } : { x: F.cx, y: F.cy };
+    }
+    else if (mesure && f.mauvais && T >= f.tck && T < tfix) e.mode = 'penaud';   // de sa coche ✗ jusqu'à sa correction
+    return e;
+  }
+  function foule(T) {
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const lu = seg(T, st.lueur, st.lueur + .6) * (1 - seg(T, st.lueur + 3.2, st.lueur + 4.2));
+    const zk = st.zoom.get(T);
+    for (const f of st.figs) {
+      if (f.ta === null) continue;
+      const sc = eBack(seg(T, f.ta, f.ta + .45)) * (f.te !== null ? 1 - eIn(seg(T, f.te, f.te + .4)) : 1);
+      if (sc <= .01) continue;
+      const col = couleur(f, T);
+      let fa = col === GRIS_FIG ? .82 : 1;
+      if (f.tr !== null) fa *= seg(T, f.tr, f.tr + .8);
+      const dis = f.td !== null ? seg(T, f.td, f.td + 2.0) : 0;
+      if (dis >= 1) continue;
+      dessineSujet(f, f.cx, f.cy, 4 * sc, etatSujet(f, T, col, fa, dis, lu, zk), T);
+      // Phi mesure : un trait LABO de la tête aux pieds, juste avant la coche
+      if (st.verifs !== null && f.tck !== null && dis === 0 && T >= f.tck - .3 && T < f.tck) {
+        ctx.globalAlpha = .85 * fa; ctx.fillStyle = LABO;
+        ctx.fillRect(f.cx - 24, f.cy - 26 + 52 * seg(T, f.tck - .3, f.tck), 48, 2);
+      }
+      // en gros plan : les voisins ignorent ce que choisit le sujet, et réciproquement
+      if (zk > .2 && st.zmode === 'prive' && f.i !== st.focus && dis === 0) {
+        ctx.globalAlpha = fa * seg(zk, .2, .8); ctx.font = `14px ${PIX}`; ctx.fillStyle = GRIS; ctx.fillText('?', f.cx, f.cy - 31);
+      }
+      // celui qui ne prend rien
+      if (st.abstient && f.i === ABSTIENT && dis === 0) {
+        const k = seg(T, st.abstient, st.abstient + .4), pu = .5 + .5 * Math.sin(T * 6);
+        ctx.globalAlpha = k; ctx.strokeStyle = CRAIE; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(f.cx, f.cy, 30 + 4 * pu, 0, Math.PI * 2); ctx.stroke();
+        ctx.font = `26px ${PIX}`; ctx.fillStyle = CRAIE; ctx.fillText('∅', f.cx, f.cy - 48);
+      }
+      // les coches de compréhension au-dessus de chaque sujet (pas à côté de la tête : à cx + 24, elles tomberaient entre deux sujets)
+      if (st.verifs !== null && f.tck !== null && T >= f.tck) {
+        const k = eBack(seg(T, f.tck, f.tck + .35));
+        const tfix = st.corrige !== null ? st.corrige + f.r3 * 1.2 : Infinity;
+        const faux = f.mauvais && T < tfix;
+        const flash = f.mauvais && T >= tfix ? 1 - seg(T, tfix, tfix + .5) : 0;
+        ctx.globalAlpha = fa * Math.min(1, Math.max(0, k));
+        ctx.font = `${Math.round(18 * k + 6 * flash)}px ${PIX}`;
+        ctx.fillStyle = faux ? ROUGE_TXT : mix(LABO, CRAIE, flash);
+        ctx.fillText(faux ? '✗' : '✓', f.cx, f.cy - 31);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // ---------------------------------------------------------------- gros plan sur un sujet, dans son isoloir
+  const CAM = { x: 650, y: 470, z: 4.2 };
+  // la caméra de la foule : un point x de la foule est en cx + (x − F.cx)·z dans la scène (z = 1 hors de l'isoloir)
+  function camera(T) {
+    const k = eIO(clamp(st.zoom.get(T), 0, 1)), F = FOULE[st.focus];
+    return { k, F, z: lerp(1, CAM.z, k), cx: lerp(F.cx, CAM.x, k), cy: lerp(F.cy, CAM.y, k) };
+  }
+  function fouleCamera(T) {
+    const { k, F, z, cx, cy } = camera(T), ex = st.oeil.ex.get(T), ey = st.oeil.ey.get(T), R = st.rg;
+    // le regard de Phi, une fois la saccade posée, ramené lui aussi dans le repère de la foule
+    regardFoule = !R.v && T > R.t0 + R.d ? { x: F.cx + (R.x - cx) / z, y: F.cy + (R.y - cy) / z, t: R.t0 + R.d } : null;
+    if (k < .001) { oeilFoule = { x: ex, y: ey }; foule(T); return; }
+    const prive = st.zmode === 'prive';
+    oeilFoule = { x: F.cx + (ex - cx) / z, y: F.cy + (ey - cy) / z };   // sans cette conversion, le regard serait faux dans l'isoloir
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, 1272, 846); ctx.clip();
+    ctx.translate(cx, cy); ctx.scale(z, z); ctx.translate(-F.cx, -F.cy);
+    foule(T);
+    ctx.restore();
+    // la pénombre autour, l'isoloir, l'étiquette
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, 1272, 846); ctx.clip();
+    const g = ctx.createRadialGradient(CAM.x, CAM.y, 150, CAM.x, CAM.y, 520);
+    g.addColorStop(0, 'rgba(12,11,13,0)'); g.addColorStop(1, `rgba(12,11,13,${.9 * k})`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 1272, 846);
+    const a = seg(k, .6, 1);
+    if (a > 0 && !prive) {
+      ctx.globalAlpha = a;
+      ctx.font = `24px ${PIX}`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      const lab = `SUJET N°${st.focus + 1} · AUCUNE PILULE`, lw = ctx.measureText(lab).width + 36;
+      ctx.fillStyle = 'rgba(12,11,13,.92)'; ctx.fillRect(CAM.x - lw / 2, CAM.y + 150, lw, 40);
+      ctx.strokeStyle = CRAIE; ctx.lineWidth = 2; ctx.strokeRect(CAM.x - lw / 2, CAM.y + 150, lw, 40);
+      ctx.fillStyle = CRAIE; ctx.fillText(lab, CAM.x, CAM.y + 178);
+    }
+    if (a > 0 && prive) {
+      ctx.globalAlpha = a;
+      for (const sx of [-1, 1]) {
+        const x = CAM.x + sx * 125;
+        ctx.fillStyle = 'rgba(241,233,220,.07)'; ctx.fillRect(sx < 0 ? x - 26 : x, CAM.y - 150, 26, 300);
+        ctx.strokeStyle = 'rgba(241,233,220,.55)'; ctx.lineWidth = 2; ctx.strokeRect(sx < 0 ? x - 26 : x, CAM.y - 150, 26, 300);
+      }
+      ctx.strokeStyle = 'rgba(241,233,220,.35)'; ctx.beginPath(); ctx.moveTo(CAM.x - 151, CAM.y + 150); ctx.lineTo(CAM.x + 151, CAM.y + 150); ctx.stroke();
+      // un petit cadenas au-dessus de la tête
+      const lx = CAM.x, ly = CAM.y - 135;
+      ctx.strokeStyle = LABO; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(lx, ly - 6, 9, Math.PI, 0); ctx.stroke();
+      ctx.fillStyle = LABO; ctx.fillRect(lx - 13, ly - 6, 26, 20);
+      ctx.font = `24px ${PIX}`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      const lab = `SUJET N°${FOCUS + 1} · CHOIX PRIVÉ`, lw = ctx.measureText(lab).width + 36;
+      ctx.fillStyle = 'rgba(12,11,13,.92)'; ctx.fillRect(CAM.x - lw / 2, CAM.y - 200, lw, 40);
+      ctx.strokeStyle = LABO; ctx.lineWidth = 2; ctx.strokeRect(CAM.x - lw / 2, CAM.y - 200, lw, 40);
+      ctx.fillStyle = LABO; ctx.fillText(lab, CAM.x, CAM.y - 172);
+    }
+    ctx.restore(); ctx.globalAlpha = 1;
+  }
+
+  // ================================================================ jauge
+  function jauge(T) {
+    const a = st.jauge.get(T);
+    if (a <= .01) return;
+    let nb = 0, nr = 0;
+    for (const f of st.figs) { if (f.ta === null) continue; const c = couleur(f, T); if (c === BLEU) nb++; else if (c === ROUGE) nr++; }
+    const x0 = 150, w = 1000, y = 692;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = '#1e1c20'; ctx.fillRect(x0, y, w, 14);
+    ctx.fillStyle = BLEU; ctx.fillRect(x0, y, w * nb / 100, 14);
+    ctx.fillStyle = ROUGE; ctx.fillRect(x0 + w - w * nr / 100, y, w * nr / 100, 14);
+    ctx.fillStyle = CRAIE; ctx.fillRect(x0 + w / 2 - 1.5, y - 12, 3, 38);
+    ctx.font = `500 20px ${MONO}`; ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = 'left'; ctx.fillStyle = BLEU_TXT; ctx.fillText(`BLEUE ${nb} %`, x0, y - 12);
+    ctx.textAlign = 'right'; ctx.fillStyle = ROUGE_TXT; ctx.fillText(`${nr} % ROUGE`, x0 + w, y - 12);
+    ctx.textAlign = 'center'; ctx.fillStyle = GRIS; ctx.fillText('50 %', x0 + w / 2, y - 20);
+    ctx.globalAlpha = 1;
+  }
+
+  // ================================================================ fenêtres façon jeu rétro
+  function fenetre(x, y, w, h, a, bord = CRAIE) {
+    ctx.globalAlpha = a;
+    ctx.fillStyle = 'rgba(12,11,13,.92)'; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = LAITON; ctx.lineWidth = 3; ctx.strokeRect(x - 7.5, y - 7.5, w + 15, h + 15);
+    ctx.strokeStyle = bord; ctx.lineWidth = 4; ctx.strokeRect(x, y, w, h);
+  }
+  // texte balisé : [b]…[/b] en bleu, [r]…[/r] en rouge ; \n = saut de ligne
+  function balise(txt) {
+    return txt.split('\n').map(l => {
+      const segs = []; const re = /\[(b|r)\](.*?)\[\/\1\]/g; let m, last = 0;
+      while ((m = re.exec(l))) { if (m.index > last) segs.push({ s: l.slice(last, m.index), c: CRAIE }); segs.push({ s: m[2], c: m[1] === 'b' ? BLEU_TXT : ROUGE_TXT }); last = re.lastIndex; }
+      if (last < l.length) segs.push({ s: l.slice(last), c: CRAIE });
+      return segs;
+    });
+  }
+  const longueur = lignes => lignes.reduce((a, l) => a + l.reduce((b, s) => b + [...s.s].length, 0), 0);
+  function ecrit(lignes, x, y, lh, n) {
+    lignes.forEach((l, li) => {
+      let cx = x; const cy = y + li * lh;
+      for (const s of l) {
+        if (n <= 0) break;
+        const chars = [...s.s], vis = chars.slice(0, n).join(''); n -= chars.length;
+        ctx.fillStyle = s.c; ctx.fillText(vis, cx, cy); cx += ctx.measureText(vis).width;
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------- dialogue
+  const CPS = 36;
+  function dit(t, txt) {
+    const l = balise(txt), pos = [];   // pos : où finit chaque caractère (la plume, que Phi peut suivre des yeux)
+    ctx.save(); ctx.font = `34px ${PIX}`;
+    l.forEach((ligne, li) => { let x = 124; for (const s of ligne) for (const c of s.s) { x += ctx.measureText(c).width; pos.push([x, 918 + li * 52]); } });
+    ctx.restore();
+    st.dlg = { lignes: l, n: longueur(l), t0: t, pos };
+  }
+  const dlgFini = T => !st.dlg || Math.floor((T - st.dlg.t0) * CPS) >= st.dlg.n;
+  function dialogue(T) {
+    if (T < st.dlgOuvre) return;
+    const o = eOut(seg(T, st.dlgOuvre, st.dlgOuvre + .4)), x = 80, y = 862, w = 1760, h = 178, hh = h * o;
+    fenetre(x, y + (h - hh) / 2, w, hh, 1);
+    if (o < 1) { ctx.globalAlpha = 1; return; }
+    fenetre(112, 838, 132, 44, 1);
+    ctx.globalAlpha = 1; ctx.fillStyle = LABO; ctx.font = `26px ${PIX}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('XPHI', 178, 861);
+    const d = st.dlg; if (!d) return;
+    ctx.font = `34px ${PIX}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ecrit(d.lignes, 124, 930, 52, Math.floor((T - d.t0) * CPS));
+    if (dlgFini(T) && attendSuite() && Math.floor(T * 2) % 2 === 0) {
+      ctx.fillStyle = CRAIE; ctx.font = `26px ${PIX}`; ctx.fillText('▼', 1800, 1020);
+    }
+  }
+
+  // ---------------------------------------------------------------- résumé des règles, qui se remplit au fil de l'exposé
+  const REGLES = [
+    ['Chacun avale une pilule.'],
+    ['Choix simultanés et privés :', 'personne ne connaît celui des autres.'],
+    ['[b]■[/b] plus de 50 % de [b]bleues[/b]', '  → tout le monde vit'],
+    ['[r]■[/r] au moins 50 % de [r]rouges[/r]', '  → ceux qui ont la [b]bleue[/b] meurent'],
+    ['∅ une seule personne sans pilule', '  → tout le monde meurt'],
+  ].map(r => balise(r.join('\n')));
+  const RX = 1290, RY = 40, RW = 570, RLH = 31, RGAP = 16;
+  const hauteurRegles = n => n === 0 ? 0 : 74 + REGLES.slice(0, n).reduce((a, r) => a + r.length * RLH, 0) + (n - 1) * RGAP + 18;
+  function ajouteRegle(t, i) {
+    if (st.regles.some(r => r.i === i)) return;
+    st.regles.push({ i, t });
+    regard(t, longueur(REGLES[i]) / 70 + .6, regle(i), .2);   // Phi suit la règle qu'il écrit
+    st.reglesA.set(1, t - .4, .4);
+    st.reglesH.set(hauteurRegles(st.regles.length), t - .4, .4);
+  }
+  function regles(T) {
+    const a = st.reglesA.get(T); if (a <= .01) return;
+    const h = Math.max(64, st.reglesH.get(T));
+    const pu = seg(T, st.pulse, st.pulse + .3) * (1 - seg(T, st.pulse + 1.6, st.pulse + 2.4));
+    fenetre(RX, RY, RW, h, a, pu > 0 ? mix(CRAIE, LABO, pu) : CRAIE);
+    ctx.globalAlpha = a; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.font = `24px ${PIX}`; ctx.fillStyle = LABO; ctx.fillText('RÈGLES', RX + 24, RY + 40);
+    ctx.fillStyle = '#3a363a'; ctx.fillRect(RX + 24, RY + 54, RW - 48, 2);
+    let y = RY + 92;
+    ctx.font = `21px ${MONO}`;
+    st.regles.forEach(r => {
+      const lignes = REGLES[r.i], n = Math.floor((T - r.t) * 70);
+      if (n > 0) {
+        const fl = (1 - seg(T, r.t, r.t + 1.4)) + pu * .8;
+        if (fl > 0) { ctx.fillStyle = rgba(LABO, .14 * Math.min(1, fl)); ctx.fillRect(RX + 12, y - 24, RW - 24, lignes.length * RLH + 8); }
+        ecrit(lignes, RX + 24, y, RLH, n);
+      }
+      y += lignes.length * RLH + RGAP;
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  // ---------------------------------------------------------------- cartouche, tampon
+  function cartouche(T) {
+    const a = seg(T, 5.6, 6.2);
+    if (a <= 0) return;
+    fenetre(48, 40, 300, 84, a);
+    ctx.font = `24px ${PIX}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = LAITON; ctx.fillText('TEST 01', 70, 74);
+    ctx.fillStyle = CRAIE; ctx.fillText('LES DEUX PILULES', 70, 108);
+    ctx.globalAlpha = 1;
+  }
+  function tampon(T) {
+    const tp = st.tampon; if (!tp || T < tp.t) return;
+    const a = seg(T, tp.t, tp.t + .3), s = lerp(1.5, 1, eOut(seg(T, tp.t, tp.t + .35)));
+    ctx.save(); ctx.globalAlpha = a; ctx.translate(650, 540); ctx.rotate(-6 * Math.PI / 180); ctx.scale(s, s);
+    ctx.font = `${tp.taille}px ${PIX}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const w = ctx.measureText(tp.txt).width + 90, h = tp.taille * 1.45;
+    ctx.fillStyle = 'rgba(12,11,13,.8)'; ctx.fillRect(-w / 2, -h / 2, w, h);
+    ctx.strokeStyle = tp.c; ctx.lineWidth = 5; ctx.strokeRect(-w / 2, -h / 2, w, h);
+    ctx.fillStyle = tp.c; ctx.fillText(tp.txt, 0, 6);
+    ctx.restore();
+  }
+
+  // ================================================================ le test de compréhension
+  const OPT4 = ['Tout le monde vit.', 'Les bleus vivent, les rouges meurent.', 'Les bleus meurent, les rouges vivent.', 'Tout le monde meurt.'];
+  const QUESTIONS = [
+    { txt: 'Si tout le monde prend la [b]bleue[/b] :', lot: 'b100', opts: ['Tout le monde vit.', 'Tout le monde meurt.'], ok: 0, issue: 'vie',
+      bravo: 'la [b]bleue[/b] est majoritaire, tout le monde vit.' },
+    { txt: 'Si tout le monde prend la [r]rouge[/r] :', lot: 'b0', opts: ['Tout le monde vit.', 'Tout le monde meurt.'], ok: 0, issue: 'vie',
+      bravo: 'tout le monde vit. Personne n’a pris la [b]bleue[/b],\ndonc personne ne meurt.' },
+    { txt: 'Si 25 % prennent la [b]bleue[/b] et 75 % la [r]rouge[/r] :', lot: 'b25', opts: OPT4, ok: 2, issue: 'mort',
+      bravo: 'la [r]rouge[/r] l’emporte, ceux qui ont la [b]bleue[/b] meurent.' },
+    { txt: 'Si 75 % prennent la [b]bleue[/b] et 25 % la [r]rouge[/r] :', lot: 'b75', opts: OPT4, ok: 0, issue: 'vie',
+      bravo: 'la [b]bleue[/b] est majoritaire, tout le monde vit.' },
+  ];
+  // les réponses : de grands boutons juste au-dessus de la question
+  const BY = 724, BH = 100;
+  function boutons() {
+    const q = st.quiz; if (!q) return [];
+    const n = QUESTIONS[q.qi].opts.length;
+    const bw = n === 2 ? 560 : (1760 - 3 * 24) / 4, gap = n === 2 ? 40 : 24;
+    const tot = n * bw + (n - 1) * gap, x0 = 960 - tot / 2;
+    return QUESTIONS[q.qi].opts.map((op, i) => ({ i, op, x: x0 + i * (bw + gap), y: BY, w: bw, h: BH }));
+  }
+  function coupe(txt, w) {
+    const mots = txt.split(' '), out = []; let l = '';
+    for (const m of mots) { const e = l ? l + ' ' + m : m; if (ctx.measureText(e).width > w && l) { out.push(l); l = m; } else l = e; }
+    if (l) out.push(l);
+    return out;
+  }
+  function entreQuestion(t, qi) {
+    const Q = QUESTIONS[qi];
+    fouleRemet(t);
+    fouleChoisit(t + .5, LOTS[Q.lot]);
+    st.jauge.set(1, t, .5);
+    st.quiz = { qi, sel: -1, phase: 'pose', t, ok: null };
+    dit(t + .3, `Question ${qi + 1} sur 4. ${Q.txt}`);
+    humeur(t, 'neutre');
+  }
+  function valideQuestion(t) {
+    const q = st.quiz, Q = QUESTIONS[q.qi];
+    if (!q || q.phase !== 'pose' || q.sel < 0) return;
+    q.ok = q.sel === Q.ok; q.phase = 'reponse'; q.t = t;
+    if (Q.issue === 'vie') fouleLueur(t + .3); else fouleTue(t + .3);
+    regard(t, .6, bouton(q.sel), .1);   // Phi regarde la réponse, puis ce qu'elle fait à la foule
+    if (q.ok) { dit(t + .2, `Exact : ${Q.bravo}`); humeur(t, 'grand'); at(t + 2.6, tt => humeur(tt, 'neutre')); }
+    else { dit(t + .2, `Hmm, non. Regardez : ${Q.bravo}`); humeur(t, 'plisse'); secoue(t + .2); }
+  }
+  function questionSuite(t) {
+    const q = st.quiz;
+    if (q.phase === 'reponse' && !q.ok) {
+      q.phase = 'reexplique'; q.t = t;
+      fouleRemet(t); st.jauge.set(0, t, .4);
+      st.pulse = t; humeur(t, 'neutre'); regard(t + .1, 1.8, fenetreRegles);
+      dit(t + .2, 'Pas de souci : je vous réexplique les règles…\net on refait passer un test.');
+      return true;
+    }
+    if (q.phase === 'reexplique') { entreQuestion(t, q.qi); return true; }
+    return false;
+  }
+  function fenetreQuestion(T) {
+    const q = st.quiz; if (!q || q.phase === 'reexplique') return;
+    const Q = QUESTIONS[q.qi], rep = q.phase === 'reponse';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (const b of boutons()) {
+      const k = eBack(seg(T, q.t + .4 + b.i * .08, q.t + .75 + b.i * .08));
+      if (k <= 0 && !rep) continue;
+      const s = rep ? 1 : k, choisi = b.i === q.sel, juste = b.i === Q.ok;
+      let bord = CRAIE, txt = CRAIE, a = 1;
+      if (rep) { if (juste) { bord = LABO; txt = LABO; } else if (choisi) { bord = ROUGE_TXT; txt = ROUGE_TXT; } else { a = .35; } }
+      else if (choisi) { bord = LAITON; txt = LAITON; }
+      const cx = b.x + b.w / 2, cy = b.y + b.h / 2, w = b.w * s, h = b.h * s;
+      ctx.globalAlpha = a * Math.min(1, s);
+      ctx.fillStyle = choisi && !rep ? 'rgba(215,165,72,.12)' : 'rgba(12,11,13,.92)'; ctx.fillRect(cx - w / 2, cy - h / 2, w, h);
+      ctx.strokeStyle = bord; ctx.lineWidth = choisi || (rep && juste) ? 5 : 3; ctx.strokeRect(cx - w / 2, cy - h / 2, w, h);
+      if (s < .9) continue;
+      ctx.font = `20px ${PIX}`; ctx.fillStyle = choisi && !rep ? LAITON : GRIS; ctx.textAlign = 'left';
+      ctx.fillText(String(b.i + 1), b.x + 14, b.y + 22);
+      ctx.textAlign = 'center'; ctx.font = `28px ${PIX}`; ctx.fillStyle = txt;
+      const lignes = coupe(b.op, b.w - 70);
+      lignes.forEach((l, li) => ctx.fillText(l, cx, cy + 3 + (li - (lignes.length - 1) / 2) * 36));
+      if (rep && (juste || choisi)) { ctx.font = `30px ${PIX}`; ctx.fillText(juste ? '✓' : '✗', b.x + b.w - 26, b.y + 24); }
+    }
+    ctx.globalAlpha = 1;
+  }
+  const zonesQuestion = () => { const q = st.quiz; if (!q || q.phase !== 'pose') return []; return boutons(); };
+
+  // ================================================================ le choix : bleue à gauche, rouge à droite
+  const MX = 160, MY = 680, MW = 980, MH = 96;
+  function entreChoix(t) {
+    st.choix = { sel: -1, fait: null };
+    dit(t + .2, 'Alors : [b]bleue[/b] ou [r]rouge[/r] ?');
+    humeur(t, 'curieux');
+  }
+  function selectChoix(t, i) {
+    const c = st.choix; if (!c || c.fait !== null || i === c.sel) return;
+    c.sel = i;
+    st.pil.forEach((p, j) => { p.hl.set(j === i ? 1 : 0, t, .35); p.a.set(j === i ? 1 : .4, t, .35); });   // Phi la regarde : c'est le geste (regardPhi)
+  }
+  function confirmeChoix(t) {
+    const c = st.choix; if (!c || c.fait !== null || c.sel < 0) return;
+    c.fait = t;
+    const P = st.pil[c.sel], A = st.pil[1 - c.sel];
+    P.px.set(650, t, .7); P.py.set(540, t, .7); P.ps.set(1.25, t, .7);
+    A.a.set(0, t, .5);
+    P.eclat = t + .75;
+    regard(t, 1.9, pilule(c.sel), .15);   // Phi suit la pilule choisie jusqu'à son éclat
+    at(t + .75, tt => humeur(tt, 'grand'));
+    dit(t + 1.0, `Choix enregistré : pilule ${c.sel === 0 ? '[b]bleue[/b]' : '[r]rouge[/r]'}.`);
+  }
+  function menuChoix(T) {
+    const c = st.choix; if (!c) return;
+    const o = c.fait !== null ? 1 - seg(T, c.fait, c.fait + .4) : seg(T, c.t0 || 0, (c.t0 || 0) + .3);
+    if (o <= 0) return;
+    fenetre(MX, MY, MW, MH, o);
+    ctx.font = `30px ${PIX}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    [['◀ PILULE BLEUE', BLEU_TXT, 380], ['PILULE ROUGE ▶', ROUGE_TXT, 920]].forEach(([lab, col, x], i) => {
+      const sel = i === c.sel;
+      if (sel && Math.floor(T * 3) % 3 !== 0) {
+        ctx.strokeStyle = LAITON; ctx.lineWidth = 3;
+        const w = ctx.measureText(lab).width + 50;
+        ctx.strokeRect(x - w / 2, MY + 18, w, MH - 36);
+      }
+      ctx.fillStyle = sel ? LAITON : col; ctx.fillText(lab, x, MY + MH / 2 + 2);
+    });
+    ctx.globalAlpha = 1;
+  }
+  const zonesChoix = () => {
+    const c = st.choix; if (!c || c.fait !== null) return [];
+    return [0, 1].map(i => ({ i, x: (i === 0 ? 380 : 920) - 260, y: 250, w: 520, h: MY + MH - 250 }));
+  };
+
+  // ================================================================ le scénario, étape par étape
+  const ETAPES = [
+    { nom: 'accueil', entre: t => {
+      st.dlgOuvre = t + .2; oeilVers(t, { a: 1 }, .6);
+      at(t + .3, tt => st.oeil.r.set(12.5, tt, .7));
+      regard(t + 1.2, .8, point(1560, 450)); regard(t + 2.0, .8, point(360, 450)); regard(t + 2.8, 2.2, VOUS);   // il s'éveille, fait le tour de la salle, puis vous regarde
+      dit(t + .6, 'Bonjour. Bienvenue au test n°1.\nNe vous inquiétez pas : c’est pour la science.');
+    } },
+    { nom: 'les pilules', entre: t => {
+      oeilVers(t, { ex: 650, ey: 240, es: 220 }, 1.2);
+      st.pil[0].t0 = t + .6; st.pil[0].lab = t + 2.2; st.pil[1].t0 = t + 2.0; st.pil[1].lab = t + 3.6;
+      regard(t + .8, 1.6, pilule(0)); regard(t + 2.3, 1.6, pilule(1)); regard(t + 3.9, 1.6, VOUS);   // la bleue qui se forme, la rouge, puis vous
+      dit(t + .2, 'Voici deux pilules : une [b]bleue[/b] et une [r]rouge[/r].');
+    } },
+    { nom: 'une pilule', entre: t => { dit(t, 'Chacun de vous va devoir en avaler une. Une seule.'); ajouteRegle(t + .8, 0); } },
+    { nom: 'les sujets', entre: t => {
+      pilulesVers(t, 'icones'); oeilVers(t, { ey: 160, es: 160 }); fouleMontre(t + .6); at(t + 1.2, tt => humeur(tt, 'bas'));
+      dit(t, 'Vous êtes cent. Vous choisissez tous en même temps,\nsans vous concerter.');
+    } },
+    { nom: 'choix privé', entre: t => {
+      st.focus = FOCUS; st.zmode = 'prive'; st.zoom.set(1, t, 1.6); humeur(t, 'bas'); oeilVers(t, { ex: 1110, ey: 300, es: 150 }, 1.4); regard(t + .4, 6, sujet(FOCUS));
+      dit(t + .8, 'Chaque choix est privé, et se fait sans pouvoir\nconnaître celui des autres.'); ajouteRegle(t + 2.2, 1);
+    } },
+    { nom: 'règle 1', entre: t => { st.zoom.set(0, t, 1.2); oeilVers(t, { ex: 650, ey: 160, es: 160 }, 1.2); humeur(t, 'neutre'); st.jauge.set(1, t + .6, .5); fouleChoisit(t + .2, LOTS.b62); dit(t, 'Si plus de la moitié d’entre vous prend la [b]bleue[/b]…'); } },
+    { nom: 'règle 1', entre: t => { fouleLueur(t); humeur(t, 'grand'); at(t + 2.8, tt => humeur(tt, 'neutre')); dit(t, '… tout le monde vit. Tout le monde !'); ajouteRegle(t + .9, 2); } },
+    { nom: 'règle 2', entre: t => { fouleRemet(t); fouleChoisit(t + .7, LOTS.b40); humeur(t, 'doute'); dit(t, 'Mais si au moins la moitié prend la [r]rouge[/r]…'); } },
+    { nom: 'règle 2', entre: t => { fouleTue(t + .3); humeur(t, 'plisse'); dit(t, '… ceux qui ont pris la [b]bleue[/b] meurent.'); } },
+    { nom: 'règle 2', entre: t => { dit(t, 'Seuls les [r]rouges[/r] survivent.'); ajouteRegle(t + .4, 3); } },
+    { nom: 'règle 3', entre: t => {
+      fouleRemet(t); st.jauge.set(0, t, .5); humeur(t, 'neutre');
+      st.tampon = { txt: 'OBLIGATOIRE', t: t + .7, taille: 104, c: CRAIE }; regard(t + .75, 1.4, point(650, 540));
+      dit(t, 'Et attention : prendre une pilule est obligatoire.');
+    } },
+    { nom: 'règle 3', entre: t => {
+      st.tampon = null; fouleChoisit(t + .1, LOTS.b62, ABSTIENT); humeur(t, 'doute');
+      st.focus = ABSTIENT; st.zmode = 'abstient';
+      st.zoom.set(1, t + 2.6, 1.4); oeilVers(t + 2.6, { ex: 1110, ey: 300, es: 150 }, 1.4); regard(t + 2.4, 4.5, sujet(ABSTIENT));   // celui qui n'a pas sauté
+      st.abstient = t + 3.4;
+      dit(t, 'Imaginez que tout le monde prenne une pilule…\nsauf une seule personne.');
+    } },
+    { nom: 'règle 3', entre: t => {
+      st.zoom.set(0, t, 1.0); oeilVers(t, { ex: 650, ey: 160, es: 160 }, 1.0);
+      fouleTue(t + 1.1, true); humeur(t + 1.1, 'plisse'); secoue(t + 1.2);
+      dit(t + .4, 'Eh bien, à cause de cette seule personne,\ntout le monde meurt. Absolument tout le monde.'); ajouteRegle(t + 1.8, 4);
+      regard(t + 1.8, 2.3, dernier(f => f.td, 2));   // la règle s'écrit, mais Phi regarde la foule partir jusqu'au dernier (même début, poussé après : il l'emporte)
+    } },
+    { nom: 'le test', entre: t => { st.abstient = null; fouleRemet(t); humeur(t, 'curieux'); regard(t, 1.6, VOUS); at(t + 1.5, tt => humeur(tt, 'neutre')); dit(t, 'Avant de choisir, un petit test de compréhension.'); } },
+    { nom: 'question 1', q: 0 }, { nom: 'question 2', q: 1 }, { nom: 'question 3', q: 2 }, { nom: 'question 4', q: 3 },
+    { nom: 'compris', entre: t => { fouleRemet(t); st.jauge.set(0, t, .5); humeur(t, 'grand'); regard(t, 2, VOUS); at(t + 2.5, tt => humeur(tt, 'neutre')); dit(t, 'Parfait : vous avez tout compris !'); } },
+    { nom: 'tous testés', entre: t => { verifs(t + .5); humeur(t, 'bas'); dit(t, 'Et ce n’est pas seulement vous : chaque participant\npasse exactement le même test.'); } },
+    { nom: 'les erreurs', entre: t => {
+      st.corrige = t + 1.0; st.pulse = t + .6; humeur(t, 'neutre');
+      regard(t + .6, 1.4, fenetreRegles); regard(t + 1.05, 1.7, dernier(f => f.mauvais ? st.corrige + f.r3 * 1.2 : null));   // les règles, puis les corrigés
+      dit(t, 'En cas d’erreur, on lui réexplique les règles et on lui\nrefait passer un test, jusqu’à ce qu’il ait compris.');
+    } },
+    { nom: 'tous ont compris', entre: t => {
+      st.tampon = { txt: '100 / 100 ONT COMPRIS', t: t + .8, taille: 64, c: LABO }; at(t + .8, tt => humeur(tt, 'grand')); regard(t + .85, 1.5, point(650, 540));
+      dit(t, 'Donc, au moment de choisir, tous les participants\nont parfaitement compris les règles. Tous, sans exception.');
+    } },
+    { nom: 'le choix', entre: t => {
+      st.verifs = null; fouleCache(t); humeur(t, 'neutre');
+      oeilVers(t + .4, { ey: 200, es: 190 }); pilulesVers(t + .4, 'choix');
+      regard(t + .6, 1, pilule(0)); regard(t + 1.6, 1, pilule(1)); regard(t + 2.6, 1.5, VOUS);
+      dit(t, 'Bien. C’est à vous de choisir.');
+    } },
+    { nom: 'le choix', choix: true },
+    { nom: 'fin', fin: true, entre: t => { humeur(t, 'neutre'); regard(t, 2, VOUS); dit(t, 'Les résultats seront connus quand tous les participants\nauront fait leur choix. Merci pour la science !'); } },
+  ];
+  const IDX_CHOIX = ETAPES.findIndex(e => e.choix);
+
+  function entre(i, t) {
+    cur = i; st.tampon = null; st.quiz = null;
+    const E = ETAPES[i];
+    if (E.q !== undefined) entreQuestion(t, E.q);
+    else if (E.choix) { entreChoix(t); st.choix.t0 = t; }
+    else E.entre(t);
+    st.fin = !!E.fin;
+  }
+  // Rejoue les étapes précédentes « dans le passé » pour arriver à l'étape k dans le bon état.
+  function allerA(k, maintenant) {
+    etatInitial();
+    k = Math.min(clamp(k, 0, ETAPES.length - 1), IDX_CHOIX);
+    const pas = 7;
+    for (let i = 0; i < k; i++) {
+      const tp = maintenant - pas * (k - i) - 2;
+      vide(tp); entre(i, tp);
+      if (ETAPES[i].q !== undefined) { st.quiz.sel = QUESTIONS[ETAPES[i].q].ok; valideQuestion(tp + 1); }
+    }
+    vide(maintenant);
+    entre(k, maintenant);
+  }
+  const attendSuite = () => !st.fin && !(st.quiz && st.quiz.phase === 'pose') && !(st.choix && st.choix.fait === null);
+  function suite(t) {
+    if (cur < 0) return;
+    if (!dlgFini(t)) { st.dlg.t0 = t - st.dlg.n / CPS; return; }
+    if (st.quiz) {
+      if (st.quiz.phase === 'pose') { valideQuestion(t); return; }
+      if (questionSuite(t)) return;
+    }
+    if (st.choix && st.choix.fait === null) { confirmeChoix(t); return; }
+    if (st.fin) return;
+    entre(cur + 1, t);
+  }
+
+  // ================================================================ rendu
+  function rendu(T) {
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    regardPhi(T);
+    fond(T);
+    terminal(T);
+    pilules(T);
+    fouleCamera(T);
+    jauge(T);
+    oeil(T);
+    tampon(T);
+    cartouche(T);
+    regles(T);
+    fenetreQuestion(T);
+    menuChoix(T);
+    dialogue(T);
+    voile();
+  }
+
+  // ================================================================ lecture et commandes
+  const $ = id => document.getElementById(id);
+  const temps = () => performance.now() / 1000 - debut;
+  function hud() {
+    if (cur < 0) { $('etape').innerHTML = '<b>ouverture</b>'; $('prog').style.width = '0%'; $('aide').textContent = ''; return; }
+    $('etape').innerHTML = `<b>${String(cur + 1).padStart(2, '0')}/${ETAPES.length}</b> ${ETAPES[cur].nom}`;
+    $('prog').style.width = ((cur + 1) / ETAPES.length * 100) + '%';
+    let aide = 'espace : suite · ⌫ : retour · R : recommencer';
+    if (st.quiz && st.quiz.phase === 'pose') aide = '1–4 ou clic : répondre · ← → puis espace';
+    else if (st.choix && st.choix.fait === null) aide = '← → : choisir · espace : valider';
+    else if (st.fin) aide = 'R : recommencer';
+    $('aide').textContent = aide;
+  }
+  function boucle() {
+    const T = temps();
+    if (cur < 0 && T >= 4.4) entre(0, 4.4);
+    vide(T);
+    rendu(T); hud();
+    requestAnimationFrame(boucle);
+  }
+  function recommence() { debut = performance.now() / 1000; cur = -1; souris = null; etatInitial(); }
+
+  function versToile(e) {
+    const r = cv.getBoundingClientRect(), k = Math.min(r.width / W, r.height / H);
+    const ox = r.left + (r.width - W * k) / 2, oy = r.top + (r.height - H * k) / 2;
+    return [(e.clientX - ox) / k, (e.clientY - oy) / k];
+  }
+  const dans = (z, x, y) => x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h;
+  cv.addEventListener('click', e => {
+    cv.focus();
+    const T = temps(), [x, y] = versToile(e);
+    if (dlgFini(T)) {
+      for (const z of zonesQuestion()) if (dans(z, x, y)) { st.quiz.sel = z.i; valideQuestion(T); return; }
+      for (const z of zonesChoix()) if (dans(z, x, y)) { selectChoix(T, z.i); confirmeChoix(T); return; }
+    }
+    suite(T);
+  });
+  // survol à la souris : la réponse ou la pilule sous le pointeur se met en avant
+  cv.addEventListener('mousemove', e => {
+    const T = temps(), [x, y] = versToile(e);
+    if (x >= 0 && x <= W && y >= 0 && y <= H) souris = { x, y, t: T };   // Phi suit le pointeur
+    if (!dlgFini(T)) return;
+    for (const z of zonesQuestion()) if (dans(z, x, y)) { st.quiz.sel = z.i; return; }
+    for (const z of zonesChoix()) if (dans(z, x, y)) { selectChoix(T, z.i); return; }
+  });
+  cv.addEventListener('mouseleave', () => { souris = null; });
+  const deplace = (s, n, d) => (s < 0 ? (d > 0 ? 0 : n - 1) : (s + d + n) % n);
+  addEventListener('keydown', e => {
+    const T = temps(), k = e.key;
+    const quizOuvert = st.quiz && st.quiz.phase === 'pose', choixOuvert = st.choix && st.choix.fait === null;
+    if (k === ' ' || k === 'Enter') { e.preventDefault(); if (!e.repeat) suite(T); }
+    else if (quizOuvert && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(k)) {
+      e.preventDefault(); st.quiz.sel = deplace(st.quiz.sel, QUESTIONS[st.quiz.qi].opts.length, k === 'ArrowDown' || k === 'ArrowRight' ? 1 : -1);
+    }
+    else if (quizOuvert && /^[1-4]$/.test(k) && +k <= QUESTIONS[st.quiz.qi].opts.length) {
+      if (!dlgFini(T)) st.dlg.t0 = T - st.dlg.n / CPS;
+      st.quiz.sel = +k - 1; valideQuestion(T);
+    }
+    else if (choixOuvert && (k === 'ArrowLeft' || k === 'ArrowRight')) { e.preventDefault(); selectChoix(T, k === 'ArrowLeft' ? 0 : 1); }
+    else if (k === 'Backspace') { e.preventDefault(); if (cur > 0) allerA(cur - 1, T); }
+    else if (k === 'r' || k === 'R') recommence();
+    else if (k === 'c' || k === 'C') $('hud').hidden = !$('hud').hidden;
+  });
+
+  const polices = Promise.all([document.fonts.load('34px "DotGothic16"'), document.fonts.load('34px "IBM Plex Mono"'), document.fonts.load('500 26px "IBM Plex Mono"')]);
+  Promise.race([polices, new Promise(r => setTimeout(r, 2500))]).catch(() => {}).then(() => {
+    prepareTerminal();
+    prepareGlyphes();
+    recommence();
+    const m = location.hash.match(/e(\d+)/); // #e12 : ouvrir directement à l'étape 12
+    if (m) { debut -= 8; allerA(+m[1] - 1, temps()); }
+    window.__allerA = k => allerA(k, temps());
+    window.__suite = () => suite(temps());
+    window.__touche = (k) => dispatchEvent(new KeyboardEvent('keydown', { key: k }));
+    requestAnimationFrame(boucle);
+  });
+})();
+</script>
+
+</body></html>

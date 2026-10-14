@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0b0d">
+<title>Xphi — Résultats de l’Acte 3</title>
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="style.css">
+<script src="../shared/mockup.js"></script>
+<script src="../shared/oeil.js"></script>
+<script type="module" src="main.js"></script>
+</head>
+<body>
+<!-- Résultats de l'Acte 3, « Les deux pilules » : l'image du lac figée et
+     assombrie, les graphiques tracés à la craie par le narrateur.
+     Paramètres : ?i=1…7 (écran), ?screen=1 (16:9), ?still=1 (fin d'animation,
+     pour les captures), ?formulation=A|B et ?choix=bleu|rouge (écran 7). -->
+<main class="stage a3r">
+  <div class="frame">
+    <div class="fond" aria-hidden="true"></div>
+    <canvas id="craie" role="img"></canvas>
+    <header class="tete">
+      <p class="kicker"><span>Acte 3 · Les deux pilules · Résultats</span><span class="compte" id="compte"></span></p>
+      <h1 id="titre"></h1>
+      <p id="formule"></p>
+      <span class="fake-data" id="fictif" hidden>Données fictives</span>
+    </header>
+  </div>
+  <div class="dock">
+    <div class="sub">
+      <span class="phi-mini" data-oeil="small" data-expr="neutre" aria-hidden="true"></span>
+      <p id="replique" aria-live="polite"></p>
+    </div>
+    <nav class="nav" aria-label="Écrans de résultats">
+      <button type="button" class="pas" id="prec" aria-label="Écran précédent">←</button>
+      <span class="points" id="points"></span>
+      <button type="button" class="pas" id="suiv" aria-label="Écran suivant">→</button>
+    </nav>
+  </div>
+  <p class="source" id="source"></p>
+</main>
+</body>
+</html>

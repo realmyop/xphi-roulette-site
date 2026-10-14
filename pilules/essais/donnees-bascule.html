@@ -1,0 +1,1169 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Une foule, deux phrases</title>
+<style>
+/* Une slide d'analyse des données dans la DA de Thibaut (../index.html) : même toile 16:9, même nuit, même craie, même laiton.
+   Polices hébergées avec la page (SIL OFL), sans aucun appel externe. */
+@font-face { font-family: "DotGothic16"; src: url("../fonts/dotgothic16-latin.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+:root {
+  --nuit: #0c0b0d;
+  --craie: #f1e9dc;
+  --gris: #8f877b;
+  --labo: #8fc0d6;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; margin: 0; background: var(--nuit); color: var(--craie); overflow: hidden; }
+#scene { display: block; width: 100%; height: 100%; object-fit: contain; outline: none; }
+#scene:focus-visible { box-shadow: inset 0 0 0 2px var(--labo); }
+/* le tableau des valeurs : lu par les lecteurs d'écran, invisible à l'œil */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+</style>
+</head><body>
+
+<canvas id="scene" width="1920" height="1080" tabindex="0" role="img" aria-describedby="donnees"
+  aria-label="Analyse des résultats, les deux pilules. Une foule de 100 sujets, un sujet pour 1 % des répondants, lit tour à tour deux descriptions des mêmes règles, tirées au sort. Description collective : 65,5 % prennent la pilule bleue, plus de la moitié, donc tout le monde vit. Description individuelle : 12,6 % seulement prennent la bleue, donc ceux qui l'ont prise meurent. Écart : 53 points (52,9). Source : questionnaire « A ou B ? » de Monsieur Phi, près de 10 000 répondants. Tableau des valeurs ci-après. Flèches haut et bas, ou touches 1 et 2 : choisir la description."></canvas>
+
+<div id="donnees" class="sr-only">
+  <table>
+    <caption>Part des répondants qui prennent la pilule bleue, selon la description des règles qu'ils ont lue (tirée au sort). Source : questionnaire « A ou B ? » de Monsieur Phi, vidéo « pilule bleue ou pilule rouge », près de 10 000 répondants. Bouton A = pilule bleue, bouton B = pilule rouge. L'effectif de chaque groupe n'est pas connu.</caption>
+    <thead><tr><th scope="col">Description des règles</th><th scope="col">Pilule bleue</th><th scope="col">Pilule rouge</th><th scope="col">Issue selon les règles du jeu (seuil : plus de 50 % de bleues)</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Collective : « Si la majorité prend la bleue, tout le monde vit ; si au moins la moitié prend la rouge, ceux qui ont pris la bleue meurent. »</th><td>65,5 %</td><td>34,5 %</td><td>Plus de 50 % de bleues : tout le monde vit.</td></tr>
+      <tr><th scope="row">Individuelle : « Si vous prenez la rouge, il ne vous arrive rien ; si vous prenez la bleue, vous mourez, sauf si la majorité prend aussi la bleue. »</th><td>12,6 %</td><td>87,4 %</td><td>Moins de 50 % de bleues : ceux qui ont pris la bleue meurent, soit 12,6 % des répondants.</td></tr>
+    </tbody>
+    <tfoot><tr><th scope="row">Écart</th><td colspan="3">52,9 points de pilule bleue en moins avec la description individuelle (affiché arrondi : 53).</td></tr></tfoot>
+  </table>
+  <p>Sur la slide, la foule compte 100 sujets, un sujet pour 1 % des répondants de la description affichée ; la décimale devient un sujet de deux couleurs (65,5 % : 65 sujets bleus et un sujet moitié bleu, moitié rouge ; 12,6 % : 12 sujets bleus et un sujet bleu à 60 %).</p>
+  <p>Xphi : « Mêmes faits, mots dans un autre ordre : 12,6 % de bleues. Cinquante-trois points de moins. J'ai vérifié mes instruments. Deux fois. »</p>
+</div>
+
+<script>
+// « Une foule, deux phrases » : une slide d'analyse des données dans la DA de Thibaut (demande de Ronan : « un slide
+// d'analyse des données. Juste pour avoir la DA »). Un message : la description change le choix, et donc l'issue.
+// Une seule foule de cent sujets lit tour à tour les deux descriptions des mêmes règles ; à chaque phrase, des sujets
+// sautent, la jauge bascule autour du seuil de 50 %, l'issue suit (la vie, ou les bleus qui partent en caractères).
+// En boucle lente ; le survol ou le clic d'une phrase la choisit (1 2, ↑ ↓ au clavier). L'autre valeur reste sur la
+// jauge en fantôme, et les deux fenêtres gardent leur chiffre : l'image figée montre toujours la comparaison entière.
+// Les fonctions du sujet, de l'œil, des fenêtres et du regard sont copiées de ../index.html (qui n'est pas touché).
+(() => {
+  // ================================================================ base (reprise de ../index.html)
+  const W = 1920, H = 1080;
+  const S = /4k/.test(location.hash) ? 2 : 1;
+  const cv = document.getElementById('scene');
+  cv.width = W * S; cv.height = H * S;
+  const ctx = cv.getContext('2d');
+
+  const CRAIE = '#f1e9dc', GRIS = '#8f877b', NUIT = '#0c0b0d', LABO = '#8fc0d6', LAITON = '#d7a548';
+  const BLEU = '#4f86e8', BLEU_TXT = '#6f9cf0', ROUGE = '#d9483b', ROUGE_TXT = '#e2675b', GRIS_FIG = '#a39a8c';
+  const MONO = '"IBM Plex Mono", ui-monospace, monospace';
+  const PIX = '"DotGothic16", "IBM Plex Mono", monospace';
+  const G = '01·:+*#%xφ'.split('');
+  const NB = '\u00a0';   // l'espace insécable : « 65,5 % », « vit ; » ne se coupent jamais
+  const fr = s => s.replace(/ ([:;?!%»])/g, NB + '$1').replace(/« /g, '«' + NB);
+  const pc = (v, d = 1) => v.toFixed(d).replace('.', ',') + NB + '%';
+
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const eIO = k => (k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+  const eOut = k => 1 - Math.pow(1 - k, 3);
+  const eBack = k => { const c = 1.70158; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const hache = n => { let t = (n | 0) + 0x6D2B79F5 | 0; t = Math.imul(t ^ t >>> 15, 1 | t); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const mix = (a, b, k) => { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], k))).join(',')})`; };
+  const rgba = (h, a) => { const [r, g, b] = hex(h); return `rgba(${r},${g},${b},${a})`; };
+
+  class V {
+    constructor(v) { this.a = v; this.b = v; this.t0 = 0; this.d = 0; }
+    set(v, t, d = .8) { this.a = this.get(t); this.b = v; this.t0 = t; this.d = d; }
+    get(t) { if (this.d <= 0) return this.b; return lerp(this.a, this.b, eIO(seg(t, this.t0, this.t0 + this.d))); }
+  }
+
+  // ================================================================ les données
+  // Questionnaire « A ou B ? » de Monsieur Phi (vidéo « pilule bleue ou pilule rouge »), près de 10 000 répondants ;
+  // chiffres vérifiés dans la transcription (voir l'en-tête de ../../resultats-a3/ecrans.js) : 65,5 % de A avec la
+  // description collective [29:31], 12,6 % avec l'individuelle [37:48]. Bouton A = la pilule bleue, B = la rouge.
+  // Chaque répondant a lu UNE des deux descriptions, tirée au sort : deux groupes comparables. La slide les montre comme
+  // une seule foule qui lit l'une, puis l'autre ; c'est une image, la clé le dit (1 sujet = 1 % des répondants de la
+  // description affichée). On ne connaît pas l'effectif de chaque groupe : aucun n, aucun intervalle n'est montré.
+  // La décimale n'est pas arrondie : elle devient un sujet de deux couleurs (65,5 = 65 bleus + un sujet moitié bleu,
+  // moitié rouge ; 12,6 = 12 bleus + un sujet bleu à 60 %).
+  // Les règles (les mêmes pour tous) : plus de 50 % de bleues, tout le monde vit ; sinon, ceux qui ont pris la bleue meurent.
+  const SEUIL = 50;
+  const PHRASES = [
+    { p: 0, nom: 'COLLECTIVE', bleue: 65.5,
+      desc: fr('« Si la majorité prend la [b]bleue[/b], tout le monde vit ; si au moins la moitié prend la [r]rouge[/r], ceux qui ont pris la [b]bleue[/b] meurent. »'),
+      issue: fr('→ tout le monde vit'),
+      phi: fr('Phrase collective : 65,5 % prennent la [b]bleue[/b]. Plus de la moitié :\ntout le monde vit. Aucun caractère perdu.') },
+    { p: 1, nom: 'INDIVIDUELLE', bleue: 12.6,
+      desc: fr('« Si vous prenez la [r]rouge[/r], il ne vous arrive rien ; si vous prenez la [b]bleue[/b], vous mourez, sauf si la majorité prend aussi la [b]bleue[/b]. »'),
+      issue: fr('→ les [b]bleus[/b] meurent'),
+      phi: fr('Mêmes faits, mots dans un autre ordre : 12,6 % de [b]bleues[/b].\nCinquante-trois points de moins. J’ai vérifié mes instruments. Deux fois.') },
+  ];
+  PHRASES.forEach(R => {
+    R.vit = R.bleue > SEUIL; R.rouge = +(100 - R.bleue).toFixed(1);
+    R.ent = Math.floor(R.bleue + 1e-9); R.frac = +(R.bleue - R.ent).toFixed(3);
+  });
+  const ECART = +(PHRASES[0].bleue - PHRASES[1].bleue).toFixed(1);   // 52,9 : affiché « 53 », la valeur exacte au survol
+  // la part de bleue du sujet k (0..99) sous la phrase p : 1, 0, ou la décimale
+  const fbDe = (k, p) => { const R = PHRASES[p]; return k < R.ent ? 1 : k === R.ent ? R.frac : 0; };
+  // quand la foule change de phrase, Phi annonce celle qu'elle lit, puis commente quand elle a fini de choisir
+  const LECTURE = [fr('Et maintenant, la description collective…'), fr('Et maintenant, la description individuelle…')];
+  const INTRO = fr('Près de dix mille répondants ; à chacun, une des deux phrases,\ntirée au sort. Les règles sont les mêmes. Seuls les mots changent.');
+
+  // ================================================================ la mise en page (toile 1920×1080)
+  // À gauche, la foule et sa jauge, comme dans le morceau : 20 colonnes de 5 sujets au pas de 50 px, au-dessus d'une jauge
+  // de 1000 px. Une colonne = 5 %, une jauge = 100 % : la foule est rangée colonne par colonne, les bleus d'abord, et
+  // devient une barre à la même échelle que la jauge ; le trait des 50 % passe entre la 10e et la 11e colonne.
+  // À droite, les deux phrases, en fenêtres façon jeu rétro (la fenêtre RÈGLES du morceau) ; celle que la foule lit
+  // s'allume en laiton, la couleur du geste.
+  const X0 = 150, LW = 1000, PCT = LW / 100;
+  const xDe = v => X0 + v * PCT;
+  const PX = 50, PY = 62, CY0 = 320;
+  const GY = 650, GH = 14;                      // la jauge
+  const AY = GY + GH + 26;                      // l'accolade de l'écart, sous la jauge
+  const EX = 650, EY = 205, ES = 130;           // l'œil de Phi, au-dessus du seuil
+  const RX = 1290, RW = 570, RY0 = 172, RGAP = 48, RLH = 29;
+  const TAMPON = { x: 650, y: 790 };
+
+  // ================================================================ le minutage (secondes depuis l'ouverture)
+  // Les choses se construisent sous nos yeux : le titre, les deux phrases qui s'écrivent, la foule grise, puis la foule lit
+  // la phrase collective (un saut chacun), la jauge se remplit, la vie ; puis elle lit l'autre phrase, cinquante-trois
+  // sujets sautent au rouge, la jauge tombe en laissant son fantôme, les bleus partent en caractères.
+  // Ensuite, une phrase toutes les P secondes, en boucle lente ; le survol ou le clic d'une phrase la choisit.
+  const T_FOULE = 1.8, T_JAUGE = 2.4, T_CLE = 2.8, T_PRET = 4.0, P = 9;
+  const FIN = 21;   // l'image finale : la phrase individuelle, tout est construit (la suivante arrive à 22 s)
+
+  // ================================================================ le sujet (repris tel quel de ../index.html)
+  const SW = 11, SH = 12, CS = 4;
+  const LETTRE = { B: 1, O: 2, L: 3, E: 4, G: 5 };
+  const calque = (y0, lignes) => { const out = []; lignes.forEach((l, j) => [...l].forEach((c, x) => { if (LETTRE[c]) out.push([x, y0 + j, LETTRE[c]]); })); return out; };
+  const TETE = calque(1, [
+    '...LLBBB...',
+    '..LBBBBBO..',
+    '..BBBBBBO..',
+    '..BBBBBBO..',
+    '...BBBBO...',
+  ]);
+  const miroir = cal => cal.map(([x, y, c]) => [SW - 1 - x, y, c]);
+  const TETES = [TETE, miroir(TETE)];
+  const COIFFES = [
+    [],
+    calque(0, ['.....O.....']),
+    calque(1, ['...OOOOO...', '..O.....O..']),
+    calque(0, ['....OOO....', '...OOOOO...']),
+    calque(1, ['...OOOOO...', '..O.....O..', '..O.....O..', '..O.....O..']),
+    calque(1, ['...OOOOO...', '..OOOOOOO..']),
+    calque(0, ['......OO...', '...OOOOO...', '..OO.......']),
+  ];
+  const ECHARPE = calque(6, ['...OOOOO...']);
+  const CORPS = {
+    bas: calque(6, ['....OBO....', '...BBBBB...', '..O.BBB.O..', '..O.BBB.O..']),
+    hop: calque(6, ['....OBO....', '.OOBBBBBOO.', '....BBB....', '....BBB....']),
+    leves: calque(3, ['O.........O', 'O.........O', '.O.......O.', '..O.OBO.O..', '...BBBBB...', '....BBB....', '....BBB....']),
+    serres: calque(6, ['....OBO....', '...OBBBO...', '...OBBBO...', '...OBBBO...']),
+  };
+  const JAMBES = {
+    droit: calque(10, ['....O.O....', '...OO.OO...']),
+    saut: calque(10, ['...O...O...']),
+    serre: calque(10, ['.....O.....', '....O.O....']),
+  };
+  function grille(p) {
+    const g = new Uint8Array(SW * SH);
+    const peint = (cal, dy) => { for (const [x, y, c] of cal) { const yy = y + dy; if (yy >= 0 && yy < SH) g[yy * SW + x] = c; } };
+    peint(JAMBES[p.jambes], 0);
+    peint(CORPS[p.bras], p.acc);
+    if (p.detail) peint(ECHARPE, p.acc);
+    const dt = p.acc + p.bob;
+    peint(TETES[p.mir], dt); peint(COIFFES[p.coiffe], dt);
+    const ey = 3 + dt + p.yy;
+    for (const x of [4 + p.yx, 6 + p.yx]) {
+      g[ey * SW + x] = p.yeux === 'f' ? 2 : 4;
+      if (p.yeux === 'g') g[(ey - 1) * SW + x] = 4;
+    }
+    if (p.goutte) for (const y of [1, 2]) g[(y + p.acc + p.goutte) * SW + 9] = 5;
+    if (p.bouche && p.yy < 1) for (let x = p.bouche === 2 ? 4 : 5; x <= (p.bouche === 2 ? 6 : 5); x++) g[(4 + dt) * SW + x + p.yx] = 4;
+    return g;
+  }
+
+  // l'atlas : chaque image du sujet n'est peinte qu'une fois (une case = un pixel), puis agrandie sans lissage
+  const tons = col => [null, col, mix(col, NUIT, .45), mix(col, CRAIE, .4), '#0c0b0d', CRAIE];
+  const PAGES = [], CASES = new Map();
+  function sprite(col, p) {
+    const cle = [col, p.goutte, p.bras, p.jambes, p.yx, p.yy, p.yeux, p.bouche, p.bob, p.acc, p.coiffe, p.detail, p.mir].join('|');
+    let c = CASES.get(cle);
+    if (!c) {
+      if (CASES.size >= 170 * 157) { CASES.clear(); PAGES.length = 0; }
+      const n = CASES.size, sx = (n % 170) * (SW + 1), g = grille(p), T = tons(col);
+      if (n % 170 === 0) { const pg = document.createElement('canvas'); pg.width = 170 * (SW + 1); pg.height = SH; PAGES.push(pg); }
+      const im = PAGES[Math.floor(n / 170)], ax = im.getContext('2d');
+      g.forEach((v, k) => { if (v) { ax.fillStyle = T[v]; ax.fillRect(sx + k % SW, Math.floor(k / SW), 1, 1); } });
+      c = { im, sx, g, T };
+      CASES.set(cle, c);
+    }
+    return c;
+  }
+  const COULEURS = [GRIS_FIG, BLEU, ROUGE], GW = 40;
+  let GLY = null;
+  function prepareGlyphes() {
+    GLY = document.createElement('canvas'); GLY.width = GW * G.length * COULEURS.length; GLY.height = GW * 6;
+    const g = GLY.getContext('2d'); g.font = `36px ${MONO}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    COULEURS.forEach((col, ci) => { for (let s = 0; s < 6; s++) { g.fillStyle = mix(col, CRAIE, s / 5); G.forEach((ch, gi) => g.fillText(ch, (ci * G.length + gi) * GW + GW / 2, s * GW + GW / 2)); } });
+  }
+  const HALOS = new Map();
+  function halo(col) {
+    if (!HALOS.has(col)) {
+      const c = document.createElement('canvas'); c.width = c.height = 80; const g = c.getContext('2d');
+      const r = g.createRadialGradient(40, 40, 0, 40, 40, 40); r.addColorStop(0, rgba(col, .45)); r.addColorStop(1, rgba(col, 0));
+      g.fillStyle = r; g.fillRect(0, 0, 80, 80); HALOS.set(col, c);
+    }
+    return HALOS.get(col);
+  }
+
+  function regardeVers(p, c, cx, cy) {
+    const dx = c.x - cx, dy = c.y - cy;
+    p.yx = Math.abs(dx) > 40 + Math.abs(dy) * .3 ? Math.sign(dx) : 0;
+    p.yy = dy < -30 ? -1 : dy > 30 ? 1 : 0;
+  }
+  // repris de ../index.html, avec le mode « trace » de la slide « deux salles » : ce qui reste d'un sujet parti en
+  // caractères (debout, les yeux fermés, immobile) ; les bleus morts restent comptés, ils ne disparaissent pas du graphique
+  function pose(f, e, T, cx, cy) {
+    const p = { bras: 'bas', jambes: 'droit', yx: 0, yy: 0, yeux: 'o', bouche: 0, goutte: 0, bob: 0, acc: 0, coiffe: f.coiffe, detail: f.detail, mir: e.phi.x > cx ? 1 : 0 };
+    let dx = 0, dy = 0;
+    if (e.mode === 'trace') { p.yeux = e.ouverts ? 'o' : 'f'; return { p, dx, dy }; }
+    const pr = 2.6 + f.r1 * 1.4; p.bob = (T / pr + f.r2) % 1 < .42 ? 1 : 0;
+    const pb = 2.8 + f.r2 * 3.4; if ((T + f.r3 * pb) % pb < .13) p.yeux = 'f';
+    const pl = 1.1 + f.r3 * 1.5, n = Math.floor((T + f.r1 * 17) / pl), h = hache(f.i * 7919 + n * 104729);
+    let vers = !!e.fixe;
+    if (!vers) { if (h < .16) p.yx = -1; else if (h < .32) p.yx = 1; else if (h < .38) p.yy = 1; else if (h < .5) vers = true; }
+    if (vers && e.cible) regardeVers(p, e.cible, cx, cy);
+    const m = e.mode, k = T - (e.t0 ?? -99), I = e.k ?? 1;
+    if (m === 'saut') {
+      if (k >= -.16 && k < -.04) { p.acc = 1; p.bob = 0; }
+      else if (k >= -.04 && k < .3) {
+        const u = (k + .04) / .34; dy = -2.4 * Math.sin(Math.PI * u);
+        p.bras = 'hop'; p.jambes = u > .15 && u < .85 ? 'saut' : 'droit'; p.bob = 0; p.yx = 0; p.yy = -1;
+      }
+      else if (k >= .3 && k < .42) { p.acc = 1; p.bob = 0; }
+    } else if (m === 'vie') {
+      p.bras = 'leves'; p.bouche = 2; p.yy = -1; p.yx = 0; p.bob = 0;
+      const u = (T * 1.9 + f.r1) % 1; dy = -1.6 * Math.abs(Math.sin(Math.PI * u)) * I;
+      if (u < .08 || u > .92) p.acc = 1; else if (dy < -.8) p.jambes = 'saut';
+    } else if (m === 'peur') {
+      const gt = (T * .9 + f.r3) % 1; p.goutte = gt < .4 ? 1 : gt < .75 ? 2 : 0;
+      p.bras = 'serres'; p.jambes = 'serre'; p.yeux = p.yeux === 'f' ? 'f' : 'g'; p.bouche = 1; p.bob = 0; p.acc = 1; p.yy = 0;
+      p.yx = Math.floor(T * 2.7 + f.r2 * 5) % 2 ? -1 : 1;
+      dx = (Math.floor(T * 26 + f.r1 * 9) % 2 ? .25 : -.25) * I;
+    }
+    if (e.dis > 0) { p.yeux = 'f'; p.bouche = 0; p.goutte = 0; }
+    return { p, dx, dy };
+  }
+  // dessineSujet de ../index.html ; e.halo (0..1) : une lueur posée, sans les bras levés (la vie, une fois la fête passée)
+  function dessineSujet(f, cx, cy, cs, e, T) {
+    const a = e.a ?? 1; if (a <= .001) return;
+    const { p, dx, dy } = pose(f, e, T, cx, cy);
+    const s = sprite(e.col, p), ox = Math.round(cx - SW * cs / 2 + dx * cs), oy = Math.round(cy - SH * cs / 2 + dy * cs), lisse = ctx.imageSmoothingEnabled;
+    const lueur = e.mode === 'vie' ? (e.k ?? 1) * (.6 + .4 * Math.sin(T * 5 + cx * .01)) : (e.halo || 0);
+    if (lueur > 0 && !(e.dis > 0)) {
+      const r = 40 * cs / CS;
+      ctx.globalAlpha = a * lueur;
+      ctx.drawImage(halo(e.col), cx - r, cy - r + dy * cs, 2 * r, 2 * r);
+    }
+    if (!(e.dis > 0)) {
+      ctx.globalAlpha = a; ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(s.im, s.sx, 0, SW, SH, ox, oy, SW * cs, SH * cs);
+      ctx.imageSmoothingEnabled = lisse;
+      if (e.reflet && p.yeux !== 'f') {
+        const ey = 3 + p.acc + p.bob + p.yy - (p.yeux === 'g' ? 1 : 0), cote = e.phi.x >= cx ? .5 : 0;
+        ctx.fillStyle = LABO;
+        for (const x of [4 + p.yx, 6 + p.yx]) ctx.fillRect(ox + (x + cote) * cs, oy + ey * cs, cs / 2, cs / 2);
+      }
+      return;
+    }
+    // la mort, comme dans le morceau : les cases s'envolent en caractères, en partant des pieds, et virent à la craie
+    if (e.dis >= 1) return;
+    const ci = Math.max(0, COULEURS.indexOf(e.col)), gs = 12 * cs / CS;
+    ctx.imageSmoothingEnabled = true;
+    for (let k = 0; k < s.g.length; k++) {
+      const v = s.g[k]; if (!v) continue;
+      const x = k % SW, y = (k - x) / SW, d = (SH - 1 - y) / (SH - 1) * .45;
+      const q = clamp((e.dis * 2 - d) / 1.4, 0, 1); if (q >= 1) continue;
+      const hz = hache(f.i * 997 + k * 31), ph = hz * 6.283, vit = .6 + hache(k * 131 + f.i) * .8;
+      const px = ox + x * cs + Math.sin(q * 5 + ph) * 14 * q * cs / CS, py = oy + y * cs - Math.pow(q, 1.4) * 170 * vit * cs / CS;
+      ctx.globalAlpha = a * (1 - q) * .95;
+      if (q > .15) { const gi = Math.floor(hz * 1000) % G.length; ctx.drawImage(GLY, (ci * G.length + gi) * GW, Math.round(q * 5) * GW, GW, GW, px + cs / 2 - gs * .55, py + cs / 2 - gs * .55, gs * 1.1, gs * 1.1); }
+      else { ctx.fillStyle = s.T[v]; ctx.fillRect(px, py, cs, cs); }
+    }
+    ctx.imageSmoothingEnabled = lisse;
+  }
+
+  // ================================================================ les cent sujets (données fixes)
+  // Rangés colonne par colonne, de haut en bas, les bleus d'abord : le sujet k est dans la colonne k / 5.
+  // 65,5 % : les colonnes 1 à 13 sont bleues, le 66e sujet (en haut de la 14e) est moitié bleu, moitié rouge ;
+  // 12,6 % : deux colonnes et deux sujets bleus, le 13e est bleu à 60 %. Le bord de la jauge tombe dans la même colonne.
+  const RF = rng(1808);
+  const FOULE = [...Array(100).keys()].map(k => {
+    const co = Math.floor(k / 5), row = k % 5;
+    return {
+      i: k, k, co, row, cx: X0 + PX / 2 + co * PX, cy: CY0 + row * PY, r1: RF(), r2: RF(), r3: RF(),
+      coiffe: Math.floor(hache(k * 7 + 3) * COIFFES.length), detail: hache(k * 17 + 11) < .2 ? 1 : 0,
+    };
+  });
+  FOULE.forEach(f => { f.ta = T_FOULE + f.r1 * 1.2; });
+
+  // ================================================================ les bascules : la foule lit une phrase
+  // Une bascule { t, p } : à l'instant t, la foule lit la phrase p. Tout ce qui se voit est une fonction de T et de la
+  // liste des bascules (jamais de Math.random) : ?gel=SECONDES rejoue juste, et la boucle lente aussi.
+  // À sa création, une bascule note où en était chaque sujet (avant), qui doit changer (tc : l'instant de son saut,
+  // dans un ordre tiré au hasard), et ce qui suit : la vie (tVie) ou la peur (tPeur) puis le départ en caractères (td).
+  let BASC = [];
+  function partBleue(f, b, T) {   // la part de bleue du sujet à l'instant T ; null : pas encore choisi (gris)
+    if (!b) return null;
+    const tc = b.tc[f.k];
+    return tc === null || T >= tc ? fbDe(f.k, b.p) : b.avant[f.k];
+  }
+  // la bascule en cours à l'instant T (la liste est rangée : on n'ajoute jamais une bascule avant la dernière)
+  const basculeA = T => { const d = BASC[BASC.length - 1]; if (d && d.t <= T) return d; let b = null; for (const x of BASC) { if (x.t <= T) b = x; else break; } return b; };
+  // avant[k] : ce que montrait le sujet quand la bascule arrive (une bascule interrompue laisse des sujets à mi-chemin)
+  function ajouteBascule(t, p) {
+    const prev = BASC[BASC.length - 1] || null;
+    if (prev && prev.p === p) return prev;
+    const R = rng(4001 + BASC.length * 7919);
+    const b = { t, p, prev, fin: Infinity, tc: Array(100).fill(null), td: Array(100).fill(null), avant: [], mort: [] };
+    FOULE.forEach(f => {
+      b.avant[f.k] = partBleue(f, prev, t);
+      b.mort[f.k] = !!prev && prev.td[f.k] !== null && t >= prev.td[f.k];   // parti en caractères : il revient
+    });
+    const ch = FOULE.filter(f => b.avant[f.k] !== fbDe(f.k, p)).map(f => f.k);
+    for (let j = ch.length - 1; j > 0; j--) { const m = Math.floor(R() * (j + 1)); [ch[j], ch[m]] = [ch[m], ch[j]]; }
+    const pas = prev ? .022 : .02;
+    ch.forEach((k, j) => { b.tc[k] = t + .4 + j * pas; });
+    b.tPose = t + .4 + ch.length * pas + .35;   // la foule a fini de choisir : le chiffre, la réplique de Phi
+    if (PHRASES[p].vit) { b.tVie = b.tPose + .3; b.tTampon = b.tVie + .35; }
+    else {
+      b.tPeur = b.tPose + .5; b.tTampon = b.tPeur + .6;
+      FOULE.forEach(f => { if (fbDe(f.k, p) > 0) b.td[f.k] = b.tPeur + .9 + f.r2 * .9; });
+    }
+    if (prev) prev.fin = t;
+    BASC.push(b);
+    programmeBascule(b);
+    return b;
+  }
+  const courante = basculeA;
+  // une phrase est connue quand la foule a fini de la lire une fois (sans être interrompue)
+  const tConnue = p => { for (const b of BASC) if (b.p === p && b.tPose <= b.fin) return b.tPose; return Infinity; };
+  const connue = (p, T) => T >= tConnue(p);
+  // la boucle lente : une autre phrase toutes les P secondes, sauf quand on tient une phrase (survol, clic, clavier)
+  let tenue = null, survolPhrase = null, reprise = -Infinity;
+  const enPause = () => tenue !== null || survolPhrase !== null;
+  function etend(T) {
+    if (enPause() || !BASC.length) return;
+    for (let i = 0; i < 50; i++) {
+      const b = BASC[BASC.length - 1], t = Math.max(b.t + P, reprise + 4);
+      if (t > T) break;
+      ajouteBascule(t, 1 - b.p);
+    }
+  }
+  // la phrase choisie au survol, au clic ou au clavier ; figée par ?gel, la scène saute à l'image construite
+  function choisit(p, T) {
+    if (T < T_PRET) return;
+    const b = BASC[BASC.length - 1];
+    if (b && b.p === p) return;
+    if (GEL !== null) { ajouteBascule(GEL, p); GEL += 8.5; vide(GEL); }
+    else ajouteBascule(T, p);
+  }
+
+  // ================================================================ état (ce qui dépend des images déjà jouées : le regard, l'humeur)
+  let st, file;
+  const at = (t, fn) => file.push({ t, fn });
+  function vide(jusqua) {
+    file.sort((a, b) => a.t - b.t);
+    while (file.length && file[0].t <= jusqua) { const it = file.shift(); it.fn(it.t); }
+  }
+  function etatInitial() {
+    file = []; BASC = [];
+    st = {
+      oeil: { a: new V(0), x: new V(0), y: new V(0), r: new V(0), rot: new V(0), glow: new V(.35) },
+      regards: [], rg: { px: EX, py: EY, x: EX, y: EY, v: true, t0: -99, d: .1, A: 9, gx: 0, gy: 0, w: 1 },
+      vague: -99, secoue: -99,
+    };
+  }
+
+  // ================================================================ Xphi (repris de ../index.html)
+  function humeur(t, h) {
+    const base = { x: 0, y: 0, r: 12.5, rot: 0, glow: .35 };
+    const M = {
+      neutre: base,
+      grand: { ...base, r: 17, glow: 1 },
+      plisse: { x: 0, y: 5, r: 6, rot: -4, glow: .2 },
+      doute: { x: -3, y: 2, r: 10, rot: -6, glow: .35 },
+      curieux: { x: 5, y: -5, r: 9.5, rot: 9, glow: .4 },
+      bas: { ...base, y: 6, r: 11 },
+    }[h];
+    for (const k in M) st.oeil[k].set(M[k], t, .5);
+    if (h === 'grand') st.vague = t;
+  }
+  let GEL = null;
+  const cligne = T => {
+    if (GEL !== null) return 1;   // figé pour une capture : l'œil ouvert
+    const f = d => d < .1 ? 1 - d / .1 : d < .26 ? (d - .1) / .16 : 1;
+    return Math.min(f(T % 5.3), f((T + 2.1) % 7.9));
+  };
+  function dessineOeil(cx, cy, size, s, alpha) {
+    if (alpha <= .001 || size <= 0) return;
+    const R0 = 12.5, RIN = 31 - 2.6 - .4;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(cx, cy); ctx.scale(size / 100, size / 100); ctx.translate(-50 + (s.dx || 0), -50);
+    ctx.translate(50, 50); ctx.rotate(s.rot * Math.PI / 180); ctx.translate(-50, -50);
+    const ox = 50 + s.x, oy = 50 + s.y, r = Math.max(0, s.r);
+    const ha = clamp(s.glow, 0, 1) * Math.min(1, r / 6), hr = (6 + 8 * s.glow) * 1.7;
+    if (ha > 0) {
+      const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, hr);
+      g.addColorStop(0, rgba(LABO, .9 * ha)); g.addColorStop(1, rgba(LABO, 0));
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ox, oy, hr, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.strokeStyle = CRAIE; ctx.lineCap = 'round';
+    ctx.lineWidth = 5.2;
+    ctx.beginPath(); ctx.arc(50, 50, 31, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(50, 4); ctx.lineTo(50, 17); ctx.moveTo(50, 83); ctx.lineTo(50, 96); ctx.stroke();
+    const a0 = -90 + (R0 - r) * 2.6, Vx = [], U = [];
+    for (let k = 0; k < 6; k++) { const a = (a0 + 60 * k) * Math.PI / 180; U.push([Math.cos(a), Math.sin(a)]); Vx.push([ox + r * Math.cos(a), oy + r * Math.sin(a)]); }
+    ctx.lineWidth = 2.1; ctx.globalAlpha = alpha * .9; ctx.beginPath();
+    for (let k = 0; k < 6; k++) {
+      const p = (k + 5) % 6; let dx = U[k][0] - U[p][0], dy = U[k][1] - U[p][1]; const L = Math.hypot(dx, dy); dx /= L; dy /= L;
+      const [x0, y0] = Vx[k], bx = x0 - 50, by = y0 - 50, b = bx * dx + by * dy, c = bx * bx + by * by - RIN * RIN;
+      const t = -b + Math.sqrt(Math.max(0, b * b - c));
+      ctx.moveTo(Vx[p][0], Vx[p][1]); ctx.lineTo(x0 + dx * t, y0 + dy * t);
+    }
+    ctx.stroke(); ctx.globalAlpha = alpha;
+    const pr = Math.min(4.2, r * .62);
+    if (pr > .05) {
+      ctx.fillStyle = LABO; ctx.beginPath(); ctx.arc(ox, oy, pr, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.beginPath(); ctx.arc(ox + pr * .33, oy - pr * .33, pr * .24, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+  const oeilY = T => EY + Math.sin(T * .9) * 4;
+  function oeil(T) {
+    const O = st.oeil, R = st.rg, e = { x: O.x.get(T), y: O.y.get(T), r: O.r.get(T), rot: O.rot.get(T), glow: O.glow.get(T) };
+    const [mx, my] = microsaccade(T), gx = R.gx + mx, gy = R.gy + my, a = -e.rot * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+    e.x = e.x * R.w + gx * ca - gy * sa; e.y = e.y * R.w + gx * sa + gy * ca;
+    e.r *= cligne(T);
+    e.glow += .06 * Math.sin(T * 2.1);
+    const k = T - st.secoue; e.dx = k >= 0 && k < .9 ? Math.sin(k * 22) * 3 * (1 - k / .9) : 0;
+    dessineOeil(EX, oeilY(T), ES, e, O.a.get(T));
+  }
+
+  // ---------------------------------------------------------------- Phi suit des yeux (la mécanique de ../index.html)
+  // Par priorité : 1. ce dont il parle (regard(t, d, cible) : la phrase que la foule lit, les sauts, le bord de la jauge,
+  // le fantôme, le tampon, ceux qui partent) — mais la marque que vous survolez passe devant ce qui a commencé avant le
+  // survol ; 2. le pointeur qui bouge (2,5 s) ; 3. le repos : vous, la plume, la foule, la jauge, les phrases.
+  // La saccade se compte en temps réel (Tr) : figée par ?gel, la scène garde un regard vivant qui suit la souris.
+  let souris = null, survol = null;   // souris { x, y, tr } ; survol { z, t } : la marque sous le pointeur (ou au clavier)
+  const VOUS = () => ({ vous: true });
+  function regard(t, d, cible, pause = .3) { st.regards.push({ t, d, cible, pause }); st.regards.sort((a, b) => a.t - b.t); }
+  const ZR = 220;
+  function decalage(x, y, ex, ey, A) {
+    const dx = x - ex, dy = y - ey, m = Math.hypot(dx, dy);
+    if (m < .001) return [0, 0, 0];
+    const k = A / Math.sqrt(m * m + ZR * ZR);
+    return [dx * k, dy * k, m];
+  }
+  function microsaccade(T) {
+    let n = Math.floor(T / .3);
+    for (let j = 0; j < 4 && hache(n * 13 + 7) > .45; j++) n--;
+    return [(hache(n * 31 + 1) - .5) * 1.5, (hache(n * 31 + 2) - .5) * 1.5];
+  }
+  const visage = f => ({ x: f.cx, y: f.cy - 12 });
+  const dernier = (quand, duree) => T => {
+    let best = null, bt = -Infinity;
+    for (const f of FOULE) { const t = quand(f); if (t !== null && t <= T && T < t + duree && t > bt) { bt = t; best = f; } }
+    return best && visage(best);
+  };
+  const parmi = (ok, P0 = .55) => T => {
+    const h = hache(Math.floor(T / P0) * 97 + 3), i0 = Math.floor(h * 100);
+    for (let j = 0; j < 100; j++) { const f = FOULE[(i0 + j * 37) % 100]; if (T > f.ta + .3 && ok(f, T)) return visage(f); }
+    return null;
+  };
+  function compte(T) {   // les bleues et les rouges de la foule à l'instant T, en points de pourcentage
+    const b = basculeA(T); let nb = 0, nr = 0, choisi = false;
+    for (const f of FOULE) { const fb = partBleue(f, b, T); if (fb === null) continue; choisi = true; nb += fb; nr += 1 - fb; }
+    return { nb, nr, choisi };
+  }
+  const jaugeC = T => { const c = compte(T); return c.choisi ? { x: xDe(c.nb), y: GY + GH / 2 } : null; };
+  const fenetreC = p => ({ x: RX + RW / 2, y: CADRES[p] ? CADRES[p].y + 110 : 300 });
+  const fantomeC = T => { const b = courante(T); return b ? { x: xDe(PHRASES[1 - b.p].bleue), y: GY } : null; };
+  const plume = T => {
+    const d = repliqueA(T); if (!d || T < d.t + .2) return null;
+    const n = Math.floor((T - d.t) * CPS); if (n >= d.r.n) return null;
+    const [x, y] = d.r.pos[clamp(n, 0, d.r.n - 1)];
+    return { x, y };
+  };
+  function repos(T) {
+    const P0 = 1.15, j = n => (hache(n * 7 + 1) - .5) * .7 * P0, n0 = Math.floor(T / P0);
+    const n = T < n0 * P0 + j(n0) ? n0 - 1 : T >= (n0 + 1) * P0 + j(n0 + 1) ? n0 + 1 : n0;
+    const h = hache(n * 131 + 17), C = [[3, { vous: true }]];
+    const ajoute = (w, c) => { if (c) C.push([w, c]); };
+    const b = basculeA(T);
+    ajoute(3, plume(T));
+    ajoute(3, parmi(f => !(b && b.td[f.k] !== null && T > b.td[f.k]))(T));
+    ajoute(1, jaugeC(T));
+    if (b) ajoute(1, fenetreC(b.p));
+    if (connue(0, T) && connue(1, T)) ajoute(.7, fantomeC(T));
+    ajoute(.5, { x: 150 + hache(n * 29 + 3) * 1620, y: 80 + hache(n * 41 + 9) * 700 });   // nulle part : Phi rêvasse
+    let v = h * C.reduce((a, c) => a + c[0], 0);
+    for (const c of C) { v -= c[0]; if (v < 0) return c[1]; }
+    return C[0][1];
+  }
+  function cibleRegard(T, Tr) {
+    const geste = survol && survol.z.actif(T) ? survol.z.cible(T) : null;
+    for (let i = st.regards.length - 1; i >= 0; i--) {
+      const r = st.regards[i];
+      if (geste && r.t <= survol.t) break;
+      if (T >= r.t && T < r.t + r.d) { const c = r.cible(T); if (c) return { ...c, pause: r.pause }; }
+    }
+    if (geste) return { ...geste, pause: .12 };
+    if (souris && Tr - souris.tr < 2.5) return { x: souris.x, y: souris.y, pause: .12 };
+    return { ...repos(T), pause: .25 };
+  }
+  let regardFoule = null;
+  function regardPhi(T, Tr) {
+    const R = st.rg, O = st.oeil, ex = EX, ey = oeilY(T);
+    if (st.regards.length > 40) st.regards = st.regards.filter(r => r.t + r.d > T);
+    const A = Math.min(9, 23 - O.r.get(T));
+    const ou = k => [lerp(R.px, R.v ? ex : R.x, k), lerp(R.py, R.v ? ey : R.y, k)];
+    const c = cibleRegard(T, Tr), cx = c.vous ? ex : c.x, cy = c.vous ? ey : c.y;
+    if ((!!c.vous !== R.v || (!c.vous && Math.hypot(cx - R.x, cy - R.y) > 14)) && Tr - R.t0 >= c.pause) {
+      const [vx, vy] = ou(eOut(seg(Tr, R.t0, R.t0 + R.d)));
+      const [ax, ay] = decalage(vx, vy, ex, ey, A), [bx, by] = decalage(cx, cy, ex, ey, A);
+      R.px = vx; R.py = vy; R.x = cx; R.y = cy; R.v = !!c.vous; R.t0 = Tr; R.d = .05 + .007 * Math.hypot(bx - ax, by - ay); R.A = A;
+    } else if (Math.abs(A - R.A) > 1.5) R.A = A;
+    const [px, py] = ou(eOut(seg(Tr, R.t0, R.t0 + R.d)));
+    const [gx, gy, m] = decalage(px, py, ex, ey, R.A);
+    R.gx = gx; R.gy = gy; R.w = 1 - seg(m, 0, 140);
+    regardFoule = !R.v && Tr > R.t0 + R.d ? { x: R.x, y: R.y, t: R.t0 + R.d } : null;
+  }
+
+  // ================================================================ le programme : ce que Phi fait, et regarde
+  function programme() {
+    at(.9, t => st.oeil.a.set(1, t, .6));
+    at(1.1, t => st.oeil.r.set(12.5, t, .7));
+    regard(1.3, .9, () => fenetreC(0)); regard(2.2, .5, () => fenetreC(1));   // il lit les deux phrases qui s'écrivent…
+    regard(2.7, 1.0, dernier(f => f.ta, 1));                                  // … regarde la foule arriver…
+    regard(3.7, .6, VOUS);                                                     // … puis vous
+    ajouteBascule(T_PRET, 0);
+  }
+  // à chaque bascule : ce que Phi regarde, et son humeur ; rien ne s'applique si une autre bascule est arrivée entre-temps
+  function programmeBascule(b) {
+    const sienne = c => T => courante(T) === b ? c(T) : null;
+    const atB = (t, fn) => at(t, tt => { if (courante(tt) === b) fn(tt); });
+    const R = PHRASES[b.p];
+    atB(b.t, t => humeur(t, R.vit ? 'curieux' : 'doute'));
+    regard(b.t, .5, sienne(() => fenetreC(b.p)), .1);                          // la phrase que la foule va lire
+    regard(b.t + .45, b.tPose - b.t - .75, sienne(dernier(f => b.tc[f.k], .5)), .2);   // il suit les sauts, de saccade en saccade…
+    regard(b.tPose - .3, .8, sienne(jaugeC));                                  // … puis où tombe la jauge
+    if (R.vit) {
+      atB(b.tVie, t => humeur(t, 'grand')); atB(b.tVie + 2.6, t => humeur(t, 'neutre'));
+      regard(b.tVie + .1, .8, sienne(parmi(() => true)));
+      regard(b.tTampon, 1.0, sienne(() => TAMPON));
+    } else {
+      regard(b.tPose + .5, .55, sienne(fantomeC));                              // le fantôme : où était la jauge
+      atB(b.tPeur, t => humeur(t, 'plisse'));
+      regard(b.tPeur + .1, .6, sienne(parmi(f => b.td[f.k] !== null)));       // les condamnés qui tremblent…
+      regard(b.tTampon, .8, sienne(() => TAMPON));                              // … la sentence…
+      regard(b.tTampon + .8, 2.0, sienne(dernier(f => b.td[f.k], 2)));         // … puis chacun qui part en caractères
+      atB(b.tPeur + 3.4, t => humeur(t, 'neutre'));
+    }
+  }
+
+  // ================================================================ décor
+  const poussiere = (() => { const R = rng(41), out = []; for (let i = 0; i < 170; i++) out.push({ x: R() * W, y: R() * H, vx: (R() - .5) * 14, vy: -4 - R() * 10, a: .05 + R() * .14, g: G[Math.floor(R() * G.length)], c: R() < .5 ? LABO : CRAIE, sz: 10 + Math.round(R() * 8) }); return out; })();
+  let trame = null;
+  const FOND0 = hex('#121a2a'), CHAUD = hex('#2b1a10'), CLAIR = hex('#18273f');
+  // la teinte du fond, comme dans le morceau : claire quand tout le monde vit, chaude quand les bleus meurent
+  function teinteDe(b, T) {
+    if (!b) return [0, 0];
+    if (b.tVie !== undefined) return [0, seg(T, b.tVie, b.tVie + .8) * (1 - .45 * seg(T, b.tVie + 3.4, b.tVie + 4.4))];
+    return [seg(T, b.tPeur - .3, b.tPeur + 1.2) * .85, 0];
+  }
+  function fond(T) {
+    const b = basculeA(T);
+    let [chaud, clair] = teinteDe(b, T);
+    if (b && b.prev) { const [c0, l0] = teinteDe(b.prev, b.t), k = 1 - seg(T, b.t, b.t + .9); chaud = Math.max(chaud, c0 * k); clair = Math.max(clair, l0 * k); }
+    const inner = `rgb(${FOND0.map((v, i) => Math.round(v + (CHAUD[i] - v) * chaud + (CLAIR[i] - v) * clair)).join(',')})`;
+    const g = ctx.createRadialGradient(760, 470, 40, 760, 470, 1250);
+    g.addColorStop(0, inner); g.addColorStop(.75, NUIT); g.addColorStop(1, NUIT);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const aP = seg(T, .2, 1.8);
+    if (aP > 0) {
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      for (const p of poussiere) {
+        const x = ((p.x + p.vx * T) % W + W) % W, y = ((p.y + p.vy * T) % H + H) % H;
+        ctx.globalAlpha = p.a * aP; ctx.fillStyle = p.c; ctx.font = `${p.sz}px ${MONO}`; ctx.fillText(p.g, x, y);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+  function voile() {
+    if (!trame) { const c = document.createElement('canvas'); c.width = 1; c.height = 3 * S; const x = c.getContext('2d'); x.fillStyle = 'rgba(0,0,0,.16)'; x.fillRect(0, 0, 1, S); trame = ctx.createPattern(c, 'repeat'); }
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = trame; ctx.fillRect(0, 0, cv.width, cv.height); ctx.restore();
+    const v = ctx.createRadialGradient(960, 540, 520, 960, 540, 1180);
+    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.6)');
+    ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+  }
+
+  // ================================================================ fenêtres, texte balisé (repris de ../index.html)
+  function fenetre(x, y, w, h, a, bord = CRAIE) {
+    ctx.globalAlpha = a;
+    ctx.fillStyle = 'rgba(12,11,13,.92)'; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = LAITON; ctx.lineWidth = 3; ctx.strokeRect(x - 7.5, y - 7.5, w + 15, h + 15);
+    ctx.strokeStyle = bord; ctx.lineWidth = 4; ctx.strokeRect(x, y, w, h);
+  }
+  // texte balisé : [b]…[/b] en bleu, [r]…[/r] en rouge (la convention de Thibaut : « bleue », « rouge » en couleur) ; \n = saut de ligne
+  function balise(txt, base = CRAIE) {
+    return txt.split('\n').map(l => {
+      const segs = []; const re = /\[(b|r)\](.*?)\[\/\1\]/g; let m, last = 0;
+      while ((m = re.exec(l))) { if (m.index > last) segs.push({ s: l.slice(last, m.index), c: base }); segs.push({ s: m[2], c: m[1] === 'b' ? BLEU_TXT : ROUGE_TXT }); last = re.lastIndex; }
+      if (last < l.length) segs.push({ s: l.slice(last), c: base });
+      return segs;
+    });
+  }
+  const longueur = lignes => lignes.reduce((a, l) => a + l.reduce((b, s) => b + [...s.s].length, 0), 0);
+  function ecrit(lignes, x, y, lh, n) {
+    lignes.forEach((l, li) => {
+      let cx = x; const cy = y + li * lh;
+      for (const s of l) {
+        if (n <= 0) break;
+        const chars = [...s.s], vis = chars.slice(0, n).join(''); n -= chars.length;
+        ctx.fillStyle = s.c; ctx.fillText(vis, cx, cy); cx += ctx.measureText(vis).width;
+      }
+    });
+  }
+  // un texte balisé d'une ligne, coupé aux espaces pour tenir dans w (police courante) ; les insécables ne coupent pas
+  function coupeBalise(txt, w) {
+    const cars = []; for (const l of balise(txt)) for (const s of l) for (const ch of s.s) cars.push({ ch, c: s.c });
+    const larg = (a, b) => ctx.measureText(cars.slice(a, b).map(o => o.ch).join('')).width;
+    const bornes = []; let d = 0, esp = -1;
+    for (let i = 0; i < cars.length; i++) {
+      if (cars[i].ch === ' ') esp = i;
+      if (larg(d, i + 1) > w && esp > d) { bornes.push([d, esp]); d = esp + 1; esp = -1; }
+    }
+    bornes.push([d, cars.length]);
+    return bornes.map(([a, b]) => {
+      const out = [];
+      for (const o of cars.slice(a, b)) { const l = out[out.length - 1]; if (l && l.c === o.c) l.s += o.ch; else out.push({ s: o.ch, c: o.c }); }
+      return out;
+    });
+  }
+  function espace(txt, x, y, sp, align = 'left') {
+    const ws = [...txt].map(c => ctx.measureText(c).width), tot = ws.reduce((a, b) => a + b, 0) + sp * (ws.length - 1);
+    let cx = align === 'center' ? x - tot / 2 : align === 'right' ? x - tot : x; ctx.textAlign = 'left';
+    [...txt].forEach((c, i) => { ctx.fillText(c, cx, y); cx += ws[i] + sp; });
+    return tot;
+  }
+  // la pastille : une petite pilule de la couleur de sens, posée à côté d'une étiquette écrite à la craie
+  function pastille(x, y, fb, w = 22, h = 10) {
+    const x0 = x - w / 2, y0 = y - h / 2;
+    ctx.save(); ctx.beginPath(); ctx.roundRect(x0, y0, w, h, h / 2); ctx.clip();
+    ctx.fillStyle = ROUGE; ctx.fillRect(x0, y0, w, h);
+    ctx.fillStyle = BLEU; ctx.fillRect(x0, y0, w * fb, h);
+    ctx.restore();
+  }
+
+  // ================================================================ titre, cartouche, clé
+  const TITRE = fr('Changez la phrase : la foule change, l’issue aussi.');
+  const SOURCE = fr('Source : questionnaire « A ou B ? » de Monsieur Phi (vidéo « pilule bleue ou pilule rouge »), près de 10 000 répondants');
+  function entete(T) {
+    const a = seg(T, .3, .8);
+    if (a > 0) {
+      fenetre(48, 40, 300, 84, a);
+      ctx.font = `24px ${PIX}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = LAITON; ctx.fillText('TEST 01 · RÉSULTATS', 70, 74);
+      ctx.fillStyle = CRAIE; ctx.fillText('LES DEUX PILULES', 70, 108);
+    }
+    const n = Math.floor((T - .6) * 45);
+    if (n > 0) {
+      ctx.globalAlpha = 1; ctx.font = `46px ${PIX}`; ctx.fillStyle = CRAIE; ctx.textAlign = 'left';
+      ctx.fillText([...TITRE].slice(0, n).join(''), 392, 84);
+    }
+    const as = seg(T, 1.2, 1.8);
+    if (as > 0) { ctx.globalAlpha = as; ctx.font = `17px ${MONO}`; ctx.fillStyle = GRIS; ctx.fillText(SOURCE, 394, 116); }
+    ctx.globalAlpha = 1;
+  }
+  const CLE = { i: 999, k: 999, cx: 0, cy: 0, r1: .3, r2: .6, r3: .2, coiffe: 0, detail: 0 };
+  function cle(T) {
+    const a = seg(T, T_CLE, T_CLE + .5); if (a <= 0) return;
+    dessineSujet(CLE, X0 + PX / 2, 212, CS, { col: GRIS_FIG, a, mode: 'trace', ouverts: true, phi: { x: 2000, y: 0 } }, T);
+    ctx.globalAlpha = a; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+    ctx.font = `30px ${PIX}`; ctx.fillStyle = CRAIE; ctx.fillText(`=${NB}1${NB}%`, X0 + 58, 214);
+    ctx.font = `19px ${MONO}`; ctx.fillStyle = GRIS;
+    ctx.fillText('des répondants', X0 + 58, 242);
+    ctx.fillText('de la phrase lue', X0 + 58, 266);
+    ctx.globalAlpha = 1;
+  }
+  // l'en-tête de la foule : la phrase qu'elle lit ; le mot se réécrit en poussière de caractères à chaque bascule
+  function lue(T) {
+    const b = courante(T); if (!b) return;
+    const a = seg(T, T_PRET, T_PRET + .4), x = X0 + LW;
+    ctx.globalAlpha = a; ctx.textBaseline = 'alphabetic';
+    ctx.font = `500 17px ${MONO}`; ctx.fillStyle = GRIS; espace('LA FOULE LIT LA PHRASE', x, 190, 3, 'right');
+    const mot = PHRASES[b.p].nom, cars = [...mot];
+    ctx.font = `34px ${PIX}`; ctx.textAlign = 'right';
+    const vis = cars.map((c, i) => T < b.t + .06 + i * .035 ? G[Math.floor(hache(i * 31 + Math.floor(T * 20)) * G.length)] : c).join('');
+    ctx.fillStyle = LAITON; ctx.fillText(vis, x, 230);
+    ctx.globalAlpha = 1;
+  }
+
+  // ================================================================ la foule
+  function etatSujet(f, b, T, Tr, col) {
+    const e = { col, a: 1, dis: 0, mode: 'repos', phi: { x: EX, y: oeilY(T) }, cible: { x: EX, y: oeilY(T) }, fixe: false, reflet: cligne(T) > .5 };
+    const dw = Math.hypot(f.cx - EX, f.cy - EY) / 900;
+    const rf = regardFoule, vu = rf ? Math.hypot(f.cx - rf.x, f.cy - 12 - rf.y) : Infinity;
+    e.fixe = (T > f.ta + .45 && T < f.ta + 1.6)                // en arrivant, on lève les yeux vers Phi
+      || (T > st.vague + .3 + dw && T < st.vague + 2 + dw)     // Phi s'allume : de proche en proche
+      || (vu < 60 && Tr > rf.t + .15 + vu / 160);              // Phi le fixe : il lui rend son regard, puis ses voisins
+    if (!b) return e;
+    const tc = b.tc[f.k];
+    if (tc !== null && T > tc - .2 && T < tc + .45) { e.mode = 'saut'; e.t0 = tc; return e; }
+    if (col === GRIS_FIG) return e;
+    if (b.tVie !== undefined) {
+      // tout le monde vit : la lueur, les bras au ciel, puis une lueur qui reste, posée
+      const lu = seg(T, b.tVie, b.tVie + .6) * (1 - seg(T, b.tVie + 3.4, b.tVie + 4.4));
+      if (lu > 0) { e.mode = 'vie'; e.k = lu; }
+      e.halo = .45 * seg(T, b.tVie + 3.4, b.tVie + 4.4);
+    } else if (col === ROUGE && f.co <= 6 && T > b.tPeur + 1.6 && T < b.tPeur + 5.5) {
+      e.fixe = true; e.cible = { x: X0 + 60, y: f.cy + 10 };   // les voisins regardent ceux qui sont partis
+    }
+    // la lueur posée de la phrase d'avant s'éteint en une demi-seconde
+    if (b.prev && b.prev.tVie !== undefined && T < b.t + .5 && e.mode !== 'vie') e.halo = Math.max(e.halo || 0, .45 * (1 - seg(T, b.t, b.t + .5)) * seg(b.t, b.prev.tVie + 3.4, b.prev.tVie + 4.4));
+    return e;
+  }
+  function foule(T, Tr) {
+    const b = basculeA(T);
+    for (const f of FOULE) {
+      if (T < f.ta) continue;
+      const sc = eBack(seg(T, f.ta, f.ta + .45));
+      if (sc <= .01) continue;
+      const a = b && b.mort[f.k] ? lerp(.3, 1, seg(T, b.t, b.t + .6)) : 1;   // parti en caractères à la phrase d'avant : il revient
+      const fb = partBleue(f, b, T);
+      if (fb === null) { const e = etatSujet(f, b, T, Tr, GRIS_FIG); e.a = .82 * a; dessineSujet(f, f.cx, f.cy, CS * sc, e, T); continue; }
+      const condamne = b.td[f.k] !== null && fb === fbDe(f.k, b.p);
+      if (fb === 1 || fb === 0) { sujetChoisi(f, b, T, Tr, fb ? BLEU : ROUGE, fb === 1 && condamne, false, a); continue; }
+      // la décimale : un sujet de deux couleurs, la part bleue à gauche (sur la largeur du corps, colonnes 2 à 8)
+      const xs = f.cx - SW * 2 + (2 + 7 * fb) * CS;
+      ctx.save(); ctx.beginPath(); ctx.rect(f.cx - 60, 0, xs - (f.cx - 60), H); ctx.clip();
+      sujetChoisi(f, b, T, Tr, BLEU, condamne, false, a);
+      ctx.restore();
+      ctx.save(); ctx.beginPath(); ctx.rect(xs, 0, f.cx + 60 - xs, H); ctx.clip();
+      sujetChoisi(f, b, T, Tr, ROUGE, false, condamne, a);
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
+  // un sujet qui a choisi ; part : cette part de lui meurt ; voisin : l'autre part de lui meurt (la décimale), il a peur avec elle
+  function sujetChoisi(f, b, T, Tr, col, part, voisin, a) {
+    const e = etatSujet(f, b, T, Tr, col); e.a = a;
+    if ((part || voisin) && b.tPeur !== undefined) {
+      const td = b.td[f.k];
+      if (e.mode !== 'saut' && T >= b.tPeur && T < td + (voisin ? 1 : 0)) e.mode = 'peur';
+      if (part && T >= td) {
+        const dis = seg(T, td, td + 2);
+        // la trace : ce qui reste du sujet, à sa place, pour que la foule compte toujours 12,6 % de bleues
+        const tr = seg(T, td + 1.2, td + 2.4);
+        if (tr > 0) dessineSujet(f, f.cx, f.cy, CS, { col, a: .3 * tr, mode: 'trace', phi: e.phi }, T);
+        if (dis < 1) { e.dis = dis; dessineSujet(f, f.cx, f.cy, CS, e, T); }
+        return;
+      }
+    }
+    dessineSujet(f, f.cx, f.cy, CS, e, T);
+  }
+
+  // ================================================================ la jauge, son fantôme, l'écart
+  // Une seule échelle : la jauge (1000 px = 100 %) sous la foule. Le trait des 50 % monte dans la foule.
+  // Quand les deux phrases sont connues, l'autre valeur reste sur la jauge en fantôme (un trait pointillé de craie),
+  // et l'accolade de l'écart relie les deux : l'image figée montre toujours la comparaison entière.
+  function jauge(T) {
+    const a = seg(T, T_JAUGE, T_JAUGE + .5);
+    if (a <= 0) return;
+    const { nb, nr, choisi } = compte(T), x0 = X0, w = LW, y = GY;
+    ctx.globalAlpha = a;
+    // le seuil dans la foule : un pointillé entre la 10e et la 11e colonne
+    ctx.strokeStyle = rgba(CRAIE, .28); ctx.lineWidth = 2; ctx.setLineDash([4, 6]);
+    ctx.beginPath(); ctx.moveTo(x0 + w / 2, CY0 - 30); ctx.lineTo(x0 + w / 2, y - 38); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#1e1c20'; ctx.fillRect(x0, y, w, GH);
+    const wb = w * nb / 100, wr = w * nr / 100;
+    ctx.fillStyle = BLEU; if (wb > 0) ctx.fillRect(x0, y, Math.max(0, wb - (nr > 0 ? 1 : 0)), GH);
+    ctx.fillStyle = ROUGE; if (wr > 0) ctx.fillRect(x0 + w - wr + (nb > 0 ? 1 : 0), y, Math.max(0, wr - (nb > 0 ? 1 : 0)), GH);   // 2 px de nuit entre les deux
+    ctx.fillStyle = CRAIE; ctx.fillRect(x0 + w / 2 - 1.5, y - 10, 3, GH + 20);
+    ctx.font = `500 21px ${MONO}`; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = CRAIE; ctx.textAlign = 'left';
+    pastille(x0 + 11, y - 18, 1); ctx.fillText(choisi ? `BLEUE ${pc(nb)}` : 'BLEUE', x0 + 30, y - 11);   // avant le premier saut, pas de valeur
+    ctx.textAlign = 'right';
+    pastille(x0 + w - 11, y - 18, 0); ctx.fillText(choisi ? `${pc(nr)} ROUGE` : 'ROUGE', x0 + w - 30, y - 11);
+    ctx.textAlign = 'center'; ctx.fillStyle = GRIS; ctx.font = `500 17px ${MONO}`; ctx.fillText(`50${NB}%`, x0 + w / 2, y - 17);
+    ctx.globalAlpha = 1;
+    fantome(T);
+  }
+  function fantome(T) {
+    const b = courante(T); if (!b) return;
+    const tk = Math.max(tConnue(0), tConnue(1)); if (T < tk) return;
+    const a = seg(T, tk, tk + .6), autre = PHRASES[1 - b.p], xa = xDe(PHRASES[1].bleue), xb = xDe(PHRASES[0].bleue), xg = xDe(autre.bleue);
+    ctx.globalAlpha = a;
+    // le fantôme : un trait pointillé de craie à l'autre valeur, de la jauge à l'accolade
+    ctx.strokeStyle = CRAIE; ctx.lineWidth = 2; ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.moveTo(xg, GY - 12); ctx.lineTo(xg, AY + 10); ctx.stroke(); ctx.setLineDash([]);
+    // l'accolade de l'écart, entre les deux valeurs (fixes : ce sont des données, pas la jauge qui bouge)
+    ctx.font = `24px ${PIX}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const lab = `${Math.round(ECART)}${NB}points d’écart`, lw = ctx.measureText(lab).width + 28, xm = (xa + xb) / 2;
+    ctx.strokeStyle = rgba(CRAIE, .75); ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(xa, AY - 8); ctx.lineTo(xa, AY); ctx.lineTo(xm - lw / 2, AY);
+    ctx.moveTo(xm + lw / 2, AY); ctx.lineTo(xb, AY); ctx.lineTo(xb, AY - 8);
+    ctx.stroke();
+    ctx.fillStyle = CRAIE; ctx.fillText(lab, xm, AY + 2);
+    // l'étiquette du fantôme : à côté du trait, vers l'extérieur de l'accolade quand il y a la place
+    ctx.font = `19px ${MONO}`; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = GRIS;
+    ctx.textAlign = 'left'; ctx.fillText(fr(`phrase ${autre.nom.toLowerCase()} : ${pc(autre.bleue)}`), xg - 6, AY + 34);
+    ctx.globalAlpha = 1;
+  }
+
+  // ================================================================ les deux phrases, à droite
+  let CADRES = [];   // { y, h, lignes } : après le chargement des polices (la coupe dépend de la police)
+  function prepareCadres() {
+    ctx.save(); ctx.font = `20px ${MONO}`;
+    let y = RY0;
+    CADRES = PHRASES.map(R => {
+      const lignes = coupeBalise(R.desc, RW - 48), h = 88 + (lignes.length - 1) * RLH + 98;
+      const c = { y, h, lignes, n: longueur(lignes), ouvre: R.p ? 1.3 : 1.0 };
+      y += h + RGAP;
+      return c;
+    });
+    ctx.restore();
+  }
+  // l'éclat de la phrase lue : 0 (l'autre) .. 1 (celle-ci), en 0,35 s à chaque bascule
+  function eclat(p, T) {
+    const b = courante(T); if (!b) return 0;
+    const k = eOut(seg(T, b.t, b.t + .35));
+    return b.p === p ? (b.prev && b.prev.p === p ? 1 : k) : (b.prev && b.prev.p === p ? 1 - k : 0);
+  }
+  function phrase(R, T) {
+    const C = CADRES[R.p]; if (!C) return;
+    const o = eOut(seg(T, C.ouvre, C.ouvre + .45)); if (o <= 0) return;
+    const ka = eclat(R.p, T), hh = C.h * o;
+    fenetre(RX, C.y + (C.h - hh) / 2, RW, hh, 1, mix('#5b554d', LAITON, ka));
+    if (o < 1) { ctx.globalAlpha = 1; return; }
+    if (ka > 0) { ctx.globalAlpha = ka; ctx.fillStyle = 'rgba(215,165,72,.07)'; ctx.fillRect(RX + 2, C.y + 2, RW - 4, C.h - 4); }
+    const ta = lerp(.62, 1, ka), x = RX + 24;
+    // l'en-tête : le nom de la description, et sa touche
+    ctx.globalAlpha = 1; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+    ctx.font = `24px ${PIX}`; ctx.fillStyle = mix(GRIS, LAITON, ka); ctx.fillText(`DESCRIPTION ${R.nom}`, x, C.y + 40);
+    ctx.textAlign = 'right'; ctx.font = `20px ${PIX}`; ctx.fillStyle = GRIS; ctx.fillText(String(R.p + 1), RX + RW - 22, C.y + 38);
+    ctx.fillStyle = '#3a363a'; ctx.fillRect(x, C.y + 54, RW - 48, 2);
+    // la phrase, qui s'écrit
+    ctx.globalAlpha = ta; ctx.textAlign = 'left'; ctx.font = `20px ${MONO}`;
+    ecrit(C.lignes, x, C.y + 88, RLH, Math.floor((T - C.ouvre - .4) * 70));
+    // le chiffre et l'issue : quand la foule a lu la phrase une fois
+    const tk = tConnue(R.p), an = seg(T, tk, tk + .4);
+    const yn = C.y + 88 + (C.lignes.length - 1) * RLH + 72;
+    if (an > 0) {
+      const s = eBack(seg(T, tk, tk + .45));
+      ctx.save(); ctx.globalAlpha = an * lerp(.75, 1, ka); ctx.translate(x, yn); ctx.scale(s, s);
+      const [ent, pct] = pc(R.bleue).split(NB);
+      ctx.font = `58px ${PIX}`; ctx.fillStyle = CRAIE; ctx.textAlign = 'left'; ctx.fillText(ent, -2, 0);
+      const w = ctx.measureText(ent).width;
+      ctx.font = `30px ${PIX}`; ctx.fillText(NB + pct, w, 0);
+      ctx.restore();
+      ctx.globalAlpha = an * lerp(.75, 1, ka); ctx.font = `19px ${MONO}`;
+      pastille(x + 222, yn - 34, 1);
+      ecrit(balise('prennent la [b]bleue[/b]'), x + 242, yn - 28, 0, 99);
+      ecrit(balise(R.issue), x + 222 - 11, yn, 0, 99);
+    }
+    // la phrase lue : un curseur de laiton, du côté de la foule
+    if (ka > .01) {
+      const cy = C.y + C.h / 2, dx = (1 - ka) * 14;
+      ctx.globalAlpha = ka; ctx.fillStyle = LAITON;
+      ctx.beginPath(); ctx.moveTo(RX - 18 - dx, cy); ctx.lineTo(RX - 34 - dx, cy - 13); ctx.lineTo(RX - 34 - dx, cy + 13); ctx.closePath(); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // la note, sous les deux phrases : la foule unique est une image ; dans le questionnaire, chacun n'a lu qu'une phrase
+  const NOTE = [fr('Chacun n’a lu qu’une des deux phrases, tirée au sort :'), fr('deux groupes comparables, montrés en une seule foule.')];
+  function note(T) {
+    const C = CADRES[1]; if (!C) return;
+    const a = seg(T, T_CLE, T_CLE + .5); if (a <= 0) return;
+    ctx.globalAlpha = a; ctx.font = `17px ${MONO}`; ctx.fillStyle = GRIS; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    NOTE.forEach((l, i) => ctx.fillText(l, RX - 6, C.y + C.h + 44 + i * 23));
+    ctx.globalAlpha = 1;
+  }
+
+  // ---------------------------------------------------------------- le tampon de l'issue, sous la jauge (le tampon du morceau)
+  function tampon(T) {
+    const b = courante(T); if (!b) return;
+    const pose = (bb, a) => {
+      const R = PHRASES[bb.p], s = lerp(1.5, 1, eOut(seg(T, bb.tTampon, bb.tTampon + .35)));
+      const segs = R.vit ? [{ s: 'TOUT LE MONDE VIT', c: CRAIE }] : [{ s: 'LES ', c: CRAIE }, { s: 'BLEUS', c: BLEU_TXT }, { s: ' MEURENT', c: CRAIE }];
+      const taille = 38;
+      ctx.save(); ctx.globalAlpha = a; ctx.translate(TAMPON.x, TAMPON.y); ctx.rotate((R.vit ? -2 : 2) * Math.PI / 180); ctx.scale(s, s);
+      ctx.font = `${taille}px ${PIX}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      const tw = segs.reduce((acc, sg) => acc + ctx.measureText(sg.s).width, 0), w = tw + 70, h = taille * 1.45;
+      ctx.fillStyle = 'rgba(12,11,13,.88)'; ctx.fillRect(-w / 2, -h / 2, w, h);
+      ctx.strokeStyle = CRAIE; ctx.lineWidth = 5; ctx.strokeRect(-w / 2, -h / 2, w, h);
+      let cx = -tw / 2;
+      for (const sg of segs) { ctx.fillStyle = sg.c; ctx.fillText(sg.s, cx, 3); cx += ctx.measureText(sg.s).width; }
+      ctx.restore();
+    };
+    if (b.prev && T < b.t + .3 && T >= b.prev.tTampon && b.t > b.prev.tTampon) pose(b.prev, 1 - seg(T, b.t, b.t + .3));
+    if (T >= b.tTampon) pose(b, seg(T, b.tTampon, b.tTampon + .3));
+  }
+
+  // ================================================================ dialogue
+  const CPS = 36;
+  const REPLIQUES = [];   // l'intro, une réplique par phrase, puis l'annonce de chaque phrase
+  function prepareRepliques() {
+    ctx.save(); ctx.font = `34px ${PIX}`;
+    for (const txt of [INTRO, PHRASES[0].phi, PHRASES[1].phi, ...LECTURE]) {
+      const r = { lignes: balise(txt), pos: [] }; r.n = longueur(r.lignes);
+      r.lignes.forEach((ligne, li) => { let x = 124; for (const s of ligne) for (const c of s.s) { x += ctx.measureText(c).width; r.pos.push([x, 918 + li * 52]); } });
+      REPLIQUES.push(r);
+    }
+    ctx.restore();
+  }
+  // la réplique en cours : l'intro, puis, à chaque bascule, l'annonce de la phrase (sauf la première : l'intro s'écrit encore),
+  // et son commentaire quand la foule a fini de la lire
+  const repliqueA = T => {
+    let d = T >= 1.3 ? { r: REPLIQUES[0], t: 1.3 } : null;
+    for (const b of BASC) {
+      if (b.prev && T >= b.t + .15) d = { r: REPLIQUES[3 + b.p], t: b.t + .15 };
+      if (b.tPose <= b.fin && T >= b.tPose) d = { r: REPLIQUES[1 + b.p], t: b.tPose };
+    }
+    return d;
+  };
+  function dialogue(T) {
+    const t0 = 1.1; if (T < t0) return;
+    const o = eOut(seg(T, t0, t0 + .4)), x = 80, y = 862, w = 1760, h = 178, hh = h * o;
+    fenetre(x, y + (h - hh) / 2, w, hh, 1);
+    if (o < 1) { ctx.globalAlpha = 1; return; }
+    fenetre(112, 838, 132, 44, 1);
+    ctx.globalAlpha = 1; ctx.fillStyle = LABO; ctx.font = `26px ${PIX}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('XPHI', 178, 861);
+    const d = repliqueA(T); if (!d) return;
+    ctx.font = `34px ${PIX}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ecrit(d.r.lignes, 124, 930, 52, Math.floor((T - d.t) * CPS));
+  }
+
+  // ================================================================ le survol : la valeur exacte de chaque marque
+  // Chaque zone : un rectangle de la toile, à l'instant T (plus grand que la marque), quand elle existe, où Phi regarde,
+  // et ce qu'elle dit. Les bulles redisent ce que la slide montre déjà (étiquettes, tableau caché) : elles précisent.
+  // Les deux phrases sont des zones à part : les survoler, c'est choisir ce que la foule lit.
+  const ZONES = [];
+  const nomP = R => `phrase ${R.nom.toLowerCase()}`;
+  function prepareZones() {
+    ZONES.length = 0;
+    const lit = T => PHRASES[courante(T).p];
+    const pret = T => { const b = courante(T); return !!b && T >= b.tPose; };
+    ZONES.push({ id: 'bleue', cadre: true, actif: pret,
+      rect: T => ({ x: X0, y: GY - 8, w: LW * lit(T).bleue / 100, h: GH + 16 }), cible: T => ({ x: xDe(lit(T).bleue / 2), y: GY + 7 }),
+      info: T => ({ val: pc(lit(T).bleue), fb: 1, lignes: [`pilule bleue · ${nomP(lit(T))}`, lit(T).vit ? 'plus de 50 % : tout le monde vit' : 'moins de 50 % : les bleus meurent'] }) });
+    ZONES.push({ id: 'rouge', cadre: true, actif: pret,
+      rect: T => ({ x: xDe(lit(T).bleue), y: GY - 8, w: LW * lit(T).rouge / 100, h: GH + 16 }), cible: T => ({ x: xDe(lit(T).bleue + lit(T).rouge / 2), y: GY + 7 }),
+      info: T => ({ val: pc(lit(T).rouge), fb: 0, lignes: [`pilule rouge · ${nomP(lit(T))}`] }) });
+    ZONES.push({ id: 'seuil', actif: T => T >= T_JAUGE + .5,
+      rect: () => ({ x: xDe(50) - 10, y: GY - 36, w: 20, h: GH + 46 }), cible: () => ({ x: xDe(50), y: GY }),
+      info: () => ({ val: `50${NB}%`, lignes: ['le seuil, le même pour les deux phrases :', 'plus de 50 % de bleues, tout le monde vit ;', 'sinon, ceux qui ont pris la bleue meurent'] }) });
+    const autre = T => PHRASES[1 - courante(T).p];
+    const deux = T => !!courante(T) && T >= Math.max(tConnue(0), tConnue(1));
+    ZONES.push({ id: 'fantome', actif: deux,
+      rect: T => ({ x: xDe(autre(T).bleue) - 10, y: GY - 14, w: 20, h: AY - GY + 26 }), cible: fantomeC,
+      info: T => ({ val: pc(autre(T).bleue), fb: 1, lignes: [`de bleues avec l’autre phrase (${autre(T).nom.toLowerCase()})`, 'repère fantôme : la même échelle, l’autre description'] }) });
+    ZONES.push({ id: 'ecart', actif: deux,
+      rect: () => ({ x: xDe(PHRASES[1].bleue) + 12, y: AY - 18, w: xDe(PHRASES[0].bleue) - xDe(PHRASES[1].bleue) - 24, h: 36 }), cible: () => ({ x: (xDe(12.6) + xDe(65.5)) / 2, y: AY }),
+      info: () => ({ val: `${String(ECART).replace('.', ',')} points`, lignes: [`${pc(PHRASES[0].bleue)} de bleues → ${pc(PHRASES[1].bleue)}`, 'affiché arrondi : 53'] }) });
+    ZONES.push({ id: 'tampon', actif: T => { const b = courante(T); return !!b && T >= b.tTampon + .3; },
+      rect: () => ({ x: TAMPON.x - 220, y: TAMPON.y - 34, w: 440, h: 68 }), cible: () => TAMPON,
+      info: T => { const R = lit(T); return { val: R.vit ? 'Tout le monde vit' : 'Les bleus meurent', lignes: [`${pc(R.bleue)} de bleues : ${R.vit ? 'plus' : 'moins'} de 50 %`,
+        R.vit ? 'personne ne meurt' : `${pc(R.bleue)} des répondants de cette phrase meurent`, 'issue selon les règles du jeu'] }; } });
+    ZONES.push({ id: 'cle', actif: T => T >= T_CLE + .5,
+      rect: () => ({ x: X0 - 4, y: 180, w: 250, h: 92 }), cible: () => ({ x: X0 + PX / 2, y: 200 }),
+      info: () => ({ val: `1 sujet = 1${NB}%`, lignes: ['des répondants de la phrase affichée ;', 'chacun n’a lu qu’une phrase, tirée au sort :', 'deux groupes comparables, montrés en une foule', 'la décimale : un sujet de deux couleurs'] }) });
+    for (const f of FOULE) {
+      ZONES.push({ id: `sujet${f.k}`, f, cadre: true, actif: T => T >= f.ta + .3,
+        rect: () => ({ x: f.cx - PX / 2, y: f.cy - PY / 2, w: PX, h: PY }), cible: () => visage(f),
+        info: T => {
+          const b = basculeA(T), fb = partBleue(f, b, T);
+          if (fb === null) return { val: 'pas encore choisi', lignes: ['la foule n’a pas encore lu sa phrase'] };
+          const R = PHRASES[b.p], sort = R.vit ? 'vit' : fb === 0 ? 'vit' : fb === 1 ? 'meurt' : 'sa part bleue meurt';
+          if (fb > 0 && fb < 1) return { val: `${pc(fb)} bleue + ${pc(1 - fb)} rouge`, fb, lignes: [`la décimale de ${pc(R.bleue)} : un sujet de deux couleurs`, `${nomP(R)} · ${sort}`], phi: 'Je n’arrondis pas les humains.' };
+          return { val: `1${NB}%`, fb, lignes: [`pilule ${fb ? 'bleue' : 'rouge'} · ${nomP(R)} · ${sort}`, `la foule : ${pc(R.bleue)} de bleues`] };
+        } });
+    }
+  }
+  // l'ordre au clavier (← →) : les marques qui portent un chiffre
+  const ORDRE_CLAVIER = ['cle', 'bleue', 'seuil', 'rouge', 'fantome', 'ecart', 'tampon', 'sujet12', 'sujet65'];
+  const dans = (r, x, y) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
+  const zoneA = (x, y, T) => {
+    // les petites marques d'abord (le seuil et le fantôme passent devant les segments de la jauge)
+    let best = null, ba = Infinity;
+    for (const z of ZONES) { if (!z.actif(T)) continue; const r = z.rect(T); if (dans(r, x, y) && r.w * r.h < ba) { best = z; ba = r.w * r.h; } }
+    return best;
+  };
+  const phraseA = (x, y, T) => {
+    for (const R of PHRASES) { const C = CADRES[R.p]; if (C && T >= T_PRET && dans({ x: RX - 40, y: C.y - 8, w: RW + 48, h: C.h + 16 }, x, y)) return R.p; }
+    return null;
+  };
+  function bulle(T) {
+    if (!survol) return;
+    const z = survol.z; if (!z.info || !z.actif(T)) return;
+    const r = z.rect(T);
+    ctx.globalAlpha = 1; ctx.strokeStyle = LAITON; ctx.lineWidth = 2;
+    if (z.cadre) ctx.strokeRect(r.x + 1, r.y + 1, r.w - 2, r.h - 2);   // la marque survolée se soulève : un cadre de laiton, la couleur du geste
+    else if (survol.clavier) { ctx.setLineDash([6, 5]); ctx.strokeRect(r.x - 4, r.y - 4, r.w + 8, r.h + 8); ctx.setLineDash([]); }
+    const i0 = z.info(T), inf = { ...i0, val: fr(i0.val), lignes: i0.lignes.map(fr) }, pad = 18;
+    ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+    ctx.font = `30px ${PIX}`; const wv = ctx.measureText(inf.val).width + (inf.fb !== undefined ? 34 : 0);
+    ctx.font = `17px ${MONO}`; const wl = Math.max(0, ...inf.lignes.map(l => ctx.measureText(l).width));
+    ctx.font = `20px ${PIX}`; const wp = inf.phi ? ctx.measureText('XPHI : ' + inf.phi).width : 0;
+    const w = Math.max(wv, wl, wp) + pad * 2, h = 56 + inf.lignes.length * 24 + (inf.phi ? 32 : 0) + 6;
+    const ax = survol.x ?? r.x + r.w, ay = survol.y ?? r.y + r.h;
+    let x = ax + 22, y = ay + 26;
+    if (x + w > W - 24) x = ax - 22 - w;
+    if (y + h > H - 24) y = ay - 26 - h;
+    x = clamp(x, 24, W - 24 - w); y = clamp(y, 24, H - 24 - h);
+    ctx.fillStyle = 'rgba(12,11,13,.96)'; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = LAITON; ctx.lineWidth = 2; ctx.strokeRect(x - 5, y - 5, w + 10, h + 10);
+    ctx.strokeStyle = CRAIE; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
+    let cx = x + pad;
+    if (inf.fb !== undefined) { pastille(cx + 11, y + 34, inf.fb); cx += 34; }
+    ctx.font = `30px ${PIX}`; ctx.fillStyle = CRAIE; ctx.fillText(inf.val, cx, y + 44);
+    ctx.font = `17px ${MONO}`; ctx.fillStyle = GRIS;
+    inf.lignes.forEach((l, i) => ctx.fillText(l, x + pad, y + 72 + i * 24));
+    if (inf.phi) { ctx.font = `20px ${PIX}`; ctx.fillStyle = LABO; ctx.fillText('XPHI : ' + inf.phi, x + pad, y + 72 + inf.lignes.length * 24 + 12); }
+  }
+
+  // ================================================================ rendu
+  function rendu(T, Tr) {
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    regardPhi(T, Tr);
+    fond(T);
+    entete(T);
+    cle(T);
+    lue(T);
+    jauge(T);
+    foule(T, Tr);
+    oeil(T);
+    for (const R of PHRASES) phrase(R, T);
+    note(T);
+    tampon(T);
+    dialogue(T);
+    hud(T);
+    bulle(T);
+    voile();
+  }
+
+  // ================================================================ lecture et commandes
+  // ?gel=21 (ou #gel=21) : l'horloge de la scène est arrêtée à 21 s, pour les captures ; le regard de Phi reste vivant.
+  // Le mouvement réduit (préférence du système) : l'image finale d'emblée, sans boucle ; les phrases se choisissent à la main.
+  const mg = (location.search + location.hash).match(/gel=([\d.]+)/);
+  GEL = mg ? +mg[1] : null;
+  const calme = GEL === null && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let debut = 0, debutR = 0;
+  const tempsR = () => performance.now() / 1000 - debutR;
+  const temps = () => GEL !== null ? GEL : performance.now() / 1000 - debut;
+  // l'aide, en bas à droite, dans la toile (à l'échelle de la slide : elle ne chevauche jamais la boîte de dialogue) ; C la cache
+  let aide = true;
+  function hud(T) {
+    if (!aide || T < T_PRET) return;
+    const etat = tenue !== null ? `phrase ${tenue + 1} tenue · espace : reprendre la boucle` : survolPhrase !== null ? 'phrase survolée' : 'boucle lente · espace : tenir la phrase';
+    ctx.globalAlpha = seg(T, T_PRET, T_PRET + .5) * .9; ctx.font = `14px ${MONO}`; ctx.fillStyle = GRIS; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText(fr(`${etat} · survol, clic, 1 2 : choisir la phrase · ← → : les valeurs`), 1840, 1071);
+    ctx.globalAlpha = 1;
+  }
+  function boucle() {
+    const T = temps();
+    etend(T);
+    vide(T);
+    rendu(T, tempsR());
+    requestAnimationFrame(boucle);
+  }
+  function recommence() {
+    debut = performance.now() / 1000; survol = null; souris = null; tenue = null; survolPhrase = null; reprise = -Infinity;
+    etatInitial(); programme();
+    if (calme) { debut -= FIN; etend(FIN); vide(FIN); tenue = 1; }   // la boucle jouée jusqu'à l'image finale, puis tenue
+  }
+
+  function versToile(e) {
+    const r = cv.getBoundingClientRect(), k = Math.min(r.width / W, r.height / H);
+    const ox = r.left + (r.width - W * k) / 2, oy = r.top + (r.height - H * k) / 2;
+    return [(e.clientX - ox) / k, (e.clientY - oy) / k];
+  }
+  function relache(T) { if (survolPhrase !== null) { survolPhrase = null; reprise = T; } }
+  cv.addEventListener('mousemove', e => {
+    const T = temps(), [x, y] = versToile(e);
+    if (x < 0 || x > W || y < 0 || y > H) return;
+    souris = { x, y, tr: tempsR() };
+    const p = phraseA(x, y, T);
+    cv.style.cursor = p !== null ? 'pointer' : 'default';
+    if (p !== null) { if (survolPhrase !== p) { survolPhrase = p; choisit(p, T); survol = { z: { actif: () => true, cible: () => fenetreC(p), rect: () => ({ x: 0, y: 0, w: 0, h: 0 }), info: null, phrase: true }, t: T }; } return; }
+    relache(T);
+    if (survol && survol.z.phrase) survol = null;
+    const z = zoneA(x, y, T);
+    if (!z) survol = null;
+    else if (!survol || survol.z !== z) survol = { z, t: T, x, y };
+    else { survol.x = x; survol.y = y; }
+  });
+  cv.addEventListener('mouseleave', () => { souris = null; survol = null; relache(temps()); });
+  cv.addEventListener('click', e => {
+    cv.focus();
+    const T = temps(), [x, y] = versToile(e), p = phraseA(x, y, T);
+    if (p === null) return;
+    if (tenue === p) { tenue = null; reprise = T; } else { tenue = p; choisit(p, T); }   // un clic tient la phrase, un second la relâche
+  });
+  addEventListener('keydown', e => {
+    const k = e.key, T = temps();
+    if (k === '1' || k === '2' || k === 'ArrowUp' || k === 'ArrowDown') {
+      e.preventDefault();
+      const p = k === '1' || k === 'ArrowUp' ? 0 : 1;
+      tenue = p; choisit(p, T);
+    }
+    else if (k === ' ' || k === 'Enter') {
+      e.preventDefault();
+      if (tenue !== null) { tenue = null; reprise = T; } else { const b = courante(T); if (b) tenue = b.p; }
+    }
+    else if (k === 'r' || k === 'R') recommence();
+    else if (k === 'Escape') survol = null;
+    else if (k === 'c' || k === 'C') aide = !aide;
+    else if (k === 'ArrowRight' || k === 'ArrowLeft') {
+      e.preventDefault();
+      const ids = ORDRE_CLAVIER.filter(id => ZONES.find(z => z.id === id).actif(T));
+      if (!ids.length) return;
+      const i = survol && survol.z.id ? ids.indexOf(survol.z.id) : -1, d = k === 'ArrowRight' ? 1 : -1;
+      const id = ids[i < 0 ? (d > 0 ? 0 : ids.length - 1) : (i + d + ids.length) % ids.length];
+      survol = { z: ZONES.find(z => z.id === id), t: T, clavier: true };
+    }
+  });
+
+  const polices = Promise.all([document.fonts.load('34px "DotGothic16"'), document.fonts.load('20px "IBM Plex Mono"'), document.fonts.load('500 21px "IBM Plex Mono"')]);
+  Promise.race([polices, new Promise(r => setTimeout(r, 2500))]).catch(() => {}).then(() => {
+    prepareGlyphes();
+    prepareCadres();
+    prepareRepliques();
+    prepareZones();
+    debutR = performance.now() / 1000;
+    recommence();
+    if (GEL !== null) { etend(GEL); vide(GEL); }
+    // pour les essais : survoler une zone par son nom, choisir une phrase, lire les valeurs
+    window.__survole = id => { const z = ZONES.find(z => z.id === id); survol = z ? { z, t: temps(), clavier: true } : null; return !!z; };
+    window.__survol = () => { if (!survol || !survol.z.info) return null; const i = survol.z.info(temps()); return { id: survol.z.id, val: i.val, lab: i.lignes.join(' / ') }; };
+    window.__phrase = p => { tenue = p; choisit(p, temps()); return courante(temps()).p; };
+    window.__valeurs = () => { const T = temps(), c = compte(T), b = courante(T); return { T, lit: b && PHRASES[b.p].nom, bleue: +c.nb.toFixed(2), rouge: +c.nr.toFixed(2), bascules: BASC.map(x => [+x.t.toFixed(2), x.p]) }; };
+    requestAnimationFrame(boucle);
+  });
+})();
+</script>
+
+</body></html>

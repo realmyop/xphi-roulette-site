@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Xphi — la boucle, le film (essai)</title>
+<meta name="description" content="Essai de film : l'expérience de pensée « Un jour sans fin » de Monsieur Phi, racontée à la craie sur le tableau de Phi.">
+<link rel="icon" href="../identite/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../shared/base.css">
+<style>
+  @font-face { font-family: "Plex Mono"; src: url("../ascii/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: block; }
+  html, body { height: 100%; background: #0b0d0c; overflow: hidden; }
+  #cadre { position: fixed; inset: 0; display: grid; place-items: center; }
+  #film { display: block; width: min(100vw, calc(100vh * 16 / 9)); height: auto; aspect-ratio: 16 / 9; background: #1c2321; cursor: pointer; }
+  #commandes { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 14px; align-items: center;
+    font: 500 12px/1 "Plex Mono", ui-monospace, monospace; letter-spacing: .06em; color: #b9b3a6; background: rgba(11, 13, 12, .72);
+    padding: 8px 14px; border-radius: 999px; transition: opacity .4s; }
+  #commandes button { font: inherit; color: #efe9dc; background: none; border: 1px solid rgba(239, 233, 220, .3); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+  #commandes input { width: min(46vw, 420px); accent-color: #e8b84a; }
+  html.calme #commandes { opacity: 0; }
+  html.rendu #commandes { display: none; }
+</style>
+</head>
+<body>
+<div id="cadre"><canvas id="film" width="1920" height="1080" role="img" aria-label="Le film de la boucle, dessiné à la craie"></canvas></div>
+<div id="commandes">
+  <button id="lecture" type="button">Lecture</button>
+  <input id="curseur" type="range" min="0" max="1000" value="0" aria-label="Position dans le film">
+  <span id="temps">0:00</span>
+</div>
+<script type="module" src="film.js"></script>
+</body>
+</html>

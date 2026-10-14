@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sujets vus par la machine</title>
+<style>
+/* Planche d'essai pour les cent sujets des « deux pilules » : même toile, même fond, même trame que ../index.html. */
+@font-face { font-family: "DotGothic16"; src: url("../fonts/dotgothic16-latin.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+:root {
+  --nuit: #0c0b0d;
+  --craie: #f1e9dc;
+  --gris: #8f877b;
+  --labo: #8fc0d6;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; margin: 0; background: var(--nuit); color: var(--craie); overflow: hidden; }
+#scene { display: block; width: 100%; height: 100%; object-fit: contain; outline: none; }
+#hud {
+  position: fixed; right: 16px; bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  font: 12px/1 var(--mono); letter-spacing: .08em; color: var(--gris); pointer-events: none;
+}
+#hud b { color: var(--craie); font-weight: 500; }
+</style>
+
+<canvas id="scene" width="1920" height="1080" tabindex="0" aria-label="Planche : les cent sujets dessinés comme la machine les voit, à la taille réelle, agrandis, et dans tous leurs états"></canvas>
+<div id="hud"><b id="mode">mélange</b> · 1 attente · 2 choix · 3 vie · 4 peur · 5 mort · 6 privé · 7 mesure · 8 sans pilule · 9 isoloir ×4,2 · 0 mélange · survol : étiquette</div>
+
+<script>
+/* ==========================================================================
+   Les cent sujets des « deux pilules », vus par la machine.
+
+   Thibaut : « on pourrait améliorer le design des petits bonhommes pixélisés,
+   là on est sur du vraiment très sobre, on peut faire mieux, mais la narration
+   et l'ambiance je trouve que ça fonctionne bien » ; et « j'ai pas intégré le
+   fait que phi suive des yeux aussi ».
+
+   Le parti pris : on dessine les sujets comme Phi les voit, avec le langage d'un
+   instrument, sans imiter personne. Une grille de cases décrite en lettres ; un
+   ombrage calculé (la lumière vient de l'œil de Phi) et tramé par la matrice de
+   Bayer ; quatre tons par couleur de sens ; dans chaque œil un seul pixel LABO,
+   le reflet de Phi, qui s'éteint quand il cligne ; un balayage qui écrit le
+   choix ; une étiquette et un viseur au survol. Ce sont des gens : ils
+   respirent, clignent, suivent Phi des yeux, et de temps en temps lui font signe.
+
+   API proposée pour ../index.html (rien n'y est encore branché) :
+
+     dessineSujet(f, cx, cy, cs, e, T)
+       f   le sujet : { i, fiche } ; fiche(i) est tirée une fois de son numéro
+           { coiffe, robe, ph, pr (respiration), cl, pc (clignement), rg (seuil du regard) }
+       cs  la taille d'une case : 4 à la taille réelle. Dans le gros plan, on garde cs = 4
+           sous le ctx.scale(4.2) de fouleCamera : le sprite reste net (drawImage sans lissage).
+       e   l'état du sujet à l'instant T ; tous les champs sont facultatifs :
+           col          GRIS_FIG, BLEU ou ROUGE (la couleur de sens, jamais modifiée)
+           prev, tc     la couleur d'avant et l'instant du basculement : un balayage LABO
+                        descend 0,3 s et écrit la nouvelle couleur, puis un petit saut
+           saute        false pour basculer sans sauter (fouleRemet)
+           vu           0 → 1 : apparaître et disparaître en trame de Bayer
+                        (remplace l'échelle eBack de fouleMontre / fouleCache)
+           vie          0 → 1 : bras levés, sourire, la lumière monte, halo tramé (fouleLueur)
+           peur         0 → 1 : recroquevillé, grands yeux, l'ombre monte, le signal tremble
+           mort         0 → 1 : la dissolution en caractères '01·:+*#%xφ', les yeux en dernier
+           rien         true : celui qui ne prend rien (bras croisés, ∅, anneau qui bat)
+           prive        0 → 1 : le « ? » à côté de la tête des voisins
+           mesure, coche  l'instant où Phi le mesure (balayage, viseur), puis '✓' ou '✗'
+           regard       [x, y] de l'œil de Phi dans le repère du sujet : les yeux le suivent
+           reflet       false quand Phi cligne (cligne(T) < .5)
+           survol       true : le numéro et le viseur
+       T   le temps du morceau, en secondes (tout est fonction de T, rien n'est stocké)
+
+     Dans foule(T), pour chaque f de st.figs, à peu près :
+       const e = { col: couleur(f, T), regard: [ex, ey], reflet: cligne(T) > .5,
+         vu: seg(T, f.ta, f.ta + .45) * (f.te !== null ? 1 - seg(T, f.te, f.te + .4) : 1),
+         vie: col !== GRIS_FIG ? lu : 0, mort: dis, prive: (zk > .2 && …) ? seg(zk, .2, .8) : 0,
+         rien: st.abstient && f.i === ABSTIENT && T >= st.abstient,
+         mesure: f.tck, coche: f.tck !== null ? (faux ? '✗' : '✓') : null };
+       if (T < f.tc + .6) { e.prev = f.prev; e.tc = f.tc; e.saute = f.pop; }
+       if (f.td !== null) e.peur = seg(T, f.td - .8, f.td - .4);   // fouleTue décalerait td de 0,8 s
+       dessineSujet(f, f.cx, f.cy, 4, e, T);
+
+   Vitesse : chaque image d'un sujet est peinte une fois dans une toile de 18×26
+   (une case = 2×2 pixels ; la demi-case ne sert qu'aux yeux), rangée dans ATLAS,
+   puis posée par un seul drawImage. Cent sujets = cent drawImage par image.
+   window.__vitesse() compare avec l'ancien dessin case par case.
+
+   Touches : 1 attente · 2 choix · 3 vie · 4 peur · 5 mort · 6 privé · 7 mesure ·
+   8 sans pilule · 9 isoloir ×4,2 · 0 mélange. Survol : l'étiquette.
+   ========================================================================== */
+(() => {
+  // ================================================================ base (reprise de ../index.html)
+  const W = 1920, H = 1080;
+  const S = /4k/.test(location.hash) ? 2 : 1;
+  const cv = document.getElementById('scene');
+  cv.width = W * S; cv.height = H * S;
+  const ctx = cv.getContext('2d');
+
+  const CRAIE = '#f1e9dc', GRIS = '#8f877b', NUIT = '#0c0b0d', LABO = '#8fc0d6', LAITON = '#d7a548';
+  const BLEU = '#4f86e8', BLEU_TXT = '#6f9cf0', ROUGE = '#d9483b', ROUGE_TXT = '#e2675b', GRIS_FIG = '#a39a8c';
+  const MONO = '"IBM Plex Mono", ui-monospace, monospace';
+  const PIX = '"DotGothic16", "IBM Plex Mono", monospace';
+  const G = '01·:+*#%xφ'.split('');
+
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const eIO = k => (k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+  const eOut = k => 1 - Math.pow(1 - k, 3);
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  // le premier tirage de rng(n), sans rien allouer : un hasard fixe par entier, rejouable image après image
+  const hache = n => { let t = (n | 0) + 0x6D2B79F5 | 0; t = Math.imul(t ^ t >>> 15, 1 | t); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const mix = (a, b, k) => { const A = hex(a), B = hex(b); return '#' + A.map((v, i) => Math.round(lerp(v, B[i], k)).toString(16).padStart(2, '0')).join(''); };
+  const rgba = (h, a) => { const [r, g, b] = hex(h); return `rgba(${r},${g},${b},${a})`; };
+
+  // ================================================================ le sujet, vu par la machine
+  // Phi ne voit pas des silhouettes : il voit des cases. Le sujet est une grille de 9×13 cases ;
+  // une case = 4 px à la taille réelle (36×52 px) : la grille du morceau (pas de 50×62) ne bouge pas.
+  // Le dessin est en lettres, case par case : # le corps · t la tête · h les cheveux · l une case de lumière
+  // imposée · o une case d'ombre imposée · . rien. Rien n'est copié, tout est donnée ou calcul.
+  // L'ombrage, lui, n'est pas dessiné : il est calculé (la lumière vient de l'œil de Phi, au-dessus de la foule),
+  // puis tramé par une matrice de Bayer, comme un écran qui n'a que quatre tons par couleur.
+  const SW = 9, SH = 13;
+  const TETE = ['.ttt.', 'ttttt', 'ttttt', 'ttttt', '.ttt.']; // posée en colonne 2
+  const VIDE5 = ['.........', '.........', '.........', '.........', '.........'];
+  const JAMBES = ['..##.##..', '..##.##..', '..##.##..'];
+  const CORPS = {
+    repos: [...VIDE5,
+      '.#######.',
+      '#.#####.#',
+      '#.#####.#',
+      '#.#####.#',
+      '..#####..', ...JAMBES],
+    // la poitrine se soulève : les épaules s'élargissent d'une case
+    souffle: [...VIDE5,
+      '#########',
+      '#.#####.#',
+      '#.#####.#',
+      '#.#####.#',
+      '..#####..', ...JAMBES],
+    joie: [
+      '#.......#',
+      '#.......#',
+      '#.......#',
+      '#.......#',
+      '#.......#',
+      '#########',
+      '..#####..',
+      '..#####..',
+      '..#####..',
+      '..#####..', ...JAMBES],
+    // un signe de la main à Phi, en deux images
+    salut: [
+      '........#', '........#', '........#', '........#', '........#',
+      '.########',
+      '#.#####..',
+      '#.#####..',
+      '#.#####..',
+      '..#####..', ...JAMBES],
+    salut2: [
+      '.......#.', '........#', '........#', '........#', '........#',
+      '.########',
+      '#.#####..',
+      '#.#####..',
+      '#.#####..',
+      '..#####..', ...JAMBES],
+    // recroquevillé : les bras collés, les genoux qui se touchent
+    peur: [...VIDE5,
+      '.#######.',
+      '.#######.',
+      '.#######.',
+      '.##ooo##.',
+      '..#####..',
+      '...#.#...',
+      '..##.##..',
+      '..##.##..'],
+    // celui qui ne prend rien : les bras croisés
+    croise: [...VIDE5,
+      '.#######.',
+      '.#######.',
+      '.lllllll.',
+      '..ooooo..',
+      '..#####..', ...JAMBES],
+  };
+  // les coiffes : pour qu'on ne soit pas cent clones, sans toucher à la couleur de sens
+  const COIFFES = [
+    [],                                     // ras
+    ['.hhh.', 'h...h'],                     // court
+    ['.hhh.', 'hh.hh', 'h...h', 'h...h'],   // longs, raie au milieu
+    ['.hhh.', 'hhhhh'],                     // frange
+    ['.hhh.', 'hhh..'],                     // mèche
+  ];
+  // le bas : pantalon (rien à changer) ou robe, posée sur les trois dernières lignes des poses debout
+  const ROBE = ['..#####..', '.#######.', '...#.#...'];
+  // des glyphes en cases, à l'échelle du sujet
+  const GLYPHES = {
+    '?': ['.##.', '#..#', '..#.', '....', '..#.'],
+    '∅': ['......#', '..####.', '.#..##.', '.#.#.#.', '.##..#.', '.####..', '#......'],
+    '✓': ['....#', '...#.', '#.#..', '.#...'],
+    '✗': ['#..#', '.##.', '.##.', '#..#'],
+  };
+
+  // ---------------------------------------------------------------- le tramage ordonné
+  const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+  const seuil = (x, y) => (BAYER[(y & 3) * 4 + (x & 3)] + .5) / 16;
+  // la rampe d'une couleur de sens : 0 profond · 1 ombre · 2 la couleur elle-même · 3 lumière
+  const RAMPES = {};
+  const rampe = c => RAMPES[c] || (RAMPES[c] = [mix(c, NUIT, .62), mix(c, NUIT, .36), c, mix(c, CRAIE, .45)]);
+
+  function forme(pose, dt, coiffe, robe) {
+    const L = Array(SW * SH).fill('.');
+    const pose_ = (lignes, x0, y0) => lignes.forEach((l, y) => [...l].forEach((c, x) => { if (c !== '.' && y + y0 < SH) L[(y + y0) * SW + x + x0] = c; }));
+    pose_(CORPS[pose], 0, 0);
+    if (robe) { for (let x = 0; x < SW; x++) for (let y = 10; y < SH; y++) L[y * SW + x] = '.'; pose_(ROBE, 0, 10); }
+    pose_(TETE, 2, dt);
+    pose_(COIFFES[coiffe], 2, dt);
+    return L;
+  }
+
+  // Un sprite : une petite toile de 18×26 pixels (une case = 2×2 pixels), posée ensuite par drawImage sans lissage,
+  // à n'importe quelle taille. On ne la peint qu'une fois par (couleur, pose, regard, yeux, lumière, trame).
+  // La demi-case ne sert qu'aux yeux : c'est la plus petite chose que la machine sache dessiner.
+  const ATLAS = new Map();
+  function sprite(col, pose, dt, coiffe, robe, gx, yeux, lum, trame) {
+    const cle = col + pose + dt + coiffe + robe + gx + yeux + lum + '|' + trame;
+    let s = ATLAS.get(cle); if (s) return s;
+    const L = forme(pose, dt, coiffe, robe), R = rampe(col);
+    const lettre = (x, y) => x >= 0 && x < SW && y >= 0 && y < SH ? L[y * SW + x] : '.';
+    const plein = (x, y) => lettre(x, y) !== '.';
+    const c = document.createElement('canvas'); c.width = SW * 2; c.height = SH * 2;
+    const x2 = c.getContext('2d'), cases = [];
+    const pose1 = (x, y, coul, k) => { x2.fillStyle = coul; x2.fillRect(x * 2, y * 2, 2, 2); cases.push({ x, y, c: coul, k }); };
+    const visible = (x, y) => trame >= 16 || BAYER[(y & 3) * 4 + (x & 3)] < trame;
+    // La lumière vient de l'œil de Phi : d'en haut, et du côté où il se trouve (gx).
+    // Chaque case reçoit une valeur v (2 = la couleur de sens). Les bords changent de ton d'un cran entier, net ;
+    // seule la lumière qui s'épuise vers les pieds est fractionnaire : c'est là que la trame de Bayer se voit.
+    const cote = gx || 0;
+    for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) {
+      const k = lettre(x, y); if (k === '.' || !visible(x, y)) continue;
+      const tete = k === 't' || k === 'h';
+      const memePiece = (a, b) => plein(a, b) && ((lettre(a, b) === 't' || lettre(a, b) === 'h') === tete);
+      let v = 2 + lum;
+      if (!memePiece(x, y - 1)) v += 1;                                  // tourné vers le haut : la lumière
+      else if (tete && !memePiece(x, y + 1)) v -= 1;                     // le dessous du menton
+      if (cote && !plein(x - cote, y) && plein(x + cote, y)) v -= 1;     // le flanc qui tourne le dos à Phi
+      if (!tete && (lettre(x, y - 1) === 't' || (lettre(x, y - 2) === 't' && !plein(x, y - 1)))) v -= 1; // l'ombre portée de la tête
+      if (!tete) v -= Math.max(0, y - 8) * .26;                          // la lumière de Phi s'épuise vers les pieds
+      let t = clamp(Math.floor(v + seuil(x, y)), 0, 3);
+      if (k === 'h') t = t >= 3 ? 1 : 0;
+      else if (k === 'o') t = Math.min(t, 1);
+      else if (k === 'l') t = Math.max(t, 3);
+      else t = Math.max(t, 1);
+      pose1(x, y, R[t], t);
+    }
+    // Les yeux : une case sombre chacun, et dedans un seul pixel LABO, le reflet de l'œil de Phi, du côté où il est.
+    // Le regard glisse d'une demi-case vers Phi. f fermés (la paupière, en bas) · j joie (ouverts, et un sourire)
+    // · g grands ouverts (deux cases, et un cri) · n sans reflet (Phi cligne)
+    const ey = 2 + dt, sx = cote < 0 ? 0 : 1;
+    for (const ex of [3, 5]) {
+      if (!visible(ex, ey)) continue;
+      cases.forEach(q => { if (q.x === ex && q.y === ey) { q.k = 'oeil'; q.c = NUIT; } });
+      const X = ex * 2 + cote, Y = ey * 2;
+      if (yeux === 'f') { x2.fillStyle = R[0]; x2.fillRect(ex * 2, Y + 1, 2, 1); continue; }
+      const h = yeux === 'g' ? 2 : 1, y0 = Y - (h - 1) * 2;
+      x2.fillStyle = NUIT; x2.fillRect(X, y0, 2, h * 2);
+      if (yeux !== 'n') { x2.fillStyle = LABO; x2.fillRect(X + sx, y0, 1, 1); }
+    }
+    // la bouche, seulement quand elle dit quelque chose : un sourire en demi-cases (joie), un cri (peur)
+    x2.fillStyle = NUIT;
+    if (yeux === 'g') x2.fillRect(8 + cote, (ey + 2) * 2 - 1, 2, 2);
+    if (yeux === 'j') { const my = (ey + 1) * 2 + cote * 0; x2.fillRect(7 + cote, my, 1, 1); x2.fillRect(8 + cote, my + 1, 2, 1); x2.fillRect(10 + cote, my, 1, 1); }
+    s = { c, cases };
+    ATLAS.set(cle, s);
+    return s;
+  }
+  // la silhouette d'une couleur unie (pour le balayage de mesure)
+  function silhouette(pose, dt, coiffe, robe, col) {
+    const cle = 'sil' + pose + dt + coiffe + robe + col;
+    let s = ATLAS.get(cle); if (s) return s;
+    const L = forme(pose, dt, coiffe, robe), c = document.createElement('canvas'); c.width = SW * 2; c.height = SH * 2;
+    const x2 = c.getContext('2d'); x2.fillStyle = col;
+    L.forEach((k, i) => { if (k !== '.') x2.fillRect(i % SW * 2, Math.floor(i / SW) * 2, 2, 2); });
+    s = { c }; ATLAS.set(cle, s); return s;
+  }
+  // la lueur de vie : un halo tramé, plus ou moins dense (q de 1 à 4)
+  function halo(col, q) {
+    const cle = 'halo' + col + q;
+    let s = ATLAS.get(cle); if (s) return s;
+    const M = 3, w = SW + 2 * M, h = SH + 2 * M, c = document.createElement('canvas'); c.width = w; c.height = h;
+    const x2 = c.getContext('2d'); x2.fillStyle = rampe(col)[3];
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const dx = (x - w / 2 + .5) / (w / 2), dy = (y - h / 2 + .5) / (h / 2), r = Math.hypot(dx, dy);
+      const dens = q / 4 * clamp(1.05 - r, 0, 1) * .8;
+      if (seuil(x, y) < dens) x2.fillRect(x, y, 1, 1);
+    }
+    s = { c, M }; ATLAS.set(cle, s); return s;
+  }
+  // un glyphe en cases de ¾ de case, centré en x, son pied en y
+  function glyphe(nom, x, y, cs, col) {
+    const g = GLYPHES[nom], w = g[0].length, c = cs * .75, y0 = y - g.length * c;
+    ctx.fillStyle = col;
+    g.forEach((l, j) => [...l].forEach((ch, i) => { if (ch === '#') ctx.fillRect(Math.round(x + (i - w / 2) * c), Math.round(y0 + j * c), Math.ceil(c), Math.ceil(c)); }));
+  }
+  // le viseur : quatre coins autour du sujet
+  function viseur(x, y, w, h, cs, col, a) {
+    const l = cs * 1.5, e = Math.max(1, cs / 4);
+    ctx.globalAlpha = a; ctx.fillStyle = col;
+    for (const [px, py, sx, sy] of [[x, y, 1, 1], [x + w, y, -1, 1], [x, y + h, 1, -1], [x + w, y + h, -1, -1]]) {
+      ctx.fillRect(sx > 0 ? px : px - l, sy > 0 ? py : py - e, l, e);
+      ctx.fillRect(sx > 0 ? px : px - e, sy > 0 ? py : py - l, e, l);
+    }
+  }
+  const NOM_ETAT = e => e.mort > 0 ? 'DISSOUS' : e.rien ? 'AUCUNE PILULE' : e.peur > 0 ? 'BLEUE · PEUR' : e.vie > 0 ? 'VIVANT' : e.col === BLEU ? 'BLEUE' : e.col === ROUGE ? 'ROUGE' : 'EN ATTENTE';
+
+  // La fiche d'un sujet : ce qui le distingue des 99 autres, tiré une fois pour toutes de son numéro.
+  const fiche = i => ({
+    coiffe: Math.floor(hache(i * 7 + 1) * COIFFES.length),
+    robe: hache(i * 11 + 9) < .3 ? 1 : 0,
+    ph: hache(i * 7 + 2),              // phase de la respiration
+    pr: 2.6 + hache(i * 7 + 3) * 1.6,  // période de la respiration (s)
+    cl: hache(i * 7 + 4) * 9,          // décalage du clignement
+    pc: 3.8 + hache(i * 7 + 5) * 3,    // période du clignement (s)
+    rg: (hache(i * 7 + 6) - .5) * 90,  // seuil propre du regard : tous ne tournent pas les yeux au même instant
+  });
+
+  // ---------------------------------------------------------------- dessineSujet
+  // f : le sujet (i, et sa fiche) · (cx, cy) : son centre · cs : la taille d'une case (4 à la taille réelle)
+  // e : son état à l'instant T (voir l'en-tête de la planche, plus bas) · T : le temps du morceau, en secondes
+  function dessineSujet(f, cx, cy, cs, e, T) {
+    const F = f.fiche, i = f.i;
+    let pose = 'repos', dt = 0, hop = 0, yeux = 'o', lum = 0, jx = 0;
+    // au repos : la respiration, le clignement, et de temps en temps quelqu'un qui fait signe à Phi
+    const r = ((T / F.pr + F.ph) % 1 + 1) % 1;
+    if (r > .55) pose = 'souffle';
+    if (((T + F.cl) % F.pc) < .13) yeux = 'f';
+    const fen = Math.floor(T / 6.5), sal = (T / 6.5 - fen) * 6.5;
+    if (!e.rien && !e.prive && hache(i * 131 + fen * 977) < .035 && sal < 1.8) pose = Math.floor(T * 5) % 2 ? 'salut' : 'salut2';
+    // le regard suit l'œil de Phi : trois positions par axe, un seuil propre à chacun
+    let gx = 0;
+    if (e.regard) { const dx = e.regard[0] - cx; gx = dx < -110 + F.rg ? -1 : dx > 110 + F.rg ? 1 : 0; }
+    if (e.prive) gx = 0;
+    if (e.reflet === false && yeux === 'o') yeux = 'n'; // Phi cligne : le reflet s'éteint dans cent paires d'yeux
+    // le choix : la nouvelle couleur est écrite par un balayage qui descend, puis un petit saut
+    const scan = e.tc !== undefined ? seg(T, e.tc, e.tc + .3) : 1;
+    const apres = e.tc !== undefined ? T - e.tc - .3 : 9;
+    if (apres > 0 && apres < .22 && e.saute !== false) { hop = 1; pose = 'joie'; }
+    // la vie : on lève les bras, on saute, la lumière de Phi inonde le sujet
+    if (e.vie > 0) {
+      lum = Math.round(e.vie * 4) / 4;
+      if (e.vie > .5) { const b = Math.floor(T * 3.2 + F.ph * 4) % 4; pose = b === 3 ? 'repos' : 'joie'; hop = b === 1 ? 1 : 0; yeux = 'j'; }
+    }
+    // la peur : recroquevillé, les yeux grands ouverts, le signal tremble et l'ombre monte
+    if (e.peur > 0) {
+      pose = 'peur'; dt = 1; yeux = 'g'; lum = -Math.round(e.peur * 4) / 4;
+      jx = (hache(i * 31 + Math.floor(T * 24)) - .5) * 2 * e.peur * cs * .3;
+    }
+    if (e.rien) pose = 'croise';
+    const trame = e.vu === undefined ? 16 : Math.round(clamp(e.vu, 0, 1) * 16);
+    if (trame <= 0) return;
+
+    ctx.imageSmoothingEnabled = false;
+    const w = SW * cs, h = SH * cs, ox = Math.round(cx - w / 2 + jx), oy = Math.round(cy - h / 2 - hop * cs);
+    const nouv = sprite(e.col, pose, dt, F.coiffe, F.robe, gx, yeux, lum, trame);
+
+    // ---- la dissolution en caractères (la mort du morceau, gardée) : chaque case se lit, puis s'envole
+    if (e.mort > 0) {
+      const base = sprite(e.col, pose, dt, F.coiffe, F.robe, gx, 'o', lum, 16);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `${Math.round(cs * 3)}px ${MONO}`;
+      base.cases.forEach((c, k) => {
+        // les pieds partent d'abord, la tête ensuite, les yeux (le reflet de Phi) en tout dernier
+        const hz = hache(i * 977 + k * 13), d = c.k === 'oeil' ? .95 : (SH - 1 - c.y) / SH * .6 + hz * .2;
+        const p = clamp((e.mort * 2.3 - d) / 1.3, 0, 1);
+        if (p >= 1) return;
+        const x = ox + (c.x + .5) * cs + Math.sin(p * 5 + hz * 6.28) * cs * 3.5 * p, y = oy + (c.y + .5) * cs - Math.pow(p, 1.4) * cs * 40 * (.6 + hz * .8);
+        ctx.globalAlpha = (1 - p) * .95;
+        if (p <= 0) { ctx.fillStyle = c.c; ctx.fillRect(ox + c.x * cs, oy + c.y * cs, cs, cs); return; }
+        ctx.fillStyle = c.k === 'oeil' ? LABO : mix(c.c, CRAIE, Math.min(1, p * 1.4));
+        if (p > .1) ctx.fillText(G[Math.floor(hz * G.length + p * 4) % G.length], x, y);
+        else ctx.fillRect(x - cs / 2, y - cs / 2, cs, cs);
+      });
+      ctx.globalAlpha = 1;
+      return;
+    }
+
+    // ---- la lueur de vie, tramée, qui bat par paliers
+    if (e.vie > 0) {
+      const q = clamp(Math.round(e.vie * (2.6 + 1.4 * Math.sin(T * 5 + cx * .013))), 0, 4);
+      if (q > 0) { const hl = halo(e.col, q); ctx.globalAlpha = .5; ctx.drawImage(hl.c, ox - hl.M * cs, Math.round(cy - h / 2) - hl.M * cs, (SW + 2 * hl.M) * cs, (SH + 2 * hl.M) * cs); }
+    }
+    ctx.globalAlpha = e.col === GRIS_FIG ? .9 : 1;
+
+    // ---- le corps : une seule image, ou deux moitiés pendant le balayage du choix
+    // une tranche de lignes [a, b[ d'un sprite, décalée de dx
+    const tranche = (sp, a, b, dx = 0) => { if (b > a) ctx.drawImage(sp.c, 0, a * 2, SW * 2, (b - a) * 2, ox + dx, oy + a * cs, w, (b - a) * cs); };
+    if (e.prev && T < e.tc + .3) {
+      const ancien = sprite(e.prev, pose, dt, F.coiffe, F.robe, gx, yeux, lum, trame);
+      const ry = T < e.tc ? 0 : Math.floor(scan * (SH + 1));
+      tranche(nouv, 0, ry); tranche(ancien, ry, SH);
+      if (T >= e.tc) { ctx.globalAlpha = .9; ctx.fillStyle = LABO; ctx.fillRect(ox - cs, oy + Math.min(ry, SH - 1) * cs, w + 2 * cs, Math.max(1, cs * .5)); }
+    } else if (e.peur > .3 && hache(i * 7 + Math.floor(T * 9)) < .35 * e.peur) {
+      // le signal se déchire : une bande de lignes glisse d'une case
+      const a = Math.floor(hache(i + Math.floor(T * 9) * 3) * (SH - 3)), b = a + 2, sx = (hache(i * 3 + Math.floor(T * 9)) < .5 ? -1 : 1) * cs;
+      tranche(nouv, 0, a); tranche(nouv, a, b, sx); tranche(nouv, b, SH);
+    } else ctx.drawImage(nouv.c, ox, oy, w, h);
+
+    // ---- la mesure : Phi passe le sujet au balayage, les cases traversées se lisent en clair
+    if (e.mesure !== undefined && T >= e.mesure && T < e.mesure + .45) {
+      const k = seg(T, e.mesure, e.mesure + .45), ry = Math.floor(k * (SH + 2)) - 1;
+      const sl = silhouette(pose, dt, F.coiffe, F.robe, LABO);
+      for (let j = Math.max(0, ry - 2); j <= Math.min(SH - 1, ry); j++) {
+        ctx.globalAlpha = j === ry ? .95 : .35;
+        tranche(sl, j, j + 1);
+      }
+      if (cs >= 10 && ry >= 0 && ry < SH) {
+        ctx.globalAlpha = 1; ctx.font = `${Math.round(cs * .8)}px ${MONO}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = NUIT;
+        for (const c of nouv.cases) if (c.y === ry) ctx.fillText(typeof c.k === 'number' ? String(c.k) : 'e', ox + (c.x + .5) * cs, oy + (c.y + .5) * cs + 1);
+      }
+      ctx.globalAlpha = 1 - seg(T, e.mesure + .3, e.mesure + .9);
+    }
+    if (e.mesure !== undefined && T >= e.mesure && T < e.mesure + .9) viseur(ox - cs, oy - cs, w + 2 * cs, h + 2 * cs, cs, LABO, 1 - seg(T, e.mesure + .5, e.mesure + .9));
+    if (e.coche && e.mesure !== undefined && T >= e.mesure + .35) {
+      ctx.globalAlpha = 1;
+      glyphe(e.coche, cx + 4.6 * cs, oy + 2.2 * cs, cs, e.coche === '✓' ? LABO : ROUGE_TXT); // à côté de la tête : rien ne déborde sur le rang du dessus
+    }
+
+    // ---- celui qui ne prend rien : l'ensemble vide au-dessus de la tête, et un anneau tramé qui bat
+    if (e.rien) {
+      ctx.globalAlpha = 1;
+      glyphe('∅', cx, oy - cs, cs, CRAIE);
+      const pu = Math.floor(T * 3) % 2, R = 8 + pu;
+      ctx.fillStyle = CRAIE;
+      for (let a = 0; a < 40; a++) { if (a % 2) continue; const t = a / 40 * 6.283; ctx.fillRect(Math.round(cx + Math.cos(t) * R * cs * .95 - cs / 4), Math.round(cy + Math.sin(t) * R * cs - cs / 4), Math.max(1, cs / 2), Math.max(1, cs / 2)); }
+    }
+    // ---- choix privé : les voisins ne savent pas
+    if (e.prive) { ctx.globalAlpha = e.prive; glyphe('?', cx + 4.6 * cs, oy + 2.4 * cs, cs, mix(GRIS, CRAIE, .35)); }
+
+    // ---- l'étiquette, au survol
+    if (e.survol) {
+      ctx.globalAlpha = 1;
+      const gros = cs >= 10, n = String(i + 1).padStart(3, '0');
+      const ax = ox + w + cs * .5, ay = oy + cs;
+      const tx = ax + (gros ? 3 : 4) * cs, ty = oy - (gros ? 1 : 3) * cs;
+      ctx.strokeStyle = LABO; ctx.lineWidth = gros ? 2 : 1;
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(tx - cs, ty + cs); ctx.lineTo(tx, ty + cs); ctx.stroke();
+      ctx.font = gros ? `20px ${PIX}` : `12px ${MONO}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      const l1 = gros ? `SUJET N°${n}` : n, l2 = gros ? NOM_ETAT(e) : '';
+      const tw = Math.max(ctx.measureText(l1).width, gros ? ctx.measureText(l2).width : 0) + (gros ? 20 : 8), th = gros ? 58 : 16;
+      ctx.fillStyle = NUIT; ctx.fillRect(tx, ty + cs - th / 2, tw, th);
+      ctx.strokeRect(tx + .5, ty + cs - th / 2 + .5, tw - 1, th - 1);
+      ctx.fillStyle = LABO;
+      if (gros) { ctx.fillText(l1, tx + 10, ty + cs - 12); ctx.fillStyle = CRAIE; ctx.font = `15px ${MONO}`; ctx.fillText(l2, tx + 10, ty + cs + 14); }
+      else ctx.fillText(l1, tx + 4, ty + cs + 1);
+      viseur(ox - cs, oy - cs, w + 2 * cs, h + 2 * cs, cs, LABO, 1);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // ================================================================ Xphi (reprise de ../index.html), qui se promène au-dessus de la foule
+  function dessineOeil(cx, cy, size, s, alpha) {
+    if (alpha <= .001 || size <= 0) return;
+    const R0 = 12.5, RIN = 31 - 2.6 - .4;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(cx, cy); ctx.scale(size / 100, size / 100); ctx.translate(-50, -50);
+    ctx.translate(50, 50); ctx.rotate(s.rot * Math.PI / 180); ctx.translate(-50, -50);
+    const ox = 50 + s.x, oy = 50 + s.y, r = Math.max(0, s.r);
+    const ha = clamp(s.glow, 0, 1) * Math.min(1, r / 6), hr = (6 + 8 * s.glow) * 1.7;
+    if (ha > 0) {
+      const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, hr);
+      g.addColorStop(0, rgba(LABO, .9 * ha)); g.addColorStop(1, rgba(LABO, 0));
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ox, oy, hr, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.strokeStyle = CRAIE; ctx.lineCap = 'round';
+    ctx.lineWidth = 5.2;
+    ctx.beginPath(); ctx.arc(50, 50, 31, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(50, 4); ctx.lineTo(50, 17); ctx.moveTo(50, 83); ctx.lineTo(50, 96); ctx.stroke();
+    const a0 = -90 + (R0 - r) * 2.6, Vx = [], U = [];
+    for (let k = 0; k < 6; k++) { const a = (a0 + 60 * k) * Math.PI / 180; U.push([Math.cos(a), Math.sin(a)]); Vx.push([ox + r * Math.cos(a), oy + r * Math.sin(a)]); }
+    ctx.lineWidth = 2.1; ctx.globalAlpha = alpha * .9; ctx.beginPath();
+    for (let k = 0; k < 6; k++) {
+      const p = (k + 5) % 6; let dx = U[k][0] - U[p][0], dy = U[k][1] - U[p][1]; const L = Math.hypot(dx, dy); dx /= L; dy /= L;
+      const [x0, y0] = Vx[k], bx = x0 - 50, by = y0 - 50, b = bx * dx + by * dy, c = bx * bx + by * by - RIN * RIN;
+      const t = -b + Math.sqrt(Math.max(0, b * b - c));
+      ctx.moveTo(Vx[p][0], Vx[p][1]); ctx.lineTo(x0 + dx * t, y0 + dy * t);
+    }
+    ctx.stroke(); ctx.globalAlpha = alpha;
+    const pr = Math.min(4.2, r * .62);
+    if (pr > .05) {
+      ctx.fillStyle = LABO; ctx.beginPath(); ctx.arc(ox, oy, pr, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.beginPath(); ctx.arc(ox + pr * .33, oy - pr * .33, pr * .24, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+  const cligne = T => { const f = d => d < .1 ? 1 - d / .1 : d < .26 ? (d - .1) / .16 : 1; return Math.min(f(T % 5.3), f((T + 2.1) % 7.9)); };
+  // Phi glisse lentement au-dessus de la foule ; sa pupille regarde le sujet survolé, sinon la foule
+  const phiX = T => 650 + 330 * Math.sin(T * .21);
+  const PHI_Y = 160;
+
+  // ================================================================ fond et voile (repris de ../index.html)
+  let trame = null;
+  function fond() {
+    const g = ctx.createRadialGradient(760, 470, 40, 760, 470, 1250);
+    g.addColorStop(0, '#121a2a'); g.addColorStop(.75, NUIT); g.addColorStop(1, NUIT);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  function voile() {
+    if (!trame) { const c = document.createElement('canvas'); c.width = 1; c.height = 3 * S; const x = c.getContext('2d'); x.fillStyle = 'rgba(0,0,0,.16)'; x.fillRect(0, 0, 1, S); trame = ctx.createPattern(c, 'repeat'); }
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = trame; ctx.fillRect(0, 0, cv.width, cv.height); ctx.restore();
+    const v = ctx.createRadialGradient(960, 540, 520, 960, 540, 1180);
+    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.6)');
+    ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+  }
+  function fenetre(x, y, w, h, a, bord = CRAIE) {
+    ctx.globalAlpha = a;
+    ctx.fillStyle = 'rgba(12,11,13,.92)'; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = LAITON; ctx.lineWidth = 3; ctx.strokeRect(x - 7.5, y - 7.5, w + 15, h + 15);
+    ctx.strokeStyle = bord; ctx.lineWidth = 4; ctx.strokeRect(x, y, w, h);
+    ctx.globalAlpha = 1;
+  }
+  const legende = (txt, x, y, col = GRIS, taille = 14, al = 'left') => { ctx.font = `${taille}px ${MONO}`; ctx.textAlign = al; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = col; ctx.fillText(txt, x, y); };
+
+  // ================================================================ la planche
+  const RF = rng(99);
+  const FOULE = [...Array(100).keys()].map(i => ({ i, cx: 175 + (i % 20) * 50, cy: 360 + Math.floor(i / 20) * 62, r1: RF(), r2: RF(), r3: RF(), fiche: fiche(i) }));
+  const FOCUS = 47;
+  // le mélange de la grille : bleus, rouges, et des gris qui n'ont pas encore choisi
+  const DEPART = FOULE.map(f => f.r1 < .4 ? BLEU : f.r1 < .75 ? ROUGE : GRIS_FIG);
+  let mode = 'mélange', t0mode = 0;
+  const souris = { x: -1, y: -1 };
+  const GP = { cx: 1440, cy: 290, cs: 16 }; // le gros plan ×4
+
+  // l'état d'un sujet de la grille selon le mode choisi au clavier
+  function etatGrille(f, T) {
+    const k = T - t0mode, ordre = f.r2 * 1.6, e = { col: DEPART[f.i], regard: [phiX(T), PHI_Y], reflet: cligne(T) > .5 };
+    if (mode === 'mélange') {
+      // de temps en temps, quelqu'un change d'avis : on voit le balayage écrire la nouvelle couleur
+      const per = 5.5, n = Math.floor((T + f.r3 * per) / per), tc = n * per - f.r3 * per;
+      if (hache(f.i * 17 + n * 101) < .18) {
+        const d = DEPART[f.i], autre = [BLEU, ROUGE, GRIS_FIG].filter(c => c !== d)[hache(f.i + n * 5) < .5 ? 0 : 1];
+        if (T < tc + 3.6) { e.prev = d; e.col = autre; e.tc = tc + .8; }
+        else { e.prev = autre; e.col = d; e.tc = tc + 3.6; e.saute = false; } // et il revient sur son choix, sans sauter
+      }
+    }
+    else if (mode === 'attente') e.col = GRIS_FIG;
+    else if (mode === 'choix') { e.prev = GRIS_FIG; e.col = f.r1 < .62 ? BLEU : ROUGE; e.tc = .3 + ordre; }
+    else if (mode === 'vie') { e.col = f.r1 < .62 ? BLEU : ROUGE; e.vie = seg(k, ordre * .3, ordre * .3 + .6); }
+    else if (mode === 'peur') { e.col = f.r1 < .4 ? BLEU : ROUGE; if (e.col === BLEU) e.peur = seg(k, ordre * .3, ordre * .3 + .5); }
+    else if (mode === 'mort') { e.col = f.r1 < .4 ? BLEU : ROUGE; if (e.col === BLEU) { e.peur = seg(k, 0, .4); e.mort = seg(k, .8 + f.r2, 2.8 + f.r2); } }
+    else if (mode === 'privé' || mode === 'isoloir') { e.col = GRIS_FIG; if (f.i !== FOCUS) e.prive = seg(k, 0, .4); }
+    else if (mode === 'mesure') { e.col = GRIS_FIG; e.mesure = .4 + ordre * 1.2; e.coche = f.r3 < .13 ? '✗' : '✓'; }
+    else if (mode === 'sans pilule') { e.col = f.r1 < .62 ? BLEU : ROUGE; if (f.i === 52) { e.col = GRIS_FIG; e.rien = true; } }
+    if (e.mesure !== undefined) e.mesure += t0mode;
+    if (e.tc !== undefined && mode !== 'mélange') e.tc += t0mode;
+    return e;
+  }
+
+  // les états montrés un par un, en boucle de 4 s
+  const ETATS = [
+    { nom: 'EN ATTENTE', sous: 'col: GRIS_FIG', e: () => ({ col: GRIS_FIG }) },
+    { nom: 'BLEUE', sous: 'col: BLEU', e: () => ({ col: BLEU }) },
+    { nom: 'ROUGE', sous: 'col: ROUGE', e: () => ({ col: ROUGE }) },
+    { nom: 'LE CHOIX', sous: 'prev, col, tc', e: k => { const n = Math.floor(k / 2); return { prev: n % 2 ? BLEU : GRIS_FIG, col: n % 2 ? ROUGE : BLEU, tc: n * 2 + .5 }; } },
+    { nom: 'VIE', sous: 'vie: 0 → 1', e: k => ({ col: BLEU, vie: seg(k, .3, .9) * (1 - seg(k, 3.4, 3.9)) }) },
+    { nom: 'PEUR', sous: 'peur: 0 → 1', e: k => ({ col: BLEU, peur: seg(k, .3, 1.0) * (1 - seg(k, 3.5, 3.9)) }) },
+    // et il revient, en trame de Bayer (vu), pour que la boucle recommence
+    { nom: 'MORT', sous: 'mort: 0 → 1', e: k => k < 2.8 ? { col: BLEU, peur: seg(k, 0, .3), mort: seg(k, .7, 2.7) } : { col: BLEU, vu: seg(k, 3.0, 3.8) } },
+    { nom: 'SANS PILULE', sous: 'rien: true', e: () => ({ col: GRIS_FIG, rien: true }) },
+    { nom: 'CHOIX PRIVÉ', sous: 'prive: 1', e: () => ({ col: GRIS_FIG, prive: 1 }) },
+    { nom: 'MESURE', sous: 'mesure, coche', e: k => ({ col: GRIS_FIG, mesure: Math.floor(k / 2) * 2 + .4, coche: '✓' }) },
+  ];
+
+  function planche(T) {
+    fond();
+    // ---- le cartouche
+    fenetre(48, 40, 300, 84, 1);
+    ctx.font = `24px ${PIX}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = LAITON; ctx.fillText('ESSAI · SUJETS', 70, 74);
+    ctx.fillStyle = CRAIE; ctx.fillText('VUS PAR LA MACHINE', 70, 108);
+
+    // ---- Phi
+    const px = phiX(T);
+    let survole = -1;
+    for (const f of FOULE) if (Math.abs(souris.x - f.cx) < 22 && Math.abs(souris.y - f.cy) < 28) survole = f.i;
+    const cible = survole >= 0 ? FOULE[survole] : null;
+    const rx = cible ? clamp((cible.cx - px) / 40, -7, 7) : clamp((650 - px) / 60, -5, 5), ry = cible ? 5 : 4;
+    dessineOeil(px, PHI_Y + Math.sin(T * .9) * 4, 160, { x: rx + .35 * Math.sin(T * 1.7), y: ry, r: 12.5 * cligne(T), rot: 0, glow: .35 + .06 * Math.sin(T * 2.1) }, 1);
+
+    // ---- 1. la foule, à la taille réelle
+    if (mode !== 'isoloir') legende('1 · LA FOULE À LA TAILLE RÉELLE · 20 × 5 · UNE CASE = 4 PX · 36 × 52 PX', 157, 300);
+    const gpSurvol = Math.abs(souris.x - GP.cx) < 90 && Math.abs(souris.y - GP.cy) < 120;
+    if (mode === 'isoloir') {
+      // comme fouleCamera dans ../index.html : la même grille, cs = 4, sous un ctx.scale(4,2) centré sur le sujet 48
+      const z = lerp(1, 4.2, eIO(seg(T - t0mode, 0, 1.4))), F = FOULE[FOCUS];
+      ctx.save(); ctx.beginPath(); ctx.rect(120, 250, 1060, 420); ctx.clip();
+      ctx.translate(lerp(F.cx, 650, z / 4.2), lerp(F.cy, 470, z / 4.2)); ctx.scale(z, z); ctx.translate(-F.cx, -F.cy);
+      for (const f of FOULE) { const e = etatGrille(f, T); e.regard = [F.cx + (px - 650) / z, F.cy - 300 / z]; dessineSujet(f, f.cx, f.cy, 4, e, T); }
+      ctx.restore();
+    }
+    else for (const f of FOULE) { const e = etatGrille(f, T); if (f.i === survole || (gpSurvol && f.i === FOCUS)) e.survol = true; dessineSujet(f, f.cx, f.cy, 4, e, T); }
+
+    // ---- 2. le gros plan ×4
+    fenetre(1290, 40, 570, 600, 1);
+    ctx.font = `24px ${PIX}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = LABO; ctx.fillText('SUJET N°048 · ×4', 1314, 80);
+    ctx.fillStyle = '#3a363a'; ctx.fillRect(1314, 94, 522, 2);
+    const F = FOULE[FOCUS], eg = etatGrille(F, T);
+    eg.regard = [phiX(T) + GP.cx - F.cx, PHI_Y];
+    eg.survol = gpSurvol || survole === FOCUS;
+    // la règle graduée : une graduation par case
+    const hx = GP.cx - SW * 8, hy = GP.cy - SH * 8;
+    ctx.fillStyle = '#4a4542';
+    for (let j = 0; j <= SH; j++) ctx.fillRect(1318, hy + j * 16, j % 4 === 0 ? 12 : 6, 1);
+    for (let j = 0; j <= SW; j++) ctx.fillRect(hx + j * 16, hy + SH * 16 + 14, 1, j % 4 === 0 ? 12 : 6);
+    legende('9 × 13 cases · une case = 4 px', GP.cx - 12, hy + SH * 16 + 48, GRIS, 13, 'center');
+    // les images du repos, telles qu'elles sont rangées dans l'atlas
+    legende('LES IMAGES DU REPOS', 1314, 488, GRIS, 13);
+    const cr = eg.col === GRIS_FIG ? BLEU : eg.col;
+    [['repos', -1, 'o', '←'], ['repos', 0, 'o', '·'], ['repos', 1, 'o', '→'], ['souffle', 1, 'o', 'souffle'], ['repos', 1, 'f', 'cligne'], ['salut', 1, 'o', 'salut']].forEach(([p, g, y, nom], j) => {
+      const sp = sprite(cr, p, 0, F.fiche.coiffe, F.fiche.robe, g, y, 0, 16);
+      ctx.imageSmoothingEnabled = false; ctx.drawImage(sp.c, 1316 + j * 46, 502, 36, 52);
+      legende(nom, 1334 + j * 46, 574, GRIS, 10, 'center');
+    });
+    legende('survol : l’étiquette', 1314, 616, '#5d5750', 12);
+    // les données : le sujet tel que la machine le lit, case par case
+    const sp = sprite(cr, 'repos', 0, F.fiche.coiffe, F.fiche.robe, 1, 'o', 0, 16);
+    const gx0 = 1612, gy0 = 140;
+    legende('LE SUJET LU PAR PHI', gx0 - 8, gy0 - 24, GRIS, 13);
+    ctx.font = `15px ${MONO}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) { ctx.fillStyle = '#2b2826'; ctx.fillText('·', gx0 + x * 24, gy0 + y * 19); }
+    for (const c of sp.cases) {
+      ctx.fillStyle = c.k === 'oeil' ? LABO : rampe(cr)[Math.max(1, c.k | 0)];
+      ctx.fillText(c.k === 'oeil' ? 'e' : String(c.k), gx0 + c.x * 24, gy0 + c.y * 19);
+    }
+    // la rampe des trois couleurs de sens, et l'œil
+    let ry0 = gy0 + SH * 19 + 18;
+    legende('QUATRE TONS · 0 1 2 3', gx0 - 8, ry0, GRIS, 13); ry0 += 12;
+    [GRIS_FIG, BLEU, ROUGE].forEach((c, j) => rampe(c).forEach((t, k) => { ctx.fillStyle = t; ctx.fillRect(gx0 - 8 + k * 30, ry0 + j * 26, 26, 20); }));
+    ctx.fillStyle = NUIT; ctx.fillRect(gx0 + 126, ry0 + 26, 26, 20); ctx.fillStyle = LABO; ctx.fillRect(gx0 + 126 + 13, ry0 + 26, 13, 10);
+    ctx.strokeStyle = '#3a363a'; ctx.lineWidth = 1; ctx.strokeRect(gx0 + 126.5, ry0 + 26.5, 25, 19);
+    legende('e · œil', gx0 + 139, ry0 + 64, GRIS, 12, 'center');
+    ry0 += 100;
+    legende('TRAME DE BAYER 4 × 4', gx0 - 8, ry0, GRIS, 13);
+    ctx.font = `13px ${MONO}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    BAYER.forEach((b, k) => { const x = gx0 + (k % 4) * 26, y = ry0 + 22 + Math.floor(k / 4) * 19; ctx.fillStyle = rgba(CRAIE, .2 + b / 20); ctx.fillText(String(b), x, y); });
+    dessineSujet(F, GP.cx, GP.cy, GP.cs, eg, T); // en dernier : son étiquette passe devant les données
+
+    // ---- 3. la rangée des états (×2 et ×1)
+    fenetre(80, 700, 1760, 340, 1);
+    legende('3 · LES ÉTATS · ×2 ET À LA TAILLE RÉELLE · EN BOUCLE', 104, 732, GRIS, 14);
+    const cw = 1760 / ETATS.length;
+    ETATS.forEach((E, j) => {
+      const k = ((T + j * .37) % 4 + 4) % 4, e = E.e(k), x0 = 80 + j * cw;
+      const ex = { ...e, regard: [x0 + cw / 2, 600] };
+      if (e.tc !== undefined) ex.tc = T - k + e.tc;
+      if (e.mesure !== undefined) ex.mesure = T - k + e.mesure;
+      const f = { i: 200 + j * 3, fiche: fiche(FOCUS) };
+      dessineSujet(f, x0 + cw / 2 - 22, 860, 8, ex, T);
+      dessineSujet(f, x0 + cw / 2 + 52, 886, 4, ex, T);
+      ctx.font = `20px ${PIX}`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = CRAIE;
+      ctx.fillText(E.nom, x0 + cw / 2, 1000);
+      legende(E.sous, x0 + cw / 2, 1024, GRIS, 12, 'center');
+      if (j) { ctx.fillStyle = '#2b2826'; ctx.fillRect(x0, 760, 1, 260); }
+    });
+
+    voile();
+  }
+
+  // ================================================================ boucle et commandes
+  const debut = performance.now() / 1000;
+  let fige = null;
+  const temps = () => fige !== null ? fige : performance.now() / 1000 - debut;
+  function boucle() { const T = temps(); ctx.setTransform(S, 0, 0, S, 0, 0); planche(T); requestAnimationFrame(boucle); }
+  const MODES = { 1: 'attente', 2: 'choix', 3: 'vie', 4: 'peur', 5: 'mort', 6: 'privé', 7: 'mesure', 8: 'sans pilule', 9: 'isoloir', 0: 'mélange' };
+  const changeMode = m => { mode = m; t0mode = temps(); document.getElementById('mode').textContent = m; };
+  addEventListener('keydown', e => { if (MODES[e.key]) changeMode(MODES[e.key]); });
+  cv.addEventListener('mousemove', e => {
+    const r = cv.getBoundingClientRect(), k = Math.min(r.width / W, r.height / H);
+    souris.x = (e.clientX - r.left - (r.width - W * k) / 2) / k; souris.y = (e.clientY - r.top - (r.height - H * k) / 2) / k;
+  });
+  cv.addEventListener('mouseleave', () => { souris.x = souris.y = -1; });
+  window.__mode = changeMode;
+  window.__fige = t => { fige = t; };
+  window.__temps = temps;
+  // banc de vitesse : n images de la foule seule (100 sujets), contre l'ancien dessin case par case de ../index.html
+  window.__vitesse = (n = 300) => {
+    const T0 = temps(), A = [[2, 0, 3, 3], [1, 3, 5, 4], [1, 7, 2, 2], [4, 7, 2, 2]], ANC = [];
+    A.forEach(([x0, y0, w, h]) => { for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) ANC.push([x, y]); });
+    let t = performance.now();
+    for (let k = 0; k < n; k++) for (const f of FOULE) dessineSujet(f, f.cx, f.cy, 4, etatGrille(f, T0 + k / 60), T0 + k / 60);
+    const neuf = (performance.now() - t) / n;
+    t = performance.now();
+    for (let k = 0; k < n; k++) for (const f of FOULE) { ctx.globalAlpha = .9; ctx.fillStyle = DEPART[f.i]; for (const [x, y] of ANC) ctx.fillRect(f.cx - 15.75 + x * 4.5, f.cy - 20.25 + y * 4.5, 4.9, 4.9); }
+    const ancien = (performance.now() - t) / n;
+    return { 'ms par image, nouveaux sujets': +neuf.toFixed(3), 'ms par image, anciens sujets': +ancien.toFixed(3), 'images en atlas': ATLAS.size };
+  };
+  window.__souris = (x, y) => { souris.x = x; souris.y = y; };
+
+  const polices = Promise.all([document.fonts.load('24px "DotGothic16"'), document.fonts.load('14px "IBM Plex Mono"')]);
+  Promise.race([polices, new Promise(r => setTimeout(r, 2500))]).catch(() => {}).then(() => requestAnimationFrame(boucle));
+})();
+</script>
+
+</body></html>

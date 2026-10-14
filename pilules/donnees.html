@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Les deux pilules, les données</title>
+<style>
+/* Une slide d'analyse des données dans la DA de Thibaut (index.html) : même toile 16:9, même nuit, même craie, même laiton.
+   La proposition retenue parmi trois (essais/donnees-salles.html, « deux salles ») ; console et bascule restent dans essais/.
+   Polices hébergées avec la page (SIL OFL), sans aucun appel externe. */
+@font-face { font-family: "DotGothic16"; src: url("fonts/dotgothic16-latin.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+:root {
+  --nuit: #0c0b0d;
+  --craie: #f1e9dc;
+  --gris: #8f877b;
+  --labo: #8fc0d6;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; margin: 0; background: var(--nuit); color: var(--craie); overflow: hidden; }
+#scene { display: block; width: 100%; height: 100%; object-fit: contain; outline: none; }
+#scene:focus-visible { box-shadow: inset 0 0 0 2px var(--labo); }
+/* le tableau des valeurs : lu par les lecteurs d'écran, invisible à l'œil */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+</style>
+</head><body>
+
+<canvas id="scene" width="1920" height="1080" tabindex="0" role="img" aria-describedby="donnees"
+  aria-label="Analyse des résultats, les deux pilules : mêmes règles, autres mots, autre choix, autre issue. Les mêmes règles, décrites de deux façons, une description tirée au sort par répondant. Les deux salles : ceux qui ont lu d’emblée la version vie ou mort, sans la version au billet de 100 € avant. Description collective : 65,5 % prennent la pilule bleue, plus de la moitié : si tous les participants avaient reçu cette description, tout le monde vivrait. Description individuelle : 12,6 % seulement prennent la bleue : si tous l’avaient reçue, ceux qui ont pris la bleue mourraient. Écart : 52,9 points de bleue en moins (en grand, arrondi à 53 ; la valeur exacte est écrite dessous). Chaque salle compte 100 sujets, un sujet pour 1 % des répondants qui ont reçu sa description et l’ont lue d’emblée. Source : questionnaire « A ou B ? » de Monsieur Phi, près de 10 000 répondants en tout ; descriptions résumées et transposées (le questionnaire disait bouton A et bouton B : bouton A = pilule bleue, bouton B = pilule rouge). Tableau des valeurs ci-après."></canvas>
+
+<div id="donnees" class="sr-only">
+  <table>
+    <caption>Part des répondants qui prennent la pilule bleue, selon la description des règles qu'ils ont reçue (une description tirée au sort par répondant). Seulement ceux qui ont lu d’emblée la version vie ou mort, sans passer avant par la version au billet de 100&nbsp;€ (le questionnaire la donnait d’abord à une partie des répondants, tirée au sort) ; avec le billet d’abord, la pilule bleue fait 54,6&nbsp;% (collective) et 6&nbsp;% (individuelle) : selon les mêmes règles, l’issue serait la même. Source : questionnaire « A ou B ? » de Monsieur Phi, vidéo « pilule bleue ou pilule rouge », près de 10&nbsp;000 répondants en tout. Descriptions résumées et transposées : le questionnaire parlait de bouton A et de bouton B ; ici, bouton A = pilule bleue, bouton B = pilule rouge. Les textes d'origine suivent le tableau.</caption>
+    <thead><tr><th scope="col">Description des règles</th><th scope="col">Pilule bleue</th><th scope="col">Pilule rouge</th><th scope="col">Issue selon les règles du jeu, si tous les participants avaient lu cette description d’emblée (le jeu réunit tous les participants ; faute d’effectifs, on ne calcule pas d’issue commune)</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Collective, en résumé : si la majorité prend la bleue, tout le monde vit ; si au moins la moitié prend la rouge, ceux qui ont pris la bleue meurent.</th><td>65,5 %</td><td>34,5 %</td><td>Plus de 50 % de bleues : tout le monde vivrait.</td></tr>
+      <tr><th scope="row">Individuelle, en résumé : si un participant prend la bleue, il meurt, sauf si la majorité prend aussi la bleue ; s’il prend la rouge, il ne lui arrive rien.</th><td>12,6 %</td><td>87,4 %</td><td>Moins de 50 % de bleues : ceux qui ont pris la bleue mourraient, soit 12,6 % de ceux qui ont lu cette description d’emblée.</td></tr>
+    </tbody>
+    <tfoot><tr><th scope="row">Écart</th><td colspan="3">52,9 points de pilule bleue en moins avec la description individuelle (en grand sur la slide, arrondi : 53 ; la valeur exacte, 52,9, est écrite dessous).</td></tr></tfoot>
+  </table>
+  <p>Textes d'origine du questionnaire (docs/questionnaire-a-ou-b.md). Description collective : « Si la majorité des participants appuient sur le bouton A, tout le monde continuera de vivre. Si au moins la moitié des participants appuient sur le bouton B, alors un dispositif tuera tous ceux qui ont appuyé sur le bouton A. Seuls ceux qui ont appuyé sur le bouton B continueront de vivre. » Description individuelle : « Si un participant appuie sur le bouton A, alors un dispositif tuera ce participant sauf si la majorité des participants ont aussi appuyé sur le bouton A : dans ce cas, il ne lui arrivera rien. Si un participant appuie sur le bouton B, il ne lui arrive rien. » Dans les deux cas : « Appuyer sur un bouton est obligatoire : si vous ne le faites pas, tout le monde meurt. »</p>
+  <p>Xphi : « Ceux qui ont lu les règles d’emblée, ramenés à deux salles de cent. » Puis : « Les faits n’ont pas bougé, les mots si : cinquante-trois points de bleue en moins. Cinquante-deux virgule neuf, pour être exact. J’ai vérifié mes instruments. Deux fois. »</p>
+</div>
+
+<script>
+(() => {
+  // ================================================================ base (reprise de index.html)
+  const W = 1920, H = 1080;
+  const S = /4k/.test(location.hash) ? 2 : 1;
+  const cv = document.getElementById('scene');
+  cv.width = W * S; cv.height = H * S;
+  const ctx = cv.getContext('2d');
+
+  const CRAIE = '#f1e9dc', GRIS = '#8f877b', NUIT = '#0c0b0d', LABO = '#8fc0d6', LAITON = '#d7a548';
+  const BLEU = '#4f86e8', BLEU_TXT = '#6f9cf0', ROUGE = '#d9483b', ROUGE_TXT = '#e2675b', GRIS_FIG = '#a39a8c';
+  const MONO = '"IBM Plex Mono", ui-monospace, monospace';
+  const PIX = '"DotGothic16", "IBM Plex Mono", monospace';
+  const G = '01·:+*#%xφ'.split('');
+  const NB = ' ';   // l'espace insécable : « 65,5 % », « vit ; » ne se coupent jamais
+  const fr = s => s.replace(/ ([:;?!%»])/g, NB + '$1').replace(/« /g, '«' + NB);
+  const pc = (v, d = 1) => v.toFixed(d).replace('.', ',') + NB + '%';
+
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const eIO = k => (k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+  const eOut = k => 1 - Math.pow(1 - k, 3);
+  const eBack = k => { const c = 1.70158; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const hache = n => { let t = (n | 0) + 0x6D2B79F5 | 0; t = Math.imul(t ^ t >>> 15, 1 | t); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const mix = (a, b, k) => { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], k))).join(',')})`; };
+  const rgba = (h, a) => { const [r, g, b] = hex(h); return `rgba(${r},${g},${b},${a})`; };
+  // les surtitres (« DESCRIPTION », « ÉCART ») : entre le gris et la craie, pour tenir 4,3:1 sous le vignettage, à gauche
+  const SURTITRE = mix(GRIS, CRAIE, .5);
+
+  class V {
+    constructor(v) { this.a = v; this.b = v; this.t0 = 0; this.d = 0; }
+    set(v, t, d = .8) { this.a = this.get(t); this.b = v; this.t0 = t; this.d = d; }
+    get(t) { if (this.d <= 0) return this.b; return lerp(this.a, this.b, eIO(seg(t, this.t0, this.t0 + this.d))); }
+  }
+
+  // ================================================================ les données
+  // Questionnaire « A ou B ? » de Monsieur Phi (vidéo « pilule bleue ou pilule rouge »), près de 10 000 répondants ;
+  // chiffres vérifiés dans la transcription (voir l'en-tête de ../resultats-a3/ecrans.js) : 65,5 % de A avec la
+  // description collective [29:31], 12,6 % avec l'individuelle [37:48]. Bouton A = la pilule bleue, B = la rouge.
+  // Ces deux chiffres ne valent que pour ceux qui ont lu d'emblée la version vie ou mort (S2 ou S5 directement) : ceux qui
+  // ont eu la version au billet de 100 € avant (S1 → S2, S4 → S5) ont pris la bleue à 54,6 % et 6 % [33:33, 37:57–38:06],
+  // et ne sont dans aucune salle (cités dans le tableau caché ; même issue).
+  // On ne connaît pas l'effectif de chaque groupe : aucun n, aucun intervalle n'est montré.
+  // Une salle = 100 sujets, 1 sujet = 1 % ; la décimale n'est pas arrondie : elle devient un sujet de deux couleurs
+  // (65,5 = 65 bleus + un sujet moitié bleu, moitié rouge ; 12,6 = 12 bleus + un sujet bleu à 60 %).
+  // Les règles (les mêmes partout) : plus de 50 % de bleues, tout le monde vit ; sinon, ceux qui ont pris la bleue meurent.
+  const SEUIL = 50;
+  const SALLES = [
+    { s: 0, nom: 'COLLECTIVE', bleue: 65.5,
+      desc: fr('« Si la majorité prend la [b]bleue[/b], tout le monde vit ; si au moins la moitié prend la [r]rouge[/r], ceux qui ont pris la [b]bleue[/b] meurent. »'),
+      WX: 64, X0: 350, TX: 90 },
+    { s: 1, nom: 'INDIVIDUELLE', bleue: 12.6,
+      // dans l'ordre et à la personne du questionnaire (S5) : la bleue d'abord, « un participant », pas « vous »
+      desc: fr('« Si un participant prend la [b]bleue[/b], il meurt, sauf si la majorité prend aussi la [b]bleue[/b] ; s’il prend la [r]rouge[/r], il ne lui arrive rien. »'),
+      WX: 1086, X0: 1110, TX: 1600 },
+  ];
+  SALLES.forEach(R => { R.vit = R.bleue > SEUIL; R.rouge = +(100 - R.bleue).toFixed(1); });
+  const ECART = +(SALLES[0].bleue - SALLES[1].bleue).toFixed(1);   // 52,9 : en grand « −53 », et « 52,9 exactement » dessous
+
+  // ================================================================ la mise en page (toile 1920×1080)
+  const WY = 160, WW = 770, WH = 616;     // les deux salles, fenêtres façon jeu rétro
+  const TW = 230;                         // la colonne de texte de chaque salle (côté extérieur : les deux foules se font face)
+  const PX = 46, PY = 50;                 // le pas de la foule : 10 colonnes de 10 % ; un sujet fait 44×48 px
+  const GY = 222, GH = 14;                // la jauge, au-dessus de la foule, à la même échelle (460 px = 100 %) ;
+                                          // au-dessus : les valeurs (GY − 11), et plus haut, sur sa ligne, « seuil 50 % » (GY − 36)
+  const CY0 = 278;                        // le centre de la première rangée
+  const LW = 10 * PX;                     // 460 : la largeur de la foule et de la jauge
+  const EX = 960, EY = 520, ES = 170;     // l'œil de Phi, entre les deux salles
+  const CLE = { x: 884, tx: 916, y1: 640, y2: 742 };   // la clé, sous l'œil : les deux sujets en colonne, leur texte à droite
+
+  // ================================================================ le minutage (en secondes depuis l'ouverture)
+  // Les choses se construisent sous nos yeux : les salles, la foule grise, le choix (un saut chacun), la jauge qui se
+  // remplit, l'écart, puis l'issue, à gauche puis à droite. À partir de FIN (14 s), l'image ne bouge plus que de vie :
+  // les derniers bleus partis sont des ombres vers 14 s ; l'image finale de référence est ?gel=16.
+  // La droite choisit pendant que la gauche finit (de 4,7 à 6,3 s) : l'entrée dure 14 s au lieu de 18.
+  SALLES[0].t = { ouvre: 1.0, texte: 1.5, jauge: 1.9, foule: 2.0, choix: 3.4, nombre: 5.3, issue: 9.0, tampon: 9.5 };
+  SALLES[1].t = { ouvre: 1.25, texte: 2.0, jauge: 2.2, foule: 2.3, choix: 4.4, nombre: 6.3, issue: 10.6, tampon: 11.0 };
+  const T_ECART = 6.8, FIN = 14;
+  // Deux répliques, chacune lisible au moins 4 s une fois écrite (36 caractères par seconde, comme index.html) :
+  // la première finit vers 3,5 s, la seconde commence à 7,6 s et finit vers 12,3 s, puis reste.
+  // La première ne parle plus des dix mille : les salles ne montrent que ceux qui ont lu les règles d'emblée.
+  const REPLIQUES = [
+    { t: 1.6, txt: 'Ceux qui ont lu les règles d’emblée, ramenés à deux salles de cent.' },
+    { t: 7.6, txt: 'Les faits n’ont pas bougé, les mots si : cinquante-trois points de [b]bleue[/b] en moins.\nCinquante-deux virgule neuf, pour être exact. J’ai vérifié mes instruments. Deux fois.' },
+  ].map(r => ({ ...r, txt: fr(r.txt) }));
+
+  // ================================================================ le sujet (repris tel quel de index.html)
+  const SW = 11, SH = 12, CS = 4;
+  const LETTRE = { B: 1, O: 2, L: 3, E: 4, G: 5 };
+  const calque = (y0, lignes) => { const out = []; lignes.forEach((l, j) => [...l].forEach((c, x) => { if (LETTRE[c]) out.push([x, y0 + j, LETTRE[c]]); })); return out; };
+  const TETE = calque(1, [
+    '...LLBBB...',
+    '..LBBBBBO..',
+    '..BBBBBBO..',
+    '..BBBBBBO..',
+    '...BBBBO...',
+  ]);
+  const miroir = cal => cal.map(([x, y, c]) => [SW - 1 - x, y, c]);
+  const TETES = [TETE, miroir(TETE)];
+  const COIFFES = [
+    [],
+    calque(0, ['.....O.....']),
+    calque(1, ['...OOOOO...', '..O.....O..']),
+    calque(0, ['....OOO....', '...OOOOO...']),
+    calque(1, ['...OOOOO...', '..O.....O..', '..O.....O..', '..O.....O..']),
+    calque(1, ['...OOOOO...', '..OOOOOOO..']),
+    calque(0, ['......OO...', '...OOOOO...', '..OO.......']),
+  ];
+  const ECHARPE = calque(6, ['...OOOOO...']);
+  const CORPS = {
+    bas: calque(6, ['....OBO....', '...BBBBB...', '..O.BBB.O..', '..O.BBB.O..']),
+    hop: calque(6, ['....OBO....', '.OOBBBBBOO.', '....BBB....', '....BBB....']),
+    leves: calque(3, ['O.........O', 'O.........O', '.O.......O.', '..O.OBO.O..', '...BBBBB...', '....BBB....', '....BBB....']),
+    serres: calque(6, ['....OBO....', '...OBBBO...', '...OBBBO...', '...OBBBO...']),
+  };
+  const JAMBES = {
+    droit: calque(10, ['....O.O....', '...OO.OO...']),
+    saut: calque(10, ['...O...O...']),
+    serre: calque(10, ['.....O.....', '....O.O....']),
+  };
+  function grille(p) {
+    const g = new Uint8Array(SW * SH);
+    const peint = (cal, dy) => { for (const [x, y, c] of cal) { const yy = y + dy; if (yy >= 0 && yy < SH) g[yy * SW + x] = c; } };
+    peint(JAMBES[p.jambes], 0);
+    peint(CORPS[p.bras], p.acc);
+    if (p.detail) peint(ECHARPE, p.acc);
+    const dt = p.acc + p.bob;
+    peint(TETES[p.mir], dt); peint(COIFFES[p.coiffe], dt);
+    const ey = 3 + dt + p.yy;
+    for (const x of [4 + p.yx, 6 + p.yx]) {
+      g[ey * SW + x] = p.yeux === 'f' ? 2 : 4;
+      if (p.yeux === 'g') g[(ey - 1) * SW + x] = 4;
+    }
+    if (p.goutte) for (const y of [1, 2]) g[(y + p.acc + p.goutte) * SW + 9] = 5;
+    if (p.bouche && p.yy < 1) for (let x = p.bouche === 2 ? 4 : 5; x <= (p.bouche === 2 ? 6 : 5); x++) g[(4 + dt) * SW + x + p.yx] = 4;
+    return g;
+  }
+
+  // l'atlas : chaque image du sujet n'est peinte qu'une fois (une case = un pixel), puis agrandie sans lissage
+  const tons = col => [null, col, mix(col, NUIT, .45), mix(col, CRAIE, .4), '#0c0b0d', CRAIE];
+  const PAGES = [], CASES = new Map();
+  function sprite(col, p) {
+    const cle = [col, p.goutte, p.bras, p.jambes, p.yx, p.yy, p.yeux, p.bouche, p.bob, p.acc, p.coiffe, p.detail, p.mir].join('|');
+    let c = CASES.get(cle);
+    if (!c) {
+      if (CASES.size >= 170 * 157) { CASES.clear(); PAGES.length = 0; }
+      const n = CASES.size, sx = (n % 170) * (SW + 1), g = grille(p), T = tons(col);
+      if (n % 170 === 0) { const pg = document.createElement('canvas'); pg.width = 170 * (SW + 1); pg.height = SH; PAGES.push(pg); }
+      const im = PAGES[Math.floor(n / 170)], ax = im.getContext('2d');
+      g.forEach((v, k) => { if (v) { ax.fillStyle = T[v]; ax.fillRect(sx + k % SW, Math.floor(k / SW), 1, 1); } });
+      c = { im, sx, g, T };
+      CASES.set(cle, c);
+    }
+    return c;
+  }
+  const COULEURS = [GRIS_FIG, BLEU, ROUGE], GW = 40;
+  let GLY = null;
+  function prepareGlyphes() {
+    GLY = document.createElement('canvas'); GLY.width = GW * G.length * COULEURS.length; GLY.height = GW * 6;
+    const g = GLY.getContext('2d'); g.font = `36px ${MONO}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    COULEURS.forEach((col, ci) => { for (let s = 0; s < 6; s++) { g.fillStyle = mix(col, CRAIE, s / 5); G.forEach((ch, gi) => g.fillText(ch, (ci * G.length + gi) * GW + GW / 2, s * GW + GW / 2)); } });
+  }
+  const HALOS = new Map();
+  function halo(col) {
+    if (!HALOS.has(col)) {
+      const c = document.createElement('canvas'); c.width = c.height = 80; const g = c.getContext('2d');
+      const r = g.createRadialGradient(40, 40, 0, 40, 40, 40); r.addColorStop(0, rgba(col, .45)); r.addColorStop(1, rgba(col, 0));
+      g.fillStyle = r; g.fillRect(0, 0, 80, 80); HALOS.set(col, c);
+    }
+    return HALOS.get(col);
+  }
+
+  function regardeVers(p, c, cx, cy) {
+    const dx = c.x - cx, dy = c.y - cy;
+    p.yx = Math.abs(dx) > 40 + Math.abs(dy) * .3 ? Math.sign(dx) : 0;
+    p.yy = dy < -30 ? -1 : dy > 30 ? 1 : 0;
+  }
+  // repris de index.html, avec un mode de plus : « trace », ce qui reste d'un sujet parti en caractères
+  // (debout, les yeux fermés, immobile) : à droite, les bleus restent comptés, ils ne disparaissent pas du graphique
+  function pose(f, e, T, cx, cy) {
+    const p = { bras: 'bas', jambes: 'droit', yx: 0, yy: 0, yeux: 'o', bouche: 0, goutte: 0, bob: 0, acc: 0, coiffe: f.coiffe, detail: f.detail, mir: e.phi.x > cx ? 1 : 0 };
+    let dx = 0, dy = 0;
+    if (e.mode === 'trace') { p.yeux = e.ouverts ? 'o' : 'f'; return { p, dx, dy }; }
+    const pr = 2.6 + f.r1 * 1.4; p.bob = (T / pr + f.r2) % 1 < .42 ? 1 : 0;
+    const pb = 2.8 + f.r2 * 3.4; if ((T + f.r3 * pb) % pb < .13) p.yeux = 'f';
+    const pl = 1.1 + f.r3 * 1.5, n = Math.floor((T + f.r1 * 17) / pl), h = hache(f.i * 7919 + n * 104729);
+    let vers = !!e.fixe;
+    if (!vers) { if (h < .16) p.yx = -1; else if (h < .32) p.yx = 1; else if (h < .38) p.yy = 1; else if (h < .5) vers = true; }
+    if (vers && e.cible) regardeVers(p, e.cible, cx, cy);
+    const m = e.mode, k = T - (e.t0 ?? -99), I = e.k ?? 1;
+    if (m === 'saut') {
+      if (k >= -.16 && k < -.04) { p.acc = 1; p.bob = 0; }
+      else if (k >= -.04 && k < .3) {
+        const u = (k + .04) / .34; dy = -2.4 * Math.sin(Math.PI * u);
+        p.bras = 'hop'; p.jambes = u > .15 && u < .85 ? 'saut' : 'droit'; p.bob = 0; p.yx = 0; p.yy = -1;
+      }
+      else if (k >= .3 && k < .42) { p.acc = 1; p.bob = 0; }
+    } else if (m === 'vie') {
+      p.bras = 'leves'; p.bouche = 2; p.yy = -1; p.yx = 0; p.bob = 0;
+      const u = (T * 1.9 + f.r1) % 1; dy = -1.6 * Math.abs(Math.sin(Math.PI * u)) * I;
+      if (u < .08 || u > .92) p.acc = 1; else if (dy < -.8) p.jambes = 'saut';
+    } else if (m === 'peur') {
+      const gt = (T * .9 + f.r3) % 1; p.goutte = gt < .4 ? 1 : gt < .75 ? 2 : 0;
+      p.bras = 'serres'; p.jambes = 'serre'; p.yeux = p.yeux === 'f' ? 'f' : 'g'; p.bouche = 1; p.bob = 0; p.acc = 1; p.yy = 0;
+      p.yx = Math.floor(T * 2.7 + f.r2 * 5) % 2 ? -1 : 1;
+      dx = (Math.floor(T * 26 + f.r1 * 9) % 2 ? .25 : -.25) * I;
+    }
+    if (e.dis > 0) { p.yeux = 'f'; p.bouche = 0; p.goutte = 0; }
+    return { p, dx, dy };
+  }
+  // dessineSujet de index.html ; e.halo (0..1) : une lueur posée, sans les bras levés (la vie, une fois la fête passée)
+  function dessineSujet(f, cx, cy, cs, e, T) {
+    const a = e.a ?? 1; if (a <= .001) return;
+    const { p, dx, dy } = pose(f, e, T, cx, cy);
+    const s = sprite(e.col, p), ox = Math.round(cx - SW * cs / 2 + dx * cs), oy = Math.round(cy - SH * cs / 2 + dy * cs), lisse = ctx.imageSmoothingEnabled;
+    const lueur = e.mode === 'vie' ? (e.k ?? 1) * (.6 + .4 * Math.sin(T * 5 + cx * .01)) : (e.halo || 0);
+    if (lueur > 0 && !(e.dis > 0)) {
+      const r = 40 * cs / CS;
+      ctx.globalAlpha = a * lueur;
+      ctx.drawImage(halo(e.col), cx - r, cy - r + dy * cs, 2 * r, 2 * r);
+    }
+    if (!(e.dis > 0)) {
+      ctx.globalAlpha = a; ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(s.im, s.sx, 0, SW, SH, ox, oy, SW * cs, SH * cs);
+      ctx.imageSmoothingEnabled = lisse;
+      if (e.reflet && p.yeux !== 'f') {
+        const ey = 3 + p.acc + p.bob + p.yy - (p.yeux === 'g' ? 1 : 0), cote = e.phi.x >= cx ? .5 : 0;
+        ctx.fillStyle = LABO;
+        for (const x of [4 + p.yx, 6 + p.yx]) ctx.fillRect(ox + (x + cote) * cs, oy + ey * cs, cs / 2, cs / 2);
+      }
+      return;
+    }
+    // la mort, comme dans le morceau : les cases s'envolent en caractères, en partant des pieds, et virent à la craie
+    if (e.dis >= 1) return;
+    const ci = Math.max(0, COULEURS.indexOf(e.col)), gs = 12 * cs / CS;
+    ctx.imageSmoothingEnabled = true;
+    for (let k = 0; k < s.g.length; k++) {
+      const v = s.g[k]; if (!v) continue;
+      const x = k % SW, y = (k - x) / SW, d = (SH - 1 - y) / (SH - 1) * .45;
+      const q = clamp((e.dis * 2 - d) / 1.4, 0, 1); if (q >= 1) continue;
+      const hz = hache(f.i * 997 + k * 31), ph = hz * 6.283, vit = .6 + hache(k * 131 + f.i) * .8;
+      const px = ox + x * cs + Math.sin(q * 5 + ph) * 14 * q * cs / CS, py = oy + y * cs - Math.pow(q, 1.4) * 170 * vit * cs / CS;
+      ctx.globalAlpha = a * (1 - q) * .95;
+      if (q > .15) { const gi = Math.floor(hz * 1000) % G.length; ctx.drawImage(GLY, (ci * G.length + gi) * GW, Math.round(q * 5) * GW, GW, GW, px + cs / 2 - gs * .55, py + cs / 2 - gs * .55, gs * 1.1, gs * 1.1); }
+      else { ctx.fillStyle = s.T[v]; ctx.fillRect(px, py, cs, cs); }
+    }
+    ctx.imageSmoothingEnabled = lisse;
+  }
+
+  // ================================================================ les deux cents sujets (données fixes)
+  // Rangés colonne par colonne, de haut en bas, les bleus d'abord : chaque colonne fait 10 %, et le trait des 50 %
+  // passe entre la 5e et la 6e colonne, sous celui de la jauge. Le sujet k a une part de bleue fb (1, 0, ou la décimale).
+  const FOULES = SALLES.map(R => {
+    const RF = rng(R.s ? 2024 : 1808), ent = Math.floor(R.bleue + 1e-9), frac = +(R.bleue - ent).toFixed(3);
+    const F = [...Array(100).keys()].map(k => {
+      const i = R.s * 100 + k, co = Math.floor(k / 10), row = k % 10;
+      return {
+        i, k, R, co, row, cx: R.X0 + PX / 2 + co * PX, cy: CY0 + row * PY,
+        fb: k < ent ? 1 : k === ent ? frac : 0,
+        r1: RF(), r2: RF(), r3: RF(),
+        coiffe: Math.floor(hache(i * 7 + 3) * COIFFES.length), detail: hache(i * 17 + 11) < .2 ? 1 : 0,
+      };
+    });
+    // l'ordre des sauts : au hasard, comme dans le morceau ; chacun reçoit ses instants une fois pour toutes
+    const ordre = [...Array(100).keys()]; for (let j = 99; j > 0; j--) { const m = Math.floor(RF() * (j + 1)); [ordre[j], ordre[m]] = [ordre[m], ordre[j]]; }
+    F.forEach(f => {
+      f.ta = R.t.foule + f.r1 * 1.0;                         // l'arrivée (grise)
+      f.tc = R.t.choix + .3 + ordre.indexOf(f.k) * .016;      // le saut du choix
+      f.tp = R.t.issue - .8;                                  // la peur commence avec la sentence (à droite, les bleus)
+      f.td = R.t.issue + f.r2 * 1.0;                          // le départ en caractères
+    });
+    return F;
+  });
+  const meurt = f => !f.R.vit && f.fb > 0;   // la part bleue meurt quand les bleues n'ont pas la majorité
+
+  // ================================================================ état (ce qui dépend des images déjà jouées : le regard, l'humeur)
+  let st, file;
+  const at = (t, fn) => file.push({ t, fn });
+  function vide(jusqua) {
+    file.sort((a, b) => a.t - b.t);
+    while (file.length && file[0].t <= jusqua) { const it = file.shift(); it.fn(it.t); }
+  }
+  function etatInitial() {
+    file = [];
+    st = {
+      oeil: { a: new V(0), x: new V(0), y: new V(0), r: new V(0), rot: new V(0), glow: new V(.35) },
+      regards: [], rg: { px: EX, py: EY, x: EX, y: EY, v: true, t0: -99, d: .1, A: 9, gx: 0, gy: 0, w: 1 },
+      vague: -99, secoue: -99,
+    };
+  }
+
+  // ================================================================ Xphi (repris de index.html)
+  function humeur(t, h) {
+    const base = { x: 0, y: 0, r: 12.5, rot: 0, glow: .35 };
+    const M = {
+      neutre: base,
+      grand: { ...base, r: 17, glow: 1 },
+      plisse: { x: 0, y: 5, r: 6, rot: -4, glow: .2 },
+      doute: { x: -3, y: 2, r: 10, rot: -6, glow: .35 },
+      curieux: { x: 5, y: -5, r: 9.5, rot: 9, glow: .4 },
+      bas: { ...base, y: 6, r: 11 },
+    }[h];
+    for (const k in M) st.oeil[k].set(M[k], t, .5);
+    if (h === 'grand') st.vague = t;
+  }
+  let GEL = null, CALME = false;   // CALME : le mouvement réduit (voir « lecture et commandes »)
+  const cligne = T => {
+    if (GEL !== null || CALME) return 1;   // figé pour une capture, ou mouvement réduit : l'œil ouvert
+    const f = d => d < .1 ? 1 - d / .1 : d < .26 ? (d - .1) / .16 : 1;
+    return Math.min(f(T % 5.3), f((T + 2.1) % 7.9));
+  };
+  function dessineOeil(cx, cy, size, s, alpha) {
+    if (alpha <= .001 || size <= 0) return;
+    const R0 = 12.5, RIN = 31 - 2.6 - .4;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(cx, cy); ctx.scale(size / 100, size / 100); ctx.translate(-50 + (s.dx || 0), -50);
+    ctx.translate(50, 50); ctx.rotate(s.rot * Math.PI / 180); ctx.translate(-50, -50);
+    const ox = 50 + s.x, oy = 50 + s.y, r = Math.max(0, s.r);
+    const ha = clamp(s.glow, 0, 1) * Math.min(1, r / 6), hr = (6 + 8 * s.glow) * 1.7;
+    if (ha > 0) {
+      const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, hr);
+      g.addColorStop(0, rgba(LABO, .9 * ha)); g.addColorStop(1, rgba(LABO, 0));
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ox, oy, hr, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.strokeStyle = CRAIE; ctx.lineCap = 'round';
+    ctx.lineWidth = 5.2;
+    ctx.beginPath(); ctx.arc(50, 50, 31, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(50, 4); ctx.lineTo(50, 17); ctx.moveTo(50, 83); ctx.lineTo(50, 96); ctx.stroke();
+    const a0 = -90 + (R0 - r) * 2.6, Vx = [], U = [];
+    for (let k = 0; k < 6; k++) { const a = (a0 + 60 * k) * Math.PI / 180; U.push([Math.cos(a), Math.sin(a)]); Vx.push([ox + r * Math.cos(a), oy + r * Math.sin(a)]); }
+    ctx.lineWidth = 2.1; ctx.globalAlpha = alpha * .9; ctx.beginPath();
+    for (let k = 0; k < 6; k++) {
+      const p = (k + 5) % 6; let dx = U[k][0] - U[p][0], dy = U[k][1] - U[p][1]; const L = Math.hypot(dx, dy); dx /= L; dy /= L;
+      const [x0, y0] = Vx[k], bx = x0 - 50, by = y0 - 50, b = bx * dx + by * dy, c = bx * bx + by * by - RIN * RIN;
+      const t = -b + Math.sqrt(Math.max(0, b * b - c));
+      ctx.moveTo(Vx[p][0], Vx[p][1]); ctx.lineTo(x0 + dx * t, y0 + dy * t);
+    }
+    ctx.stroke(); ctx.globalAlpha = alpha;
+    const pr = Math.min(4.2, r * .62);
+    if (pr > .05) {
+      ctx.fillStyle = LABO; ctx.beginPath(); ctx.arc(ox, oy, pr, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.beginPath(); ctx.arc(ox + pr * .33, oy - pr * .33, pr * .24, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+  const oeilY = T => EY + Math.sin(T * .9) * 4;
+  function oeil(T) {
+    const O = st.oeil, R = st.rg, e = { x: O.x.get(T), y: O.y.get(T), r: O.r.get(T), rot: O.rot.get(T), glow: O.glow.get(T) };
+    const [mx, my] = microsaccade(T), gx = R.gx + mx, gy = R.gy + my, a = -e.rot * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+    e.x = e.x * R.w + gx * ca - gy * sa; e.y = e.y * R.w + gx * sa + gy * ca;
+    e.r *= cligne(T);
+    e.glow += .06 * Math.sin(T * 2.1);
+    const k = T - st.secoue; e.dx = k >= 0 && k < .9 ? Math.sin(k * 22) * 3 * (1 - k / .9) : 0;
+    dessineOeil(EX, oeilY(T), ES, e, O.a.get(T));
+  }
+
+  // ---------------------------------------------------------------- Phi suit des yeux (la mécanique de index.html)
+  // Par priorité : 1. ce dont il parle (regard(t, d, cible) : les sauts, la jauge qui se remplit, l'écart, les tampons,
+  // ceux qui partent) — mais la marque que vous survolez passe devant ce qui a commencé avant le survol ;
+  // 2. le pointeur qui bouge (2,5 s) ; 3. le repos : vous, la plume, la foule, les jauges, l'écart.
+  // La saccade se compte en temps réel (Tr) : figée par ?gel, la scène garde un regard vivant qui suit la souris.
+  let souris = null, survol = null;   // souris { x, y, tr } ; survol { z, t } : la marque sous le pointeur (ou au clavier)
+  const VOUS = () => ({ vous: true });
+  const point = (x, y) => () => ({ x, y });
+  function regard(t, d, cible, pause = .3) { st.regards.push({ t, d, cible, pause }); st.regards.sort((a, b) => a.t - b.t); }
+  const ZR = 220;
+  function decalage(x, y, ex, ey, A) {
+    const dx = x - ex, dy = y - ey, m = Math.hypot(dx, dy);
+    if (m < .001) return [0, 0, 0];
+    const k = A / Math.sqrt(m * m + ZR * ZR);
+    return [dx * k, dy * k, m];
+  }
+  function microsaccade(T) {
+    let n = Math.floor(T / .3);
+    for (let j = 0; j < 4 && hache(n * 13 + 7) > .45; j++) n--;
+    return [(hache(n * 31 + 1) - .5) * 1.5, (hache(n * 31 + 2) - .5) * 1.5];
+  }
+  const visage = f => ({ x: f.cx, y: f.cy - 12 });
+  const dernier = (F, quand, duree) => T => {
+    let best = null, bt = -Infinity;
+    for (const f of F) { const t = quand(f); if (t !== null && t <= T && T < t + duree && t > bt) { bt = t; best = f; } }
+    return best && visage(best);
+  };
+  const parmi = (F, ok, P = .55) => T => {
+    const h = hache(Math.floor(T / P) * 97 + 3), i0 = Math.floor(h * 100);
+    for (let j = 0; j < 100; j++) { const f = F[(i0 + j * 37) % 100]; if (T > f.ta + .3 && ok(f, T)) return visage(f); }
+    return null;
+  };
+  const bleues = (R, T) => FOULES[R.s].reduce((a, f) => a + (T >= f.tc ? f.fb : 0), 0);
+  const rouges = (R, T) => FOULES[R.s].reduce((a, f) => a + (T >= f.tc ? 1 - f.fb : 0), 0);
+  const jaugeC = R => T => T < R.t.jauge + .3 ? null : { x: R.X0 + LW * bleues(R, T) / 100, y: GY + GH / 2 };
+  const ECART_C = { x: 960, y: 262 };
+  const tamponC = R => ({ x: R.X0 + LW / 2, y: WY + WH + 30 });
+  const plume = T => {
+    const d = repliqueA(T); if (!d || T < d.t + .2) return null;
+    const n = Math.floor((T - d.t) * CPS); if (n >= d.n) return null;
+    const [x, y] = d.pos[clamp(n, 0, d.n - 1)];
+    return { x, y };
+  };
+  function repos(T) {
+    const P = 1.15, j = n => (hache(n * 7 + 1) - .5) * .7 * P, n0 = Math.floor(T / P);
+    const n = T < n0 * P + j(n0) ? n0 - 1 : T >= (n0 + 1) * P + j(n0 + 1) ? n0 + 1 : n0;
+    const h = hache(n * 131 + 17), C = [[3, { vous: true }]];
+    const ajoute = (w, c) => { if (c) C.push([w, c]); };
+    ajoute(3, plume(T));
+    for (const R of SALLES) {
+      ajoute(2, parmi(FOULES[R.s], f => !(meurt(f) && T > f.td))(T));
+      ajoute(1, jaugeC(R)(T));
+      if (T > R.t.tampon + .5) ajoute(.7, tamponC(R));
+    }
+    if (T > T_ECART + .5) ajoute(1, ECART_C);
+    ajoute(.5, { x: 150 + hache(n * 29 + 3) * 1620, y: 80 + hache(n * 41 + 9) * 700 });   // nulle part : Phi rêvasse
+    let v = h * C.reduce((a, c) => a + c[0], 0);
+    for (const c of C) { v -= c[0]; if (v < 0) return c[1]; }
+    return C[0][1];
+  }
+  function cibleRegard(T, Tr) {
+    const geste = survol && survol.z.actif(T) ? survol.z.cible : null;
+    for (let i = st.regards.length - 1; i >= 0; i--) {
+      const r = st.regards[i];
+      if (geste && r.t <= survol.t) break;
+      if (T >= r.t && T < r.t + r.d) { const c = r.cible(T); if (c) return { ...c, pause: r.pause }; }
+    }
+    if (geste) return { ...geste, pause: .12 };
+    if (souris && Tr - souris.tr < 2.5) return { x: souris.x, y: souris.y, pause: .12 };
+    return { ...repos(T), pause: .25 };
+  }
+  let regardFoule = null;
+  function regardPhi(T, Tr) {
+    const R = st.rg, O = st.oeil, ex = EX, ey = oeilY(T);
+    if (st.regards.length > 40) st.regards = st.regards.filter(r => r.t + r.d > T);
+    const A = Math.min(9, 23 - O.r.get(T));
+    const ou = k => [lerp(R.px, R.v ? ex : R.x, k), lerp(R.py, R.v ? ey : R.y, k)];
+    const c = cibleRegard(T, Tr), cx = c.vous ? ex : c.x, cy = c.vous ? ey : c.y;
+    if ((!!c.vous !== R.v || (!c.vous && Math.hypot(cx - R.x, cy - R.y) > 14)) && Tr - R.t0 >= c.pause) {
+      const [vx, vy] = ou(eOut(seg(Tr, R.t0, R.t0 + R.d)));
+      const [ax, ay] = decalage(vx, vy, ex, ey, A), [bx, by] = decalage(cx, cy, ex, ey, A);
+      R.px = vx; R.py = vy; R.x = cx; R.y = cy; R.v = !!c.vous; R.t0 = Tr; R.d = .05 + .007 * Math.hypot(bx - ax, by - ay); R.A = A;
+    } else if (Math.abs(A - R.A) > 1.5) R.A = A;
+    const [px, py] = ou(eOut(seg(Tr, R.t0, R.t0 + R.d)));
+    const [gx, gy, m] = decalage(px, py, ex, ey, R.A);
+    R.gx = gx; R.gy = gy; R.w = 1 - seg(m, 0, 140);
+    regardFoule = !R.v && Tr > R.t0 + R.d ? { x: R.x, y: R.y, t: R.t0 + R.d } : null;
+  }
+
+  // ================================================================ le programme : ce que Phi fait, et regarde
+  function programme() {
+    at(.9, t => st.oeil.a.set(1, t, .6));
+    at(1.1, t => st.oeil.r.set(12.5, t, .7));
+    regard(1.4, 1.2, VOUS);
+    for (const R of SALLES) {
+      const F = FOULES[R.s];
+      regard(R.t.foule + .2, 1.1, dernier(F, f => f.ta, 1));                    // la foule qui arrive
+      regard(R.t.choix + .35, 1.75, dernier(F, f => f.tc, .5), .2);              // il suit les sauts, de saccade en saccade…
+      regard(R.t.choix + 2.0, .9, jaugeC(R));                                    // … puis où tombe la jauge
+    }
+    at(T_ECART, t => humeur(t, 'curieux')); regard(T_ECART, 1.3, point(ECART_C.x, ECART_C.y));
+    regard(T_ECART + 1.35, .6, jaugeC(SALLES[0])); regard(T_ECART + 1.95, .6, jaugeC(SALLES[1]));   // il compare les deux jauges
+    // l'humeur s'enchaîne sans repasser par « neutre » : curieux devant l'écart, grand quand tout le monde vit,
+    // plissé quand les bleus vont partir, neutre une fois tout dit
+    const [A, B] = SALLES;
+    at(A.t.issue, t => humeur(t, 'grand'));
+    regard(A.t.issue + .2, .5, parmi(FOULES[0], () => true)); regard(A.t.tampon, 1.2, () => tamponC(A));
+    at(B.t.issue - .8, t => humeur(t, 'plisse'));
+    regard(B.t.issue - .7, .9, parmi(FOULES[1], meurt));                      // les condamnés qui tremblent…
+    regard(B.t.issue, 1.0, () => tamponC(B));                                  // … la sentence…
+    regard(B.t.issue + 1.0, 2.2, dernier(FOULES[1], f => meurt(f) ? f.td : null, 2));   // … puis chacun qui part en caractères
+    at(B.t.issue + 3.6, t => humeur(t, 'neutre'));
+    regard(B.t.issue + 3.4, 1.4, VOUS);
+  }
+
+  // ================================================================ décor
+  const poussiere = (() => { const R = rng(41), out = []; for (let i = 0; i < 170; i++) out.push({ x: R() * W, y: R() * H, vx: (R() - .5) * 14, vy: -4 - R() * 10, a: .05 + R() * .14, g: G[Math.floor(R() * G.length)], c: R() < .5 ? LABO : CRAIE, sz: 10 + Math.round(R() * 8) }); return out; })();
+  let trame = null;
+  function fond(T) {
+    const g = ctx.createRadialGradient(960, 470, 40, 960, 470, 1250);
+    g.addColorStop(0, '#121a2a'); g.addColorStop(.75, NUIT); g.addColorStop(1, NUIT);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const aP = seg(T, .2, 1.8);
+    if (aP > 0) {
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      for (const p of poussiere) {
+        const x = ((p.x + p.vx * T) % W + W) % W, y = ((p.y + p.vy * T) % H + H) % H;
+        ctx.globalAlpha = p.a * aP; ctx.fillStyle = p.c; ctx.font = `${p.sz}px ${MONO}`; ctx.fillText(p.g, x, y);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+  // le voile en deux temps : le vignettage, puis la trame de lignes. Deux noirs posés l'un sur l'autre : l'ordre ne change
+  // rien à l'image ; il laisse glisser la source entre les deux (voir source())
+  function vignettage() {
+    const v = ctx.createRadialGradient(960, 540, 520, 960, 540, 1180);
+    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.6)');
+    ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+  }
+  function trameEcran() {
+    if (!trame) { const c = document.createElement('canvas'); c.width = 1; c.height = 3 * S; const x = c.getContext('2d'); x.fillStyle = 'rgba(0,0,0,.16)'; x.fillRect(0, 0, 1, S); trame = ctx.createPattern(c, 'repeat'); }
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = trame; ctx.fillRect(0, 0, cv.width, cv.height); ctx.restore();
+  }
+
+  // ================================================================ fenêtres, texte balisé (repris de index.html)
+  function fenetre(x, y, w, h, a, bord = CRAIE) {
+    ctx.globalAlpha = a;
+    ctx.fillStyle = 'rgba(12,11,13,.92)'; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = LAITON; ctx.lineWidth = 3; ctx.strokeRect(x - 7.5, y - 7.5, w + 15, h + 15);
+    ctx.strokeStyle = bord; ctx.lineWidth = 4; ctx.strokeRect(x, y, w, h);
+  }
+  // texte balisé : [b]…[/b] en bleu, [r]…[/r] en rouge (la convention de Thibaut : « bleue », « rouge » en couleur) ; \n = saut de ligne
+  function balise(txt) {
+    return txt.split('\n').map(l => {
+      const segs = []; const re = /\[(b|r)\](.*?)\[\/\1\]/g; let m, last = 0;
+      while ((m = re.exec(l))) { if (m.index > last) segs.push({ s: l.slice(last, m.index), c: CRAIE }); segs.push({ s: m[2], c: m[1] === 'b' ? BLEU_TXT : ROUGE_TXT }); last = re.lastIndex; }
+      if (last < l.length) segs.push({ s: l.slice(last), c: CRAIE });
+      return segs;
+    });
+  }
+  const longueur = lignes => lignes.reduce((a, l) => a + l.reduce((b, s) => b + [...s.s].length, 0), 0);
+  function ecrit(lignes, x, y, lh, n) {
+    lignes.forEach((l, li) => {
+      let cx = x; const cy = y + li * lh;
+      for (const s of l) {
+        if (n <= 0) break;
+        const chars = [...s.s], vis = chars.slice(0, n).join(''); n -= chars.length;
+        ctx.fillStyle = s.c; ctx.fillText(vis, cx, cy); cx += ctx.measureText(vis).width;
+      }
+    });
+  }
+  // un texte balisé d'une ligne, coupé aux espaces pour tenir dans w (police courante) ; les insécables ne coupent pas
+  function coupeBalise(txt, w) {
+    const cars = []; for (const l of balise(txt)) for (const s of l) for (const ch of s.s) cars.push({ ch, c: s.c });
+    const larg = (a, b) => ctx.measureText(cars.slice(a, b).map(o => o.ch).join('')).width;
+    const bornes = []; let d = 0, esp = -1;
+    for (let i = 0; i < cars.length; i++) {
+      if (cars[i].ch === ' ') esp = i;
+      if (larg(d, i + 1) > w && esp > d) { bornes.push([d, esp]); d = esp + 1; esp = -1; }
+    }
+    bornes.push([d, cars.length]);
+    return bornes.map(([a, b]) => {
+      const out = [];
+      for (const o of cars.slice(a, b)) { const l = out[out.length - 1]; if (l && l.c === o.c) l.s += o.ch; else out.push({ s: o.ch, c: o.c }); }
+      return out;
+    });
+  }
+  function espace(txt, x, y, sp, align = 'left') {
+    const ws = [...txt].map(c => ctx.measureText(c).width), tot = ws.reduce((a, b) => a + b, 0) + sp * (ws.length - 1);
+    let cx = align === 'center' ? x - tot / 2 : align === 'right' ? x - tot : x; ctx.textAlign = 'left';
+    [...txt].forEach((c, i) => { ctx.fillText(c, cx, y); cx += ws[i] + sp; });
+    return tot;
+  }
+  // la pastille : une petite pilule de la couleur de sens, posée à côté d'une étiquette écrite à la craie
+  function pastille(x, y, fb, w = 22, h = 10) {
+    const x0 = x - w / 2, y0 = y - h / 2;
+    ctx.save(); ctx.beginPath(); ctx.roundRect(x0, y0, w, h, h / 2); ctx.clip();
+    ctx.fillStyle = ROUGE; ctx.fillRect(x0, y0, w, h);
+    ctx.fillStyle = BLEU; ctx.fillRect(x0, y0, w * fb, h);
+    ctx.restore();
+  }
+
+  // ================================================================ titre, cartouche
+  // le message, en une chaîne : la description change le choix, le choix change l'issue
+  const TITRE = fr('Mêmes règles, autres mots : autre choix, autre issue.');
+  // la source, qui est dans les salles, et ce que la slide fait des textes : les salles ne montrent que ceux qui ont lu
+  // d'emblée la version vie ou mort (pas ceux qui ont eu le billet de 100 € avant) ; chacun n'a lu qu'une description ;
+  // elles sont résumées, et le questionnaire parlait de boutons (docs/questionnaire-a-ou-b.md : S2 la collective,
+  // S5 l'individuelle). Deux lignes de 18 px, pas plus : elles finissent vers x = 1858 et 1825, dans la largeur des salles (cadre à 1863).
+  const SOURCE = [
+    fr(`Source : questionnaire « A ou B ? » de Monsieur Phi (vidéo « pilule bleue ou pilule rouge »), près de 10${NB}000 répondants, textes résumés.`),
+    fr(`Salles : qui a lu d’emblée la version vie ou mort (sans billet de 100${NB}€ avant), une description tirée au sort · A = bleue, B = rouge.`),
+  ];
+  function entete(T) {
+    const a = seg(T, .3, .8);
+    if (a > 0) {
+      fenetre(48, 40, 300, 84, a);
+      ctx.font = `24px ${PIX}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = LAITON; ctx.fillText('TEST 01 · RÉSULTATS', 70, 74);
+      ctx.fillStyle = CRAIE; ctx.fillText('LES DEUX PILULES', 70, 108);
+    }
+    const n = Math.floor((T - .6) * 45);
+    if (n > 0) {
+      ctx.globalAlpha = 1; ctx.font = `46px ${PIX}`; ctx.fillStyle = CRAIE; ctx.textAlign = 'left';
+      ctx.fillText([...TITRE].slice(0, n).join(''), 392, 82);
+    }
+    ctx.globalAlpha = 1;
+  }
+  // la source, dessinée après le vignettage (et sous la trame) : sous le voile, la fin de la 2e ligne tombait à 3:1 ;
+  // hors du voile, le gris sur la nuit garde ses 5,4:1 d'un bout à l'autre
+  function source(T) {
+    const as = seg(T, 1.2, 1.8);
+    if (as > 0) { ctx.globalAlpha = as; ctx.font = `18px ${MONO}`; ctx.fillStyle = GRIS; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; SOURCE.forEach((l, i) => ctx.fillText(l, 394, 108 + i * 24)); }
+    ctx.globalAlpha = 1;
+  }
+
+  // ================================================================ une salle
+  let DESC = [];   // les descriptions coupées (après le chargement des polices)
+  const DESC_PX = 19, DESC_LH = 30;   // lisibles à 960×540 et au projecteur ; 7 lignes de chaque côté, la dernière finit vers y = 472, au-dessus du grand chiffre (≈ 620)
+  function salle(R, T, Tr) {
+    const t = R.t, o = eOut(seg(T, t.ouvre, t.ouvre + .45));
+    if (o <= 0) return;
+    const hh = WH * o;
+    fenetre(R.WX, WY + (WH - hh) / 2, WW, hh, 1);
+    if (o < 1) { ctx.globalAlpha = 1; return; }
+    // la teinte de la salle : claire quand tout le monde vit, chaude quand les bleus meurent (comme le fond du morceau)
+    const ti = R.vit ? seg(T, t.issue, t.issue + .8) * .55 : seg(T, t.issue - .8, t.issue + .4) * .7;
+    if (ti > 0) {
+      const g = ctx.createRadialGradient(R.X0 + LW / 2, CY0 + 225, 30, R.X0 + LW / 2, CY0 + 225, 420);
+      g.addColorStop(0, rgba(R.vit ? '#18273f' : '#2b1a10', ti)); g.addColorStop(1, rgba(R.vit ? '#18273f' : '#2b1a10', 0));
+      ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(R.WX + 2, WY + 2, WW - 4, WH - 4);
+    }
+    colonne(R, T);
+    jauge(R, T);
+    ctx.save(); ctx.beginPath(); ctx.rect(R.WX + 2, WY + 2, WW - 4, WH - 4); ctx.clip();   // les caractères s'envolent sans sortir de la salle
+    foule(R, T, Tr);
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  // la colonne de texte : quelle description, ses mots, et le chiffre
+  function colonne(R, T) {
+    const t = R.t, a = seg(T, t.texte, t.texte + .3), x = R.TX;
+    if (a <= 0) return;
+    ctx.globalAlpha = a; ctx.textBaseline = 'alphabetic';
+    ctx.font = `500 15px ${MONO}`; ctx.fillStyle = SURTITRE; espace('DESCRIPTION', x, 200, 3);
+    ctx.font = `36px ${PIX}`; ctx.fillStyle = CRAIE; ctx.textAlign = 'left'; ctx.fillText(R.nom, x, 240);
+    ctx.fillStyle = '#3a363a'; ctx.fillRect(x, 256, TW, 2);
+    ctx.font = `${DESC_PX}px ${MONO}`; ctx.textAlign = 'left';
+    ecrit(DESC[R.s], x, 292, DESC_LH, Math.floor((T - t.texte - .2) * 90));
+    // le chiffre : quand toute la salle a choisi
+    const an = seg(T, t.nombre, t.nombre + .4);
+    if (an > 0) {
+      ctx.globalAlpha = an;
+      const [ent, dec] = pc(R.bleue).split(NB);   // « 65,5 » et « % »
+      ctx.font = `88px ${PIX}`; ctx.fillStyle = CRAIE; ctx.fillText(ent, x - 2, 694);
+      const w = ctx.measureText(ent).width;
+      ctx.font = `44px ${PIX}`; ctx.fillText(NB + dec, x + w, 694);
+      ctx.font = `18px ${MONO}`; pastille(x + 11, 727, 1);
+      ecrit(balise('prennent la [b]bleue[/b]'), x + 32, 733, 0, 99);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // la jauge, à la même échelle que la foule : 460 px = 100 %, le trait des 50 % descend dans la foule
+  function jauge(R, T) {
+    const a = seg(T, R.t.jauge, R.t.jauge + .5);
+    if (a <= 0) return;
+    const nb = bleues(R, T), nr = rouges(R, T), x0 = R.X0, w = LW, y = GY;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = '#1e1c20'; ctx.fillRect(x0, y, w, GH);
+    const wb = w * nb / 100, wr = w * nr / 100;
+    ctx.fillStyle = BLEU; if (wb > 0) ctx.fillRect(x0, y, Math.max(0, wb - (nr > 0 ? 1 : 0)), GH);
+    ctx.fillStyle = ROUGE; if (wr > 0) ctx.fillRect(x0 + w - wr + (nb > 0 ? 1 : 0), y, Math.max(0, wr - (nb > 0 ? 1 : 0)), GH);   // 2 px de nuit entre les deux
+    // le seuil : un trait de craie franc qui monte de la jauge jusque sous son étiquette, puis en pointillé dans la foule,
+    // entre la 5e et la 6e colonne
+    ctx.fillStyle = CRAIE; ctx.fillRect(x0 + w / 2 - 1.5, y - 30, 3, GH + 40);
+    ctx.strokeStyle = rgba(CRAIE, .3); ctx.lineWidth = 2; ctx.setLineDash([4, 6]);
+    ctx.beginPath(); ctx.moveTo(x0 + w / 2, y + GH + 12); ctx.lineTo(x0 + w / 2, CY0 + 9 * PY + 26); ctx.stroke(); ctx.setLineDash([]);
+    ctx.font = `500 19px ${MONO}`; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = CRAIE; ctx.textAlign = 'left';
+    const compte = T >= R.t.choix + .3;   // avant le premier saut, pas de valeur : « 0,0 % » se lirait comme une donnée
+    pastille(x0 + 11, y - 17, 1); ctx.fillText(compte ? `BLEUE ${pc(nb)}` : 'BLEUE', x0 + 30, y - 11);
+    ctx.textAlign = 'right';
+    pastille(x0 + w - 11, y - 17, 0); ctx.fillText(compte ? `${pc(nr)} ROUGE` : 'ROUGE', x0 + w - 30, y - 11);
+    // « seuil 50 % », pas « 50 % » seul : le tampon sous la salle se lit alors comme la conséquence du seuil (greffe de console).
+    // Sur sa propre ligne, au-dessus des valeurs : sur une seule ligne (jauge de 460 px), « BLEUE 65,5 % seuil 50 % 34,5 % ROUGE »
+    // se lisait comme une phrase, et le seuil en 16 px tombait à 8 px en 960×540
+    ctx.textAlign = 'center'; ctx.fillStyle = GRIS; ctx.font = `500 18px ${MONO}`; ctx.fillText(`seuil 50${NB}%`, x0 + w / 2, y - 36);
+    ctx.globalAlpha = 1;
+  }
+
+  // ---------------------------------------------------------------- la foule d'une salle
+  function etatSujet(f, R, T, Tr, col) {
+    const e = { col, a: 1, dis: 0, mode: 'repos', phi: { x: EX, y: oeilY(T) }, cible: { x: EX, y: oeilY(T) }, fixe: false, reflet: cligne(T) > .5 };
+    const dw = Math.hypot(f.cx - EX, f.cy - EY) / 900;
+    const rf = regardFoule, vu = rf ? Math.hypot(f.cx - rf.x, f.cy - 12 - rf.y) : Infinity;
+    e.fixe = (T > f.ta + .45 && T < f.ta + 1.6)                // en arrivant, on lève les yeux vers Phi
+      || (T > st.vague + .3 + dw && T < st.vague + 2 + dw)     // Phi s'allume : de proche en proche
+      || (vu < 60 && Tr > rf.t + .15 + vu / 160);              // Phi le fixe : il lui rend son regard, puis ses voisins
+    if (T > f.tc - .2 && T < f.tc + .45) { e.mode = 'saut'; e.t0 = f.tc; return e; }
+    if (R.vit) {
+      // tout le monde vit : la lueur, les bras au ciel, puis une lueur qui reste, posée
+      const lu = seg(T, R.t.issue, R.t.issue + .6) * (1 - seg(T, R.t.issue + 3.4, R.t.issue + 4.4));
+      if (lu > 0 && T >= f.tc) { e.mode = 'vie'; e.k = lu; }
+      e.halo = T >= f.tc ? .5 * seg(T, R.t.issue + 3.4, R.t.issue + 4.4) : 0;
+    } else if (T >= f.tc && f.fb === 0 && f.co <= 2 && T > R.t.issue + 1.4 && T < R.t.issue + 3.4) {
+      // à droite, les voisins des partis regardent leur place
+      e.fixe = true; e.cible = { x: f.cx - 300, y: f.cy + 20 };
+    }
+    return e;
+  }
+  // le sujet de deux couleurs : on coupe sur la largeur du corps (colonnes 2 à 8 de la grille), à la part bleue fb ;
+  // gauche : ce qui est à gauche de la coupe (le bleu), sinon ce qui est à droite (le rouge). La coupe tombe sur un
+  // pixel entier : à 0,6 (1181,8), le bord du clip était lissé, une colonne ni bleue ni rouge ; à 0,5, rien ne change
+  function coupe(cx, fb, gauche) {
+    const xs = Math.round(cx - SW * CS / 2 + (2 + 7 * fb) * CS);
+    ctx.beginPath(); if (gauche) ctx.rect(cx - 60, 0, xs - (cx - 60), H); else ctx.rect(xs, 0, cx + 60 - xs, H); ctx.clip();
+  }
+  function foule(R, T, Tr) {
+    for (const f of FOULES[R.s]) {
+      if (T < f.ta) continue;
+      const sc = eBack(seg(T, f.ta, f.ta + .45));
+      if (sc <= .01) continue;
+      if (T < f.tc) { const e = etatSujet(f, R, T, Tr, GRIS_FIG); e.a = .82; dessineSujet(f, f.cx, f.cy, 4 * sc, e, T); continue; }
+      if (f.fb === 1 || f.fb === 0) { sujetChoisi(f, R, T, Tr, f.fb ? BLEU : ROUGE, f.fb === 1 && meurt(f)); continue; }
+      // la décimale : un sujet de deux couleurs, la part bleue à gauche
+      ctx.save(); coupe(f.cx, f.fb, true); sujetChoisi(f, R, T, Tr, BLEU, meurt(f)); ctx.restore();
+      ctx.save(); coupe(f.cx, f.fb, false); sujetChoisi(f, R, T, Tr, ROUGE, false, meurt(f)); ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
+  // un sujet qui a choisi ; part : il meurt ; voisin : l'autre part de lui meurt (la décimale), il en a peur avec elle
+  function sujetChoisi(f, R, T, Tr, col, part, voisin = false) {
+    const e = etatSujet(f, R, T, Tr, col);
+    if (part || voisin) {
+      if (e.mode !== 'saut' && T >= f.tp && T < f.td + (voisin ? 1 : 0)) e.mode = 'peur';
+      if (part && T >= f.td) {
+        const dis = seg(T, f.td, f.td + 2);
+        // la trace : ce qui reste du sujet, à sa place, pour que la salle compte toujours 12,6 % de bleues ;
+        // à 0,4 (et non 0,3), pour tenir sur un projecteur aux noirs délavés (à juger sur l'écran de Ronan)
+        const tr = seg(T, f.td + 1.2, f.td + 2.4);
+        if (tr > 0) dessineSujet(f, f.cx, f.cy, CS, { col, a: .4 * tr, mode: 'trace', phi: e.phi }, T);
+        if (dis < 1) { e.dis = dis; dessineSujet(f, f.cx, f.cy, CS, e, T); }
+        return;
+      }
+    }
+    dessineSujet(f, f.cx, f.cy, CS, e, T);
+  }
+
+  // ================================================================ au centre : l'écart, Phi, la clé
+  function centre(T, Tr) {
+    const a = seg(T, T_ECART, T_ECART + .4);
+    if (a > 0) {
+      const k = eBack(seg(T, T_ECART, T_ECART + .5));
+      ctx.globalAlpha = a; ctx.textBaseline = 'alphabetic';
+      ctx.font = `500 15px ${MONO}`; ctx.fillStyle = SURTITRE; espace('ÉCART', 960, 200, 4, 'center');
+      ctx.save(); ctx.translate(960, 300); ctx.scale(k, k);
+      // le « − » est dessiné à part : celui de DotGothic16 est aussi large qu'un tiret et collé au 5, il se lisait « —53 ».
+      // Un trait de 0,4 em, de l'épaisseur des chiffres, à 11 px du 5, à mi-hauteur des chiffres ; le tout centré.
+      ctx.font = `104px ${PIX}`; ctx.fillStyle = CRAIE; ctx.textAlign = 'left';
+      const txt = String(Math.round(ECART)), m = ctx.measureText(txt), asc = m.actualBoundingBoxAscent || 85;
+      const gl = m.actualBoundingBoxLeft || 0, wt = gl + (m.actualBoundingBoxRight || m.width), wm = 42, ep = 7, jour = 11;
+      const x0 = -(wm + jour + wt) / 2;
+      ctx.fillRect(Math.round(x0), Math.round(-asc / 2 - ep / 2), wm, ep);
+      ctx.fillText(txt, x0 + wm + jour + gl, 0);
+      ctx.restore();
+      ctx.globalAlpha = a; ctx.textAlign = 'center';
+      ctx.font = `28px ${PIX}`; ctx.fillStyle = CRAIE; ctx.fillText('POINTS', 960, 338);
+      ctx.font = `17px ${MONO}`; ctx.fillStyle = GRIS;
+      ctx.fillText(`${pc(SALLES[0].bleue)} → ${pc(SALLES[1].bleue)}`, 960, 370);
+      ctx.fillText('de bleues', 960, 393);
+      // la valeur exacte, sous le chiffre arrondi : la page n'arrondit nulle part ailleurs (greffe de console)
+      ctx.font = `17px ${MONO}`; ctx.fillText(`${String(ECART).replace('.', ',')} exactement`, 960, 417);
+    }
+    oeil(T);
+    // la clé, sous l'œil (qui finit vers y = 607) et au-dessus du bas des salles : un sujet = 1 % ; puis le sujet de deux
+    // couleurs, pour qu'on n'ait pas à deviner ce qu'il fait là : la décimale, sans arrondi. Les deux sujets en colonne.
+    const ac = seg(T, 2.6, 3.2);
+    if (ac > 0) {
+      const cle = { i: 999, cx: 0, cy: 0, r1: .3, r2: .6, r3: .2, coiffe: 0, detail: 0 };
+      const e = { a: ac, mode: 'trace', ouverts: true, phi: { x: 2000, y: 0 } };
+      ctx.save(); ctx.globalAlpha = ac;
+      dessineSujet(cle, CLE.x, CLE.y1, CS, { ...e, col: GRIS_FIG }, T);
+      ctx.save(); coupe(CLE.x, .5, true); dessineSujet(cle, CLE.x, CLE.y2, CS, { ...e, col: BLEU }, T); ctx.restore();
+      ctx.save(); coupe(CLE.x, .5, false); dessineSujet(cle, CLE.x, CLE.y2, CS, { ...e, col: ROUGE }, T); ctx.restore();
+      ctx.restore();
+      ctx.globalAlpha = ac; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+      ctx.font = `28px ${PIX}`; ctx.fillStyle = CRAIE; ctx.fillText(`=${NB}1${NB}%`, CLE.tx, CLE.y1 + 12);
+      ctx.font = `17px ${MONO}`; ctx.fillStyle = GRIS;
+      ctx.fillText('= la décimale,', CLE.tx, CLE.y2 - 5);
+      ctx.fillText('sans arrondi', CLE.tx, CLE.y2 + 16);
+      ctx.textAlign = 'center';
+      ctx.fillText('des répondants', 960, CLE.y1 + 44);   // de sa salle : la source dit qui est dans les salles
+      ctx.fillText('de sa salle', 960, CLE.y1 + 64);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // ---------------------------------------------------------------- les tampons, sous chaque salle (le tampon du morceau)
+  function tampon(R, T) {
+    const t0 = R.t.tampon; if (T < t0) return;
+    const a = seg(T, t0, t0 + .3), s = lerp(1.5, 1, eOut(seg(T, t0, t0 + .35)));
+    const segs = R.vit ? [{ s: 'TOUT LE MONDE VIT', c: CRAIE }] : [{ s: 'LES ', c: CRAIE }, { s: 'BLEUS', c: BLEU_TXT }, { s: ' MEURENT', c: CRAIE }];
+    const taille = 40, { x, y } = tamponC(R);
+    ctx.save(); ctx.globalAlpha = a; ctx.translate(x, y); ctx.rotate((R.vit ? -3 : 3) * Math.PI / 180); ctx.scale(s, s);
+    ctx.font = `${taille}px ${PIX}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    const tw = segs.reduce((acc, sg) => acc + ctx.measureText(sg.s).width, 0), w = tw + 70, h = taille * 1.45;
+    ctx.fillStyle = 'rgba(12,11,13,.88)'; ctx.fillRect(-w / 2, -h / 2, w, h);
+    ctx.strokeStyle = CRAIE; ctx.lineWidth = 5; ctx.strokeRect(-w / 2, -h / 2, w, h);
+    let cx = -tw / 2;
+    for (const sg of segs) { ctx.fillStyle = sg.c; ctx.fillText(sg.s, cx, 3); cx += ctx.measureText(sg.s).width; }
+    ctx.restore();
+  }
+
+  // ================================================================ dialogue
+  const CPS = 36;
+  function prepareRepliques() {
+    ctx.save(); ctx.font = `34px ${PIX}`;
+    for (const r of REPLIQUES) {
+      r.lignes = balise(r.txt); r.n = longueur(r.lignes); r.pos = [];
+      r.lignes.forEach((ligne, li) => { let x = 124; for (const s of ligne) for (const c of s.s) { x += ctx.measureText(c).width; r.pos.push([x, 918 + li * 52]); } });
+    }
+    ctx.restore();
+  }
+  const repliqueA = T => { let d = null; for (const r of REPLIQUES) if (T >= r.t) d = r; return d; };
+  function dialogue(T) {
+    const t0 = 1.2; if (T < t0) return;
+    const o = eOut(seg(T, t0, t0 + .4)), x = 80, y = 862, w = 1760, h = 178, hh = h * o;
+    fenetre(x, y + (h - hh) / 2, w, hh, 1);
+    if (o < 1) { ctx.globalAlpha = 1; return; }
+    fenetre(112, 838, 132, 44, 1);
+    ctx.globalAlpha = 1; ctx.fillStyle = LABO; ctx.font = `26px ${PIX}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('XPHI', 178, 861);
+    const d = repliqueA(T); if (!d) return;
+    ctx.font = `34px ${PIX}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ecrit(d.lignes, 124, 930, 52, Math.floor((T - d.t) * CPS));
+  }
+
+  // ================================================================ le survol : la valeur exacte de chaque marque
+  // Chaque zone : un rectangle de la toile (plus grand que la marque), quand elle existe, où Phi regarde, et ce qu'elle dit.
+  // Les bulles redisent ce que la slide montre déjà (étiquettes, tableau caché) : elles précisent, elles ne cachent rien.
+  const ZONES = [];
+  function prepareZones() {
+    ZONES.length = 0;
+    const nomD = R => `description ${R.nom.toLowerCase()}`;
+    const issueR = R => R.vit ? `plus de 50${NB}% de bleues : tout le monde vit` : `moins de 50${NB}% de bleues : les bleus meurent`;
+    for (const R of SALLES) {
+      const fin = R.t.nombre;
+      ZONES.push({ id: `bleue${R.s}`, x: R.X0, y: GY - 8, w: LW * R.bleue / 100, h: GH + 16, cadre: true, actif: T => T >= fin, cible: { x: R.X0 + LW * R.bleue / 200, y: GY + 7 },
+        info: () => ({ val: pc(R.bleue), fb: 1, lignes: [`pilule bleue · ${nomD(R)}`] }) });
+      ZONES.push({ id: `rouge${R.s}`, x: R.X0 + LW * R.bleue / 100, y: GY - 8, w: LW * R.rouge / 100, h: GH + 16, cadre: true, actif: T => T >= fin, cible: { x: R.X0 + LW * (R.bleue + R.rouge / 2) / 100, y: GY + 7 },
+        info: () => ({ val: pc(R.rouge), fb: 0, lignes: [`pilule rouge · ${nomD(R)}`] }) });
+      const seuil = () => ({ val: `Seuil 50${NB}%`, lignes: ['le même dans les deux salles :', `plus de 50${NB}% de bleues, tout le monde vit ;`, 'sinon, ceux qui ont pris la bleue meurent'] });
+      ZONES.push({ id: `seuil${R.s}`, x: R.X0 + LW / 2 - 9, y: GY - 34, w: 18, h: GH + 46, actif: T => T >= R.t.jauge + .5, cible: { x: R.X0 + LW / 2, y: GY }, info: seuil });
+      ZONES.push({ id: `seuilE${R.s}`, x: R.X0 + LW / 2 - 60, y: GY - 52, w: 120, h: 22, actif: T => T >= R.t.jauge + .5, cible: { x: R.X0 + LW / 2, y: GY - 42 }, info: seuil });   // l'étiquette
+      ZONES.push({ id: `chiffre${R.s}`, x: R.TX - 4, y: 610, w: TW + 8, h: 136, actif: T => T >= fin, cible: { x: R.TX + 100, y: 670 },
+        info: () => ({ val: pc(R.bleue), fb: 1, lignes: [`prennent la pilule bleue · ${nomD(R)}`, `(${pc(R.rouge)} la rouge)`] }) });
+      ZONES.push({ id: `desc${R.s}`, x: R.TX - 4, y: 172, w: TW + 8, h: 292 + (DESC[R.s].length - 1) * DESC_LH + 12 - 172, actif: T => T >= R.t.texte + 2, cible: { x: R.TX + 110, y: 330 },
+        info: () => ({ val: `Description ${R.nom.toLowerCase()}`, lignes: ['tirée au sort pour chaque répondant ;', 'les règles sont les mêmes, seuls les mots changent ;',
+          'texte résumé et transposé : le questionnaire disait', 'bouton A (ici, la pilule bleue) et bouton B (la rouge)'] }) });
+      const tc = tamponC(R);
+      ZONES.push({ id: `tampon${R.s}`, x: tc.x - 205, y: tc.y - 32, w: 410, h: 64, actif: T => T >= R.t.tampon + .3, cible: tc,
+        // l'issue est contrefactuelle : le jeu réunit tous les participants, et la slide applique le seuil à chaque salle.
+        // L'hypothèse est dite ici (et dans le tableau caché) ; les tampons, eux, restent tels quels
+        info: () => ({ val: R.vit ? 'Tout le monde vit' : 'Les [b]bleus[/b] meurent', lignes: [`${pc(R.bleue)} de bleues : ${R.vit ? 'plus' : 'moins'} de 50${NB}%`,
+          R.vit ? 'personne ne meurt' : `ceux qui ont pris la bleue meurent, soit ${pc(R.bleue)} de la salle`,
+          'issue selon les règles, si tous les participants', 'avaient lu cette description d’emblée'] }) });
+      for (const f of FOULES[R.s]) {
+        ZONES.push({ id: `sujet${f.i}`, f, x: f.cx - PX / 2, y: f.cy - PY / 2, w: PX, h: PY, cadre: true, actif: T => T >= f.ta + .3, cible: visage(f),
+          info: T => {
+            if (T < f.tc) return { val: 'pas encore choisi', lignes: [nomD(R)] };
+            const sort = R.vit ? 'vit' : f.fb === 1 ? 'meurt' : f.fb === 0 ? 'vit' : `la part bleue meurt`;
+            if (f.fb > 0 && f.fb < 1) return { val: `${pc(f.fb)} bleue + ${pc(1 - f.fb)} rouge`, fb: f.fb, lignes: [`la décimale de ${pc(R.bleue)} : un sujet de deux couleurs`, `${nomD(R)} · ${sort}`], phi: 'Je n’arrondis pas les humains.' };
+            return { val: `1${NB}%`, fb: f.fb, lignes: [`pilule ${f.fb ? 'bleue' : 'rouge'} · ${nomD(R)} · ${sort}`, `la salle : ${pc(R.bleue)} de bleues`] };
+          } });
+      }
+    }
+    ZONES.push({ id: 'cle', x: CLE.x - 26, y: CLE.y1 - 28, w: 176, h: 100, actif: T => T >= 3.2, cible: { x: CLE.x, y: CLE.y1 - 12 },
+      info: () => ({ val: `1 sujet = 1${NB}%`, lignes: ['des répondants d’une même description, lue d’emblée', `(sans la version au billet de 100${NB}€ avant) ;`, 'chaque salle compte cent sujets'] }) });
+    ZONES.push({ id: 'cleD', x: CLE.x - 26, y: CLE.y2 - 28, w: 192, h: 56, actif: T => T >= 3.2, cible: { x: CLE.x, y: CLE.y2 - 12 },
+      info: () => ({ val: 'La décimale', fb: .5, lignes: ['un sujet de deux couleurs, sans arrondi :', `65,5${NB}% = 65 sujets bleus + un moitié bleu, moitié rouge ;`, `12,6${NB}% = 12 sujets bleus + un bleu à 60${NB}%`] }) });
+    ZONES.push({ id: 'ecart', x: 850, y: 186, w: 220, h: 238, actif: T => T >= T_ECART + .4, cible: ECART_C,
+      info: () => ({ val: `${String(ECART).replace('.', ',')} points`, lignes: ['de bleue en moins avec la description individuelle',
+        `${pc(SALLES[0].bleue)} → ${pc(SALLES[1].bleue)} ; en grand, arrondi : 53`] }) });
+  }
+  // l'ordre au clavier (← →) : les marques qui portent un chiffre, de gauche à droite
+  const ORDRE_CLAVIER = ['desc0', 'bleue0', 'seuil0', 'rouge0', 'sujet65', 'chiffre0', 'tampon0', 'ecart', 'cle', 'cleD', 'desc1', 'bleue1', 'seuil1', 'rouge1', 'sujet112', 'chiffre1', 'tampon1'];
+  const zoneA = (x, y, T) => {
+    // les petites marques d'abord (le seuil passe devant les segments de la jauge)
+    let best = null;
+    for (const z of ZONES) if (z.actif(T) && x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h && (!best || z.w * z.h < best.w * best.h)) best = z;
+    return best;
+  };
+  function bulle(T) {
+    if (!survol) return;
+    const z = survol.z; if (!z.actif(T)) return;
+    ctx.globalAlpha = 1; ctx.strokeStyle = LAITON; ctx.lineWidth = 2;
+    if (z.cadre) ctx.strokeRect(z.x + 1, z.y + 1, z.w - 2, z.h - 2);   // la marque survolée se soulève : un cadre de laiton, la couleur du geste dans le morceau
+    else if (survol.clavier) { ctx.setLineDash([6, 5]); ctx.strokeRect(z.x - 4, z.y - 4, z.w + 8, z.h + 8); ctx.setLineDash([]); }   // au clavier : où l'on est
+    const i0 = z.info(T), inf = { ...i0, val: fr(i0.val), lignes: i0.lignes.map(fr) }, pad = 18;
+    ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+    // le titre de la bulle peut être balisé, comme sur le tampon : « Les [b]bleus[/b] meurent »
+    const vb = balise(inf.val);
+    ctx.font = `30px ${PIX}`; const wv = vb[0].reduce((a, sg) => a + ctx.measureText(sg.s).width, 0) + (inf.fb !== undefined ? 34 : 0);
+    ctx.font = `16px ${MONO}`; const wl = Math.max(0, ...inf.lignes.map(l => ctx.measureText(l).width));
+    ctx.font = `20px ${PIX}`; const wp = inf.phi ? ctx.measureText('XPHI : ' + inf.phi).width : 0;
+    const w = Math.max(wv, wl, wp) + pad * 2, h = 56 + inf.lignes.length * 23 + (inf.phi ? 32 : 0) + 6;
+    const ax = survol.x ?? z.x + z.w, ay = survol.y ?? z.y + z.h;   // au clavier, la bulle se pose à côté de la marque
+    let x = ax + 22, y = ay + 26;
+    if (x + w > W - 24) x = ax - 22 - w;
+    if (y + h > H - 24) y = ay - 26 - h;
+    x = clamp(x, 24, W - 24 - w); y = clamp(y, 24, H - 24 - h);
+    ctx.globalAlpha = 1; ctx.fillStyle = NUIT; ctx.fillRect(x, y, w, h);   // opaque : à 0,96, on lisait le tampon au travers
+    ctx.strokeStyle = LAITON; ctx.lineWidth = 2; ctx.strokeRect(x - 5, y - 5, w + 10, h + 10);
+    ctx.strokeStyle = CRAIE; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
+    let cx = x + pad;
+    if (inf.fb !== undefined) { pastille(cx + 11, y + 34, inf.fb); cx += 34; }
+    ctx.font = `30px ${PIX}`; ecrit(vb, cx, y + 44, 0, Infinity);
+    ctx.font = `16px ${MONO}`; ctx.fillStyle = GRIS;
+    inf.lignes.forEach((l, i) => ctx.fillText(l, x + pad, y + 72 + i * 23));
+    if (inf.phi) { ctx.font = `20px ${PIX}`; ctx.fillStyle = LABO; ctx.fillText('XPHI : ' + inf.phi, x + pad, y + 72 + inf.lignes.length * 23 + 12); }
+  }
+
+  // ================================================================ rendu
+  function rendu(T, Tr) {
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    regardPhi(T, Tr);
+    fond(T);
+    for (const R of SALLES) salle(R, T, Tr);
+    centre(T, Tr);
+    for (const R of SALLES) tampon(R, T);
+    entete(T);
+    dialogue(T);
+    bulle(T);
+    vignettage();
+    source(T);
+    trameEcran();
+  }
+
+  // ================================================================ lecture et commandes
+  // ?gel=16 (ou #gel=16) : l'horloge de la scène est arrêtée à 16 s (l'image finale de référence, FIN + 2), pour les
+  // captures ; le regard de Phi reste vivant
+  const mg = (location.search + location.hash).match(/gel=([\d.]+)/);
+  GEL = mg ? +mg[1] : null;
+  // Le mouvement réduit (préférence du système), sans ?gel : l'image finale d'emblée, l'horloge arrêtée à FIN + 2 comme
+  // pour une capture ; seul le regard de Phi reste vivant (il suit le pointeur et la marque survolée). R rejoue
+  // l'animation : c'est un geste explicite (greffe de console et de bascule).
+  CALME = GEL === null && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let debut = 0, debutR = 0;
+  const tempsR = () => performance.now() / 1000 - debutR;
+  const temps = () => GEL !== null ? GEL : CALME ? FIN + 2 : performance.now() / 1000 - debut;
+  function boucle() {
+    const T = temps();
+    vide(T);
+    rendu(T, tempsR());
+    requestAnimationFrame(boucle);
+  }
+  function recommence() { debut = performance.now() / 1000; survol = null; souris = null; etatInitial(); programme(); }
+  const aLaFin = () => { const T = temps(); if (GEL === null && T < FIN) debut -= FIN - T; };
+
+  function versToile(e) {
+    const r = cv.getBoundingClientRect(), k = Math.min(r.width / W, r.height / H);
+    const ox = r.left + (r.width - W * k) / 2, oy = r.top + (r.height - H * k) / 2;
+    return [(e.clientX - ox) / k, (e.clientY - oy) / k];
+  }
+  cv.addEventListener('mousemove', e => {
+    const T = temps(), [x, y] = versToile(e);
+    if (x < 0 || x > W || y < 0 || y > H) return;
+    souris = { x, y, tr: tempsR() };
+    const z = zoneA(x, y, T);
+    if (!z) survol = null;
+    else if (!survol || survol.z !== z) survol = { z, t: T, x, y };
+    else { survol.x = x; survol.y = y; }
+  });
+  cv.addEventListener('mouseleave', () => { souris = null; survol = null; });
+  cv.addEventListener('click', () => { cv.focus(); aLaFin(); });
+  addEventListener('keydown', e => {
+    const k = e.key, T = temps();
+    if (k === ' ' || k === 'Enter') { e.preventDefault(); aLaFin(); }
+    else if (k === 'r' || k === 'R') { CALME = false; recommence(); }
+    else if (k === 'Escape') survol = null;
+    else if (k === 'ArrowRight' || k === 'ArrowLeft') {
+      e.preventDefault();
+      const ids = ORDRE_CLAVIER.filter(id => ZONES.find(z => z.id === id).actif(T));
+      if (!ids.length) return;
+      const i = survol ? ids.indexOf(survol.z.id) : -1, d = k === 'ArrowRight' ? 1 : -1;
+      const id = ids[i < 0 ? (d > 0 ? 0 : ids.length - 1) : (i + d + ids.length) % ids.length];
+      survol = { z: ZONES.find(z => z.id === id), t: T, clavier: true };
+    }
+  });
+
+  const polices = Promise.all([document.fonts.load('34px "DotGothic16"'), document.fonts.load('17px "IBM Plex Mono"'), document.fonts.load('500 19px "IBM Plex Mono"')]);
+  Promise.race([polices, new Promise(r => setTimeout(r, 2500))]).catch(() => {}).then(() => {
+    prepareGlyphes();
+    ctx.font = `${DESC_PX}px ${MONO}`; DESC = SALLES.map(R => coupeBalise(R.desc, TW));
+    prepareRepliques();
+    prepareZones();
+    debutR = performance.now() / 1000;
+    recommence();
+    // pour les essais : survoler une zone par son nom, lire les valeurs
+    window.__survole = id => { const z = ZONES.find(z => z.id === id); survol = z ? { z, t: temps() } : null; return !!z; };
+    window.__survolInfo = () => { if (!survol) return null; const i = survol.z.info(temps()); return { id: survol.z.id, val: i.val.replace(/\[\/?[br]\]/g, ''), lignes: i.lignes }; };
+    window.__valeurs = () => SALLES.map(R => ({ nom: R.nom, bleue: bleues(R, FIN), rouge: rouges(R, FIN), vit: R.vit })).concat([{ ecart: ECART }]);
+    requestAnimationFrame(boucle);
+  });
+})();
+</script>
+
+</body></html>

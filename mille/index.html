@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Xphi — mille humains, deux pilules</title>
+<meta name="description" content="Prototype : le questionnaire « A ou B ? » de Monsieur Phi, en pilules, raconté et dessiné par Phi.">
+<link rel="icon" href="../identite/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../shared/base.css">
+<style>
+  @font-face { font-family: "Plex Mono"; src: url("../ascii/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Plex Mono"; src: url("../ascii/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+  /* Les règles de dessin de Phi (en tête de mille.js) : des formes exactes, un fond uni,
+     trois couleurs qui ont un sens (le bleu et le rouge des pilules, le doré du joueur) */
+  :root {
+    --fond: #f3efe7; --encre: #1b1d26; --encre-2: #4b4e5b; --gris: #8d8a83; --filet: rgba(27, 29, 38, .14);
+    --bleu: #2c5fd6; --rouge: #d6452f; --dore: #c38a10; --dore-fonce: #8a6008; --dore-fond: #f3e3bd;
+    --mono: "Plex Mono", ui-monospace, Menlo, monospace;
+  }
+  html, body { background: var(--fond); color: var(--encre); }
+  body { min-height: 100svh; }
+  .colonne { max-width: 660px; margin: 0 auto; padding-left: 22px; padding-right: 22px; }
+
+  /* En haut, collée : l'avancée, la marque et la scène, que le texte ne recouvre jamais */
+  #tete { position: sticky; top: 0; z-index: 4; background: var(--fond); }
+  #tete::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 18px; background: linear-gradient(var(--fond), rgba(243, 239, 231, 0)); pointer-events: none; }
+  @media (max-height: 560px) { #tete { position: relative; } }
+  #avance { position: absolute; top: 0; left: 0; height: 2px; width: 0; background: var(--encre); transition: width .6s var(--ease); }
+  #marque { margin: 0; padding: 12px 16px 0; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--gris); }
+  #scene { position: relative; height: var(--h, 280px); margin-top: 8px; overflow: hidden; transition: height .55s var(--ease), opacity .45s var(--ease); }
+  html.vite *, html.vite *::before, html.vite *::after { transition: none !important; }
+  #tete.rangee #scene { height: 0; opacity: 0; }
+  #toile, #calque { position: absolute; left: 0; top: 0; display: block; }
+  #calque { overflow: visible; pointer-events: none; }
+  #calque .trait { fill: none; stroke: var(--encre); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  #calque .fin { stroke-width: 1; }
+  #calque .construction .trait { stroke: var(--gris); }
+  #calque .cote { font: 500 11px var(--mono); letter-spacing: .06em; fill: var(--gris); paint-order: stroke; stroke: var(--fond); stroke-width: 6px; }
+  #calque .pil .corps { stroke: none; }
+  #calque .pil.bleue .corps, .pilule.bleue .corps { fill: var(--bleu); }
+  #calque .pil.rouge .corps, .pilule.rouge .corps { fill: var(--rouge); }
+  #calque .pil { transform-box: fill-box; transform-origin: center; }
+  #calque .nom { font: 500 11px var(--mono); letter-spacing: .06em; fill: var(--encre-2); }
+  #calque .encart .fond { fill: var(--fond); stroke: none; }
+  #calque .encart .trait { stroke-width: 1.2; }
+  #calque .encart .point { fill: var(--dore); stroke: none; }
+  #passer { position: fixed; right: 14px; bottom: 14px; z-index: 7; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--encre-2); background: var(--fond); border: 1px solid var(--filet); border-radius: 999px; padding: 9px 14px; cursor: pointer; }
+  #passer:hover { border-color: var(--encre); }
+
+  main { padding-top: 16px; padding-bottom: 120px; }
+  /* Phi : son œil (vectoriel, ../shared/oeil.js), et ce qu'il dit */
+  .parole { display: flex; gap: 16px; align-items: flex-start; min-height: 56px; margin-bottom: 18px; }
+  #phi-place { flex: none; width: 54px; height: 54px; }
+  #phi-dit { margin: 0; padding-top: 4px; font-size: 17px; line-height: 1.5; color: var(--encre-2); }
+  #phi-dit p { margin: 0 0 8px; transition: opacity .35s var(--ease), transform .35s var(--ease); }
+  #phi-dit p.dit { opacity: 0; transform: translateY(4px); }
+  #phi-dit p.dit.vu { opacity: 1; transform: none; }
+  #phi-dit p.dit.vu:not(:last-child) { opacity: .55; }
+  #phi-oeil { position: fixed; left: 0; top: 0; width: 54px; height: 54px; margin: -27px 0 0 -27px; color: var(--encre); pointer-events: none; z-index: 6; transition: opacity .25s; }
+  #phi-oeil svg { width: 100%; height: 100%; display: block; }
+
+  #ecran { transition: opacity .25s var(--ease), transform .25s var(--ease); }
+  #ecran.sort { opacity: 0; transform: translateY(-6px); }
+  #ecran.entre { opacity: 0; transform: translateY(8px); }
+
+  .question { font-size: clamp(21px, 1.4vw + 14px, 26px); line-height: 1.35; font-weight: 620; letter-spacing: -.012em; margin: 0 0 14px; }
+  .question.longue { font-size: clamp(19px, .6vw + 15px, 21px); line-height: 1.45; font-weight: 600; letter-spacing: -.005em; }
+  .texte { font-size: 18px; line-height: 1.6; margin: 0 0 12px; }
+  .aide { font-size: 15px; line-height: 1.5; color: var(--encre-2); margin: 0 0 6px; }
+  .cap { font-weight: 650; letter-spacing: .035em; font-size: .9em; }
+  .regles { list-style: none; padding: 0; margin: 6px 0 16px; transition: opacity .4s var(--ease); }
+  .regles li { position: relative; padding: 12px 0 12px 26px; border-top: 1px solid var(--filet); font-size: 18px; line-height: 28px; }
+  .regles li:last-child { border-bottom: 1px solid var(--filet); }
+  .regles li::before { content: ""; position: absolute; left: 3px; top: 25px; width: 10px; height: 2px; background: var(--encre); transition: opacity .3s; }
+  .regles.nouvelle li::before { width: 6px; height: 6px; border-radius: 50%; top: 23px; }
+  .regles li.attente::before { opacity: 0; }
+  .regles.passee { opacity: .5; }
+  /* Phi écrit : les mots arrivent un à un */
+  .mot { opacity: 0; transition: opacity .18s; }
+  .mot.vu { opacity: 1; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+  .option, .suite, .pastille {
+    font: inherit; color: var(--encre); background: transparent; border: 1.5px solid var(--encre); border-radius: 999px; cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s, opacity .2s;
+  }
+  .option { text-align: left; font-size: 17px; line-height: 1.4; padding: 13px 20px; }
+  .option:hover, .option:focus-visible, .pastille:hover, .pastille:focus-visible { background: rgba(27, 29, 38, .06); outline: none; }
+  .option.pris, .pastille.pris { background: var(--dore-fond); border-color: var(--dore); }
+  .option:disabled:not(.pris) { opacity: .4; cursor: default; }
+  /* Les échelles d'accord : en ligne quand la place le permet */
+  @media (min-width: 600px) {
+    .options.echelle { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .options.echelle .option { text-align: center; border-radius: 14px; padding: 12px 8px; font-size: 15px; line-height: 1.3; }
+  }
+  .suite { margin-top: 24px; font-weight: 600; font-size: 16px; padding: 12px 24px; background: var(--encre); color: var(--fond); border-color: var(--encre); }
+  .suite:hover, .suite:focus-visible { background: #000; outline: none; }
+  .suite:disabled { opacity: .3; cursor: default; }
+  .lien { font: inherit; font-size: 15px; background: none; border: 0; padding: 0; color: var(--encre-2); text-decoration: underline; cursor: pointer; margin-top: 18px; }
+
+  /* Les deux pilules du choix : tracées, puis remplies */
+  .pilules { display: flex; justify-content: center; gap: clamp(18px, 7vw, 56px); margin: 22px 0 8px; }
+  .pilule { display: flex; flex-direction: column; align-items: center; gap: 10px; background: none; border: 0; padding: 6px; cursor: pointer; font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--encre-2); transition: opacity .25s; }
+  .a-tracer svg { visibility: hidden; }
+  .pilule svg { width: clamp(124px, 32vw, 168px); height: auto; overflow: visible; transition: transform .25s var(--ease); }
+  .pilule .trait { fill: none; stroke: var(--encre); stroke-width: 2; stroke-linecap: round; }
+  .pilule .fin { stroke-width: 1.2; }
+  .pilule .halo { fill: none; stroke: var(--dore); stroke-width: 3; opacity: 0; transition: opacity .2s; }
+  .pilule:hover svg, .pilule:focus-visible svg { transform: rotate(-6deg) translateY(-3px); }
+  .pilule:focus-visible { outline: none; }
+  .pilule:focus-visible .halo { opacity: .5; }
+  .pilule.pris .halo { opacity: 1; }
+  .pilule.pris { color: var(--dore-fonce); }
+  .pilule:disabled { cursor: default; }
+  .pilule:disabled:not(.pris) { opacity: .3; }
+
+  /* Le curseur : sans poignée tant qu'on n'a pas touché, pour ne rien souffler */
+  .curseur { margin-top: 10px; }
+  .curseur output { display: block; font: 500 clamp(40px, 7vw, 56px)/1 var(--mono); letter-spacing: -.02em; min-height: 1em; }
+  .curseur .legende { margin: 6px 0 14px; font: 13px/1.4 var(--mono); color: var(--gris); }
+  .curseur input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 36px; background: transparent; margin: 0; cursor: pointer; --p: 50%; }
+  .curseur input[type=range]:focus { outline: none; }
+  .curseur input[type=range]::-webkit-slider-runnable-track { height: 8px; border-radius: 4px; background: rgba(27, 29, 38, .12); }
+  .curseur input[type=range]::-moz-range-track { height: 8px; border-radius: 4px; background: rgba(27, 29, 38, .12); }
+  .curseur.touche input[type=range]::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--bleu) 0 var(--p), var(--rouge) var(--p) 100%); }
+  .curseur.touche input[type=range]::-moz-range-track { background: linear-gradient(to right, var(--bleu) 0 var(--p), var(--rouge) var(--p) 100%); }
+  .curseur input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: var(--dore-fond); border: 2.5px solid var(--dore); margin-top: -10px; opacity: 0; }
+  .curseur input[type=range]::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: var(--dore-fond); border: 2.5px solid var(--dore); opacity: 0; }
+  .curseur.touche input[type=range]::-webkit-slider-thumb { opacity: 1; }
+  .curseur.touche input[type=range]::-moz-range-thumb { opacity: 1; }
+  .curseur input[type=range]:focus-visible::-webkit-slider-runnable-track { box-shadow: 0 0 0 3px rgba(195, 138, 16, .35); }
+  .graduations { display: flex; justify-content: space-between; font: 12px/1 var(--mono); color: var(--gris); margin: 4px 0 10px; }
+
+  /* La grille (Alfred) et le profil : des pastilles */
+  .grille { margin-top: 14px; }
+  .ligne { padding: 14px 0; border-top: 1px solid var(--filet); }
+  .ligne:last-child { border-bottom: 1px solid var(--filet); }
+  .ligne > p { margin: 0 0 10px; font-size: 16.5px; line-height: 1.45; }
+  .pastilles { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pastille { font-size: 14.5px; padding: 8px 14px; }
+  .champ { margin: 0 0 22px; }
+  .options + .champ { margin-top: 26px; }
+  .champ > label, .champ > p { display: block; margin: 0 0 10px; font-size: 16.5px; font-weight: 600; }
+  .champ input[type=text], .champ textarea { width: 100%; font: inherit; font-size: 16px; padding: 10px 12px; border: 1.5px solid var(--encre); border-radius: 8px; background: transparent; color: var(--encre); }
+  .champ textarea { min-height: 110px; resize: vertical; }
+  details.rappel { margin: 4px 0 18px; font-size: 15px; color: var(--encre-2); }
+  details.rappel summary { cursor: pointer; text-decoration: underline; }
+  details.rappel .regles li { font-size: 15.5px; line-height: 24px; padding-top: 9px; padding-bottom: 9px; }
+  details.rappel .regles li::before { top: 20px; }
+  details.rappel .regles.nouvelle li::before { top: 18px; }
+  details.rappel h3 { font-size: 14px; letter-spacing: .06em; text-transform: uppercase; margin: 16px 0 4px; font-weight: 600; }
+
+  .journal { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--filet); font: 13.5px/1.6 var(--mono); color: var(--encre-2); }
+  .journal h3 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--gris); margin: 0 0 12px; }
+  .journal dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
+  .journal dt { color: var(--gris); }
+  .journal dd { margin: 0; }
+  @media (max-width: 520px) { .journal dl { grid-template-columns: 1fr; } .journal dd { margin-bottom: 6px; } }
+</style>
+</head>
+<body>
+<header id="tete" class="rangee">
+  <div id="avance" aria-hidden="true"></div>
+  <p id="marque">Xphi · mille humains, deux pilules · prototype</p>
+  <div class="colonne">
+    <div id="scene" role="img" aria-label="La scène">
+      <canvas id="toile"></canvas>
+      <svg id="calque" aria-hidden="true"></svg>
+    </div>
+  </div>
+</header>
+<main class="colonne">
+  <div class="parole">
+    <div id="phi-place" aria-hidden="true"></div>
+    <div id="phi-dit" aria-live="polite"></div>
+  </div>
+  <section id="ecran" aria-live="polite"></section>
+</main>
+<button id="passer" type="button" hidden>Passer l’animation</button>
+<div id="phi-oeil" aria-hidden="true"></div>
+<script src="../shared/oeil.js"></script>
+<script type="module" src="mille.js"></script>
+</body>
+</html>

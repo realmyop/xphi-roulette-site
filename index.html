@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xphi — Maquettes</title>
+<link rel="stylesheet" href="shared/base.css">
+<style>
+  /* Page d'index : présente les trois directions côte à côte.
+     Chaque écran est chargé deux fois : téléphone (390×844) et 16:9 (1920×1080, réduit). */
+  body { padding: 40px 32px 80px; max-width: 1240px; margin: 0 auto; }
+  h1 { font-size: 34px; letter-spacing: -.03em; margin: 0; font-weight: 680; }
+  .intro { color: var(--ink-2); font-size: 16px; line-height: 1.5; max-width: 70ch; margin: 10px 0 0; }
+  section { margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--ink); }
+  h2 { font-size: 26px; margin: 0; letter-spacing: -.02em; display: flex; align-items: center; gap: 12px; }
+  h2 i { width: 16px; height: 16px; border-radius: 50%; display: inline-block; }
+  .desc { color: var(--ink-2); font-size: 15px; line-height: 1.5; max-width: 80ch; margin: 8px 0 0; }
+  .row { display: flex; gap: 24px; align-items: flex-start; margin-top: 28px; flex-wrap: wrap; }
+  .row h3 { flex-basis: 100%; margin: 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--grey); }
+  #film .row h3 { text-transform: none; letter-spacing: 0; font-size: 14px; font-weight: 500; color: var(--ink-2); }
+  figure { margin: 0; }
+  figcaption { font-size: 12px; color: var(--grey); margin-top: 8px; }
+  figcaption a { color: var(--ink); }
+  .frame { overflow: hidden; border: 1px solid var(--line); position: relative; background: var(--bg); }
+  .frame iframe { border: 0; transform-origin: 0 0; position: absolute; left: 0; top: 0; }
+  .phone { width: 215px; height: 465px; border-radius: 18px; }
+  .phone iframe { width: 390px; height: 844px; transform: scale(.551); }
+  .tv { width: 683px; height: 384px; }
+  .tv iframe { width: 1920px; height: 1080px; transform: scale(.3557); }
+  @media (max-width: 960px) { .tv { width: 341px; height: 192px; } .tv iframe { transform: scale(.1776); } }
+</style>
+</head>
+<body>
+<h1>Xphi — maquettes</h1>
+<p class="intro">L’histoire se raconte comme un petit film d’animation ; les résultats gardent le langage sobre des écrans fixes plus bas.</p>
+
+<section id="episode">
+  <h2><i style="background:radial-gradient(circle,#4f86e8 0 22%,#d9483b 24% 34%,#0c0b0d 37%);box-shadow:0 0 0 2px #d7a548 inset"></i>Épisode « les deux pilules », l’animatique</h2>
+  <p class="desc">L’épisode entier, d’après le script de Thibaut (23&nbsp;min&nbsp;21). Ses treize séquences dans l’ordre : la dispute sur les réseaux, le test rejoué, Kant et l’universalisation, Alice et les variantes déséquilibrées, le tirage au sort et les douze écrans de résultats, qui prend la bleue, Nietzsche et « mauvais » ou « méchant », le méta-dilemme, puis l’aveu de Phi. Son texte tel quel pour la voix, les images qu’il indique, et les bonshommes du film de 3&nbsp;min&nbsp;20 partout. Ce sont des images simples calées sur le texte, à peaufiner ensuite. En attendant la voix de Ronan, le texte s’écrit dans la boîte au rythme de la parole (environ 19&nbsp;min&nbsp;41). Le son est calculé. Les chiffres sont ceux du questionnaire de Monsieur Phi ; ceux des pays sont encore à mesurer. Clavier : espace = lecture, ← → = 5&nbsp;s, M = son.</p>
+  <div class="row">
+    <figure><div class="frame tv"><iframe loading="lazy" src="episode-pilules/?rendu=1&amp;t=199"></iframe></div>
+      <figcaption><a href="episode-pilules/" target="_blank">Voir l’épisode</a> · <a href="episode-pilules/texte.html" target="_blank">Le texte à enregistrer</a></figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2><i style="background:radial-gradient(circle,#8fc0d6 0 30%,#0c0b0d 34%);box-shadow:0 0 0 2px #d7a548 inset"></i>Film : les deux pilules, raconté par Phi</h2>
+  <p class="desc">La version « cinématographique » de l’histoire des deux pilules, dans la direction artistique de Thibaut (3&nbsp;min&nbsp;21). Phi, une machine qui étudie notre morale, présente l’émission et lance son test sur les réseaux d’Arte. On suit un participant, le N°48 : la nuit, son téléphone, le test qu’il rate puis comprend, son hésitation. Puis plus de quatre mille participants, une carte de l’Europe, les deux salles, et ce qui est arrivé au N°48. Les mêmes règles, décrites de deux façons tirées au sort, mènent à deux issues opposées. Prototype : les chiffres sont ceux du questionnaire de Monsieur Phi, comme dans le script du magazine de Thibaut (seuls ceux des pays sont inventés), le son est calculé, et le texte de Phi s’écrit dans la boîte en attendant la voix de Ronan. Clavier : espace = lecture, ← → = 5 s, M = son.</p>
+  <div class="row">
+    <figure><div class="frame tv"><iframe loading="lazy" src="film-pilules/?rendu=1&amp;t=147.5"></iframe></div>
+      <figcaption><a href="film-pilules/" target="_blank">Voir le film</a> · <a href="film-pilules/texte.html" target="_blank">Le texte à enregistrer</a></figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2><i style="background:#f1e9dc;box-shadow:0 0 0 1px #0a0a0a inset"></i>Identité et présentation</h2>
+  <p class="desc">Quatre pistes de logo « Xphi » (objectif, barillet, craie, antenne), le narrateur « Phi » en IA de laboratoire (trois dessins, quatre expressions, palette, charte de ton et dix répliques), et une page de présentation du projet pour un diffuseur. <a href="identite/" target="_blank">Planche d’identité</a> · <a href="identite/presentation.html" target="_blank">Présentation du projet</a></p>
+</section>
+
+<section>
+  <h2><i style="background:linear-gradient(90deg,#4f86e8 50%,#d9483b 50%);box-shadow:0 0 0 2px #d7a548 inset"></i>Les deux pilules : la direction artistique de Thibaut</h2>
+  <p class="desc">La nouvelle direction de Thibaut : un écran de jeu rétro, la nuit, la craie et le laiton, l’œil de Phi, des pilules en nuages de caractères, cent sujets en pixels. Le test de compréhension, puis le choix. Retouches d’après ses retours : les sujets sont devenus de petits personnages (yeux, bras, coiffes tirées du numéro ; ils sautent en choisissant, lèvent les bras quand tout le monde vit, tremblent avant de partir en caractères, et regardent Phi), et Phi suit des yeux ce qui se passe, la réponse choisie et le pointeur. Clavier : espace = suite, ⌫ = retour, R = recommencer. Les résultats, en douze scènes, sont ceux de la vidéo de Thibaut, dans la même DA, pour la partie « résultats » de son script du magazine de 26 minutes.</p>
+  <div class="row">
+    <figure><div class="frame tv"><iframe loading="lazy" src="pilules/#e7"></iframe></div>
+      <figcaption><a href="pilules/" target="_blank">Jouer (16:9)</a> · <a href="pilules/donnees.html" target="_blank">analyse des données</a> · <a href="resultats-pilules/" target="_blank">les résultats (Thibaut)</a> · planches des bonshommes : <a href="pilules/essais/bonhomme-expressif.html" target="_blank">expressif</a> (retenu) · <a href="pilules/essais/bonhomme-variete.html" target="_blank">cent individus</a> · <a href="pilules/essais/bonhomme-machine.html" target="_blank">vu par la machine</a></figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2><i style="background:#1b2220;box-shadow:0 0 0 2px #e9b947 inset"></i>Essai de film : la boucle, à la craie</h2>
+  <p class="desc">L’idée de Ronan pour la vidéo finale : le questionnaire reste sobre, pour ne pas influencer, et l’histoire se raconte en petit dessin animé. La même expérience de pensée, à la craie sur le tableau de Phi (1 min 45) : des formes exactes tracées sous nos yeux par son œil, le blanc pour le monde, le doré pour le joueur. À minuit, une brosse efface le monde mais pas le doré : c’est la mémoire du joueur. On ne voit jamais un coup de feu : un trait de craie, et la fenêtre du voisin s’éteint. Pour sortir de la boucle, le cadran roule et pose la journée sur une droite. Les légendes tiennent la place de la voix ; le son (la craie, la brosse) est calculé, rien n’est enregistré.</p>
+  <div class="row">
+    <figure><div class="frame tv"><iframe loading="lazy" src="film-boucle/?rendu=1&amp;t=45.5"></iframe></div>
+      <figcaption><a href="film-boucle/" target="_blank">Voir le film</a></figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2><i style="background:#c38a10"></i>Prototype : la boucle (« Un jour sans fin »)</h2>
+  <p class="desc">Le questionnaire de Monsieur Phi sur la liberté et la responsabilité dans une boucle temporelle, raconté pas à pas et dessiné par Phi. Le récit est réécrit en petites étapes, une ou deux phrases chacune, avec leur animation ; les questions restent mot pour mot. La journée est un cadran qui recommence ; seul le joueur, en doré, se souvient. Alice et sa pizza, Bob, Charlie, puis Harry ; quand on sort de la boucle, le cadran se déroule en une droite et le temps reprend sa course.</p>
+  <div class="row">
+    <figure><div class="frame phone"><iframe loading="lazy" src="boucle/?saut=b4"></iframe></div>
+      <figcaption><a href="boucle/" target="_blank">Jouer</a></figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2><i style="background:linear-gradient(90deg,#2c5fd6 50%,#d6452f 50%)"></i>Prototype : mille humains, deux pilules</h2>
+  <p class="desc">Après les retours du 12 octobre (« beaucoup trop sobre ») : le même questionnaire, en pilules, raconté et dessiné par Phi. Le scénario reste nu, comme le demande Thibaut : des êtres venus d’ailleurs capturent mille humains, chacun isolé, deux pilules, ses règles. Phi dessine tout à la machine (formes exactes, traits de construction, humains en modèles, trois couleurs qui ont un sens), les questions de compréhension deviennent des simulations, et le choix des autres n’est jamais montré.</p>
+  <div class="row">
+    <figure><div class="frame phone"><iframe loading="lazy" src="mille/?saut=histoire"></iframe></div>
+      <figcaption><a href="mille/" target="_blank">Jouer</a> · description de base <a href="mille/?formulation=collectif" target="_blank">collective</a> <a href="mille/?formulation=individuel" target="_blank">individuelle</a></figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2><i style="background:#f4f0e8;box-shadow:0 0 0 1px #1b1d26 inset"></i>Prototype : les deux boutons, le questionnaire de Thibaut tel quel</h2>
+  <p class="desc">Retour de Thibaut du 12 octobre : pas de lac (le montrer laisse croire qu’on voit le choix des autres), le scénario des boutons « en reprenant exactement [son] questionnaire », dans quelque chose « de plus abstrait et épuré, avec moins d’éléments dessinés ». Les textes sont ceux du formulaire, version boutons, et la description de base est tirée au sort. Les seuls dessins sont tracés au trait par la machine, l’œil de Phi en tête de stylo : les deux boutons, des barres de proportion. On ne voit jamais les autres participants.</p>
+  <div class="row">
+    <figure><div class="frame phone"><iframe loading="lazy" src="boutons/?saut=enonce"></iframe></div>
+      <figcaption><a href="boutons/" target="_blank">Jouer</a> · description de base <a href="boutons/?formulation=collectif" target="_blank">collective</a> <a href="boutons/?formulation=individuel" target="_blank">individuelle</a></figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <h2><i style="background:#0c0b0d;box-shadow:0 0 0 1px #6f9ff5 inset"></i>Essai : une direction artistique en caractères</h2>
+  <p class="desc">Proposition de Thibaut : une image dessinée par une machine, plutôt qu’imitée d’une main humaine. La scène du lac est calculée en 3D dans le navigateur, puis dessinée au trait, en caractères ; Phi garde son œil d’origine. Elle reprend ses demandes du 12 octobre : le rivage, où il n’y a rien, face au ponton bleu et sa bombe ; la règle vérifiée avant de choisir ; pas d’Alice. Une seule page, pour valider la direction avant de tout refaire.</p>
+  <div class="row">
+    <figure><div class="frame phone"><iframe loading="lazy" src="ascii/"></iframe></div>
+      <figcaption><a href="ascii/" target="_blank">Jouer</a> · formulation <a href="ascii/?formulation=A" target="_blank">A</a> <a href="ascii/?formulation=B" target="_blank">B</a></figcaption></figure>
+    <figure><div class="frame tv"><iframe loading="lazy" src="ascii/"></iframe></div>
+      <figcaption><a href="ascii/" target="_blank">Jouer en 16:9</a></figcaption></figure>
+  </div>
+  <p class="desc"><b>Trois autres pistes, sans caractères</b> : le traceur (un robot qui dessine au stylo), le pictogramme (le langage des notices), le scan (un relevé laser), sur la même image, calculée de la même scène 3D. <a href="styles/" target="_blank">Voir la planche</a></p>
+</section>
+
+<section>
+  <h2><i style="background:#d9a64a"></i>Le film — Acte 1, « Le barillet »</h2>
+  <p class="desc">Un petit film d’animation peint : la maison, la chambre, le bébé, la porte, la personne, le barillet, la visée. Au moment de choisir, l’image se fige et le narrateur dessine à la craie le barillet de l’expérience de pensée (mille chambres, cent, six, quatre). Puis le film reprend jusqu’à sa fin. Les aperçus ci-dessous se jouent tout seuls (choix scriptés) ; pour jouer, ouvrez un lien. Clavier : espace = pause, → = étape suivante, R = recommencer.</p>
+  <div class="row">
+    <figure><div class="frame phone"><iframe loading="lazy" src="cinema/?auto=1"></iframe></div>
+      <figcaption><a href="cinema/" target="_blank">Jouer (téléphone)</a> · variantes <a href="cinema/?variant=A" target="_blank">A</a> <a href="cinema/?variant=B" target="_blank">B</a> <a href="cinema/?variant=C" target="_blank">C</a> <a href="cinema/?variant=D" target="_blank">D</a></figcaption></figure>
+    <figure><div class="frame tv"><iframe loading="lazy" src="cinema/?auto=1&screen=1"></iframe></div>
+      <figcaption><a href="cinema/?screen=1" target="_blank">Jouer (16:9 · 1920×1080)</a> · <a href="cinema/?screen=1&variant=D" target="_blank">vue subjective (D)</a></figcaption></figure>
+  </div>
+  <p class="desc"><b>Acte 2, « La conception »</b> : même grammaire, un autre foyer. <a href="cinema/?acte=2" target="_blank">Jouer (téléphone)</a> · <a href="cinema/?acte=2&screen=1" target="_blank">16:9</a></p>
+  <p class="desc"><b>Acte 3, « Les deux pilules »</b> : le dilemme de la pilule bleue ou rouge, puis le lac et ses deux pontons ; la règle est dite d’une de deux façons, tirée au sort. <a href="cinema/?acte=3" target="_blank">Jouer (téléphone)</a> · <a href="cinema/?acte=3&screen=1" target="_blank">16:9</a> · formulation <a href="cinema/?acte=3&formulation=A" target="_blank">A</a> <a href="cinema/?acte=3&formulation=B" target="_blank">B</a></p>
+  <p class="desc"><b>Résultats de l’Acte 3</b> : sept écrans dans la langue du film. Le lac figé et assombri, et le narrateur (une IA qui étudie l’humanité, curieuse et polie) trace à la craie les vrais chiffres du questionnaire de Monsieur Phi (près de 10 000 répondants) : 65,5 % de A avec une formulation, 12,6 % avec l’autre, les prédictions, le billet de 100 €, la lucidité, gauche/droite et femmes/hommes. Le dernier écran place le joueur (point de laiton) parmi les autres, en données fictives. Flèches ou clic pour avancer. <a href="resultats-a3/" target="_blank">Téléphone</a> · <a href="resultats-a3/?screen=1" target="_blank">16:9</a></p>
+  <div class="row">
+    <figure><div class="frame phone"><iframe loading="lazy" src="resultats-a3/?still=1&i=2"></iframe></div>
+      <figcaption><a href="resultats-a3/?i=2" target="_blank">Écran clé : la formulation</a></figcaption></figure>
+    <figure><div class="frame tv"><iframe loading="lazy" src="resultats-a3/?still=1&screen=1&i=2"></iframe></div>
+      <figcaption><a href="resultats-a3/?screen=1" target="_blank">16:9 · 1920×1080</a></figcaption></figure>
+  </div>
+  <p class="desc"><a href="film/">Première version (trait, ombres)</a>, pour mémoire.</p>
+</section>
+
+<h2 style="margin-top:72px">Écrans fixes et résultats</h2>
+<p class="intro">Même contrainte pour les trois : noir et blanc, un seul accent réservé au joueur, Inter seule, barillet géométrique, personnage au trait. Chaque écran existe en téléphone vertical et en 16:9 sombre (<code>?screen=1</code>). Les animations sont figées ici ; ouvrez un écran seul pour voir les fondus. Le cran se change avec <code>?cran=1</code> à <code>4</code>.</p>
+<div id="dirs"></div>
+<script>
+  // Description des trois directions
+  const DIRS = [
+    { id: 'editorial', name: 'Éditorial', color: '#ff4f1f',
+      desc: 'Une page de magazine. Texte aligné à gauche, très grand et serré ; filets fins et petites étiquettes en capitales. Le barillet est une illustration à côté du texte, l’échelle des quatre crans reste visible. Accent vermillon : franc, lisible à la télévision, mais c’est aussi la couleur la plus chargée des trois.' },
+    { id: 'cadran', name: 'Cadran', color: '#2f5bff',
+      desc: 'Un instrument de mesure. Tout est centré, le barillet occupe le milieu de l’écran, le texte est en graisse fine. La progression est un simple trait ; aucun libellé superflu. Accent cobalt : neutre, froid, sans connotation de danger. La plus calme et la plus « Apple ».' },
+    { id: 'dialogue', name: 'Dialogue', color: '#00a88f',
+      desc: 'Une conversation avec Phi. Le personnage est en buste ; ses répliques s’empilent, les anciennes passent au gris. Les choix sont vos répliques. Le barillet arrive dans la conversation, dans un cadre. Accent vert d’eau. La plus proche du ton « Il était une fois… » et de l’émission, où Phi parle à l’antenne.' },
+  ];
+  const SCREENS = [['accueil', 'Accueil'], ['cran', 'Un cran du barillet'], ['resultats', 'Résultats']];
+  const root = document.getElementById('dirs');
+  DIRS.forEach((d, k) => {
+    const s = document.createElement('section');
+    s.innerHTML = `<h2><i style="background:${d.color}"></i>${k + 1}. ${d.name}</h2><p class="desc">${d.desc}</p>`;
+    SCREENS.forEach(([f, label]) => {
+      const url = `${d.id}/${f}.html`;
+      const extra = f === 'cran'
+        ? ' · crans : ' + [1, 2, 3, 4].map((c) => `<a href="${url}?cran=${c}" target="_blank">${c}</a>`).join(' ')
+        : '';
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `<h3>${label}</h3>
+        <figure><div class="frame phone"><iframe loading="lazy" src="${url}?still=1"></iframe></div>
+          <figcaption><a href="${url}" target="_blank">Téléphone</a>${extra}</figcaption></figure>
+        <figure><div class="frame tv"><iframe loading="lazy" src="${url}?still=1&screen=1"></iframe></div>
+          <figcaption><a href="${url}?screen=1" target="_blank">16:9 · 1920×1080 · sombre</a></figcaption></figure>`;
+      s.append(row);
+    });
+    root.append(s);
+  });
+</script>
+</body>
+</html>

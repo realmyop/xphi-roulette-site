@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xphi — les deux pilules, l'épisode : essai des douze écrans de résultats</title>
+<style>
+/* Polices hébergées dans le dépôt (SIL OFL), celles de la DA (mockups/pilules/fonts/) : aucun appel externe. */
+@font-face { font-family: "DotGothic16"; src: url("../pilules/fonts/dotgothic16-latin.woff2") format("woff2"); font-display: block; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../pilules/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: block; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../pilules/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: block; }
+:root { --nuit: #0c0b0d; --gris: #8f877b; --craie: #f1e9dc; color-scheme: dark; }
+html, body { height: 100%; margin: 0; background: var(--nuit); overflow: hidden; }
+#cadre { position: fixed; inset: 0; display: grid; place-items: center; }
+canvas { display: block; width: min(100vw, calc(100vh * 16 / 9)); height: auto; aspect-ratio: 16 / 9; cursor: pointer; }
+#hud { position: fixed; right: 16px; bottom: 10px; font: 12px/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .06em;
+  color: var(--gris); font-variant-numeric: tabular-nums; pointer-events: none; }
+#hud b { color: var(--craie); font-weight: 500; }
+html.rendu #hud { display: none; }
+</style>
+</head>
+<body>
+<div id="cadre"><canvas id="essai" width="1920" height="1080" role="img" aria-label="Essai : les douze écrans de résultats de Thibaut, joués à la suite avec les bonshommes du film"></canvas></div>
+<div id="hud"></div>
+<script type="module">
+// La page d'essai de resultats.js : les DOUZE ÉCRANS de Thibaut joués à la suite, une étape toutes les 3 s (la dernière
+// de chaque écran tient 5 s), dans le cadre des résultats (×0,81 autour de (960, 140)), avec ce que l'épisode met
+// autour : le fond de sa page, l'œil de Phi à sa place des résultats (1 790, 120, 120), qui regarde ce qui se passe, son
+// cartouche (« RÉSULTATS 01 » / « DESCRIPTION A »…), la boîte XPHI vide, ses notes en mention, le voile.
+//   ?t=12.3        une image fixe
+//   ?ecran=8       boucle sur l'écran 8
+//   ?cadre=thibaut sa page à l'identique (IDENTITE : ses positions, ses notes en bas, Phi en (1 806, 116, 150), sans
+//                  boîte), pour comparer aux captures de mockups/resultats-pilules/#sN.M
+//   ?decimale=0    les 66 et 13 bleus de sa page (par défaut dans le cadre des résultats : 65 + un moitié bleu, 12 + un à 60 %)
+//   ?rendu=1       window.film (pret, duree, image(t), evenements(t), verifie()) : pour les essais image par image
+// Espace : pause · ← → : écran précédent, suivant · clic : pause.
+import * as C from './commun.js';   // celui de l'épisode, comme resultats.js
+import * as R from './resultats.js';
+import * as D from './donnees.js';
+
+const q = new URLSearchParams(location.search);
+const THIBAUT = q.get('cadre') === 'thibaut', RENDU = q.has('rendu');
+const DECIMALE = q.has('decimale') ? q.get('decimale') !== '0' : !THIBAUT;
+const CAM = THIBAUT ? C.IDENTITE : R.CADRE_RESULTATS, PHI = THIBAUT ? R.PHI_THIBAUT : R.PHI;
+const ctx = document.getElementById('essai').getContext('2d');
+
+// ---------------------------------------------------------------- la ligne de temps : une étape toutes les 3 s
+const PAS = 3, DERNIER = 5;
+const LIGNE = [];
+{ let t = 0; for (let n = 1; n <= 12; n++) { const E = R.ECRANS[n], d = [...Array(E.pas).keys()].map(i => t + i * PAS); const a = d[E.pas - 1] + DERNIER; LIGNE.push(Object.freeze({ n, de: t, a, d: Object.freeze(d) })); t = a; } }
+const DUREE = LIGNE[LIGNE.length - 1].a;
+const SEUL = q.has('ecran') ? LIGNE[C.clamp(+q.get('ecran') - 1, 0, 11)] : null;
+// l'écran de l'instant T (en boucle sur ?ecran)
+function ou(T) {
+  if (SEUL) return { L: SEUL, T: SEUL.de + (((T % (SEUL.a - SEUL.de)) + (SEUL.a - SEUL.de)) % (SEUL.a - SEUL.de)) };
+  const t = C.clamp(T, 0, DUREE - 1e-6);
+  return { L: LIGNE.find(L => t >= L.de && t < L.a), T: t };
+}
+
+// ---------------------------------------------------------------- ce que Phi regarde : [pas, délai, durée, repère de resultats.js]
+const REGARDS = {
+  1: [[0, .2, 1.6, 'question'], [1, .2, 2.2, 'jauge'], [1, 2.4, .6, 'chiffre'], [2, 0, 1.5, 'foule'], [2, 1.5, 1.5, 'tampon']],
+  2: [[0, .3, 1.5, 'nuage'], [0, 1.8, 1, 'reel'], [1, .3, 1.2, 'bleus'], [1, 1.5, 1.2, 'rouges'], [2, .2, 2, 'surligne0'], [3, .2, 2, 'surligne1']],
+  3: [[0, .2, 1.6, 'question'], [1, .2, 2.2, 'jauge'], [1, 2.4, .6, 'chiffre'], [2, 0, 2.4, 'foule'], [2, 2.4, 1.5, 'tampon']],
+  4: [[0, .3, 1.2, 'barreA'], [0, 1.5, 1.2, 'barreB'], [1, .3, 2.5, 'ecart']],
+  5: [[0, .3, 1.5, 'nuage'], [0, 1.8, 1, 'reel'], [1, .3, 1.2, 'bleus'], [1, 1.5, 1.2, 'rouges'], [2, .2, 2, 'surligne0']],
+  6: [[0, .2, 1, 'question'], [0, 1.2, 1.5, 'barreA'], [1, .1, 1.2, 'chiffreA'], [1, 1.3, 1.2, 'chiffreB']],
+  7: [[0, .2, 1.2, 'question'], [1, .1, 1.2, 'chiffreBleus'], [1, 1.3, 1.2, 'chiffreRouges'], [2, .2, 1, 'question'], [2, 1.3, 1, 'chiffreBleus'], [2, 2.3, 1, 'chiffreRouges']],
+  8: [[0, .2, 1, 'titreA'], [1, .2, 2, 'panneauA'], [1, 2.2, .8, 'texteA'], [2, .2, 1.5, 'panneauA'], [3, .2, 1, 'titreB'], [4, .2, 2, 'panneauB'], [5, .2, 1.4, 'panneauB'], [5, 2.4, 1.5, 'texteB']],
+  9: [[0, .3, 1, 'barre00'], [0, 1.3, 1.2, 'barre01'], [1, .3, .6, 'barre10'], [1, 1, .6, 'barre12'], [1, 1.7, 1, 'barre14']],
+  10: [[0, .2, .6, 'genre'], [0, .8, .6, 'politique'], [0, 1.4, 1, 'pays'], [1, .2, 2, 'description']],
+  11: [[0, .2, 1, 'question'], [0, 1.4, 1.5, 'partBA'], [1, .2, 2, 'partBB']],
+  12: [[0, .2, 1.5, 'jaugeA'], [0, 1.7, 1.2, 'jaugeB'], [1, 1.4, 2, 'texteB']],
+};
+// les repères de l'image en cours (rendus par l'écran) : le regard les lit, à l'écran ; rien ne reste d'une image à l'autre
+let REP = {};
+const vise = nom => () => (REP[nom] ? C.point(REP[nom].x, REP[nom].y) : null);
+const regards = new Map();
+function regardDe(L) {
+  if (!regards.has(L.n)) {
+    const cibles = REGARDS[L.n].map(([i, dl, du, nom]) => ({ t: L.d[i] + dl, d: du, cible: vise(nom) }));
+    const noms = [...new Set(REGARDS[L.n].map(r => r[3]))];
+    regards.set(L.n, C.creeRegard({ cibles, repos: [[3, C.VOUS], ...noms.map(nom => [1, vise(nom)])] }));
+  }
+  return regards.get(L.n);
+}
+
+// ---------------------------------------------------------------- une image
+let infos = null;
+function image(T0) {
+  const { L, T } = ou(T0), E = R.ECRANS[L.n];
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.clearRect(0, 0, 1920, 1080);
+  // le monde : le fond de sa page, puis l'écran (qui se lève en 0,4 s, comme ses scènes)
+  R.fondResultats(ctx, T, L.n, L.d);
+  infos = R.ecran(ctx, T, L.n, L.d, { cam: CAM, phi: PHI, decimale: DECIMALE, notes: THIBAUT, a: C.seg(T, L.de, L.de + .4) });
+  REP = infos.reperes;
+  // Phi
+  const ordres = E.humeurs.map((h, i) => [L.d[i], h]);
+  C.oeil(ctx, T, { x: PHI.x, y: PHI.y, taille: PHI.taille, humeur: C.humeur(T, ordres, E.humeurs[0]), regard: regardDe(L), secoue: E.secoue ? L.d[E.secoue[0]] + E.secoue[1] : -99 });
+  // la surimpression : son cartouche, la boîte XPHI vide, sa note en mention
+  C.cartouche(ctx, `RÉSULTATS ${String(L.n).padStart(2, '0')}`, E.titre, 1);
+  if (!THIBAUT) {
+    C.fenetre(ctx, 80, 862, 1760, 178, 1); C.fenetre(ctx, 112, 838, 132, 44, 1);
+    ctx.globalAlpha = 1; ctx.fillStyle = C.LABO; ctx.font = `26px ${C.PIX}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('XPHI', 178, 861);
+    if (E.note) { ctx.font = `16px ${C.MONO}`; ctx.fillStyle = C.GRIS; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; ctx.globalAlpha = C.seg(T, L.de, L.de + .4); C.texteSignes(ctx, E.note, 1840, 1068); ctx.globalAlpha = 1; }
+  }
+  C.voile(ctx);
+  return { ecran: L.n, etape: L.d.filter(d => T >= d).length, sujets: infos.sujets.length };
+}
+
+// ---------------------------------------------------------------- ce qui sonnerait (les instants de moments()), image par image
+const MOMENTS = LIGNE.map(L => R.moments(L.n, L.d, { decimale: DECIMALE }));
+function evenements(T0, dt = 1 / 25) {
+  const { L, T } = ou(T0), M = MOMENTS[L.n - 1], out = {};
+  for (const [k, v] of Object.entries(M)) {
+    const liste = Array.isArray(v) ? v : v === null || v === undefined ? [] : [v];
+    const n = liste.filter(x => x >= T && x < T + dt).length;
+    if (n) out[k] = n;
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- les essais
+// ce qui cloche : les données, les écrans qui lèvent une erreur, les bonshommes hors de la zone utile (au-dessus de
+// y = 830, dans le cadre des résultats) ou hors de l'image, gris là où ils ont déjà choisi, les repères hors de l'image
+const DEJA_CHOISI = new Set([4, 7, 8, 12]);
+function verifie() {
+  const pb = D.verifie().map(m => `données : ${m}`);
+  if (R.verifieSurlignes) pb.push(...R.verifieSurlignes());   // ce que chaque cerne entoure, ce sont les figures comptées
+  for (const L of LIGNE) {
+    for (let T = L.de; T < L.a; T += .25) {
+      let inf;
+      try { image(T); inf = infos; } catch (e) { pb.push(`écran ${L.n} à ${T.toFixed(2)} s : ${e.message}`); continue; }
+      for (const s of inf.sujets) {
+        // sur ces écrans, chacun a déjà choisi : jamais gris (même pendant le saut qui le fait changer d'avis)
+        if (DEJA_CHOISI.has(L.n) && s.col === C.GRIS_FIG) pb.push(`écran ${L.n} à ${T.toFixed(2)} s : ${s.cle} est gris, alors qu'il a déjà choisi`);
+        const bas = s.y + 6 * s.cs, haut = s.y - 6 * s.cs;
+        if (!THIBAUT && bas > 830.5) pb.push(`écran ${L.n} à ${T.toFixed(2)} s : ${s.cle} descend à y ${bas.toFixed(0)} (zone utile : 830)`);
+        if (haut < 0 || s.x < 0 || s.x > 1920) pb.push(`écran ${L.n} à ${T.toFixed(2)} s : ${s.cle} hors de l'image (${s.x.toFixed(0)}, ${s.y.toFixed(0)})`);
+      }
+      for (const [nom, p] of Object.entries(inf.reperes)) if (!(p.x >= 0 && p.x <= 1920 && p.y >= 0 && p.y <= 1080)) pb.push(`écran ${L.n} : le repère ${nom} hors de l'image`);
+    }
+  }
+  return [...new Set(pb)];
+}
+
+// ---------------------------------------------------------------- le chargement, la lecture
+await Promise.race([Promise.all(['34px "DotGothic16"', '20px "IBM Plex Mono"', '500 20px "IBM Plex Mono"'].map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 3000))]);
+C.prepare();
+window.film = { pret: false, duree: SEUL ? SEUL.a - SEUL.de : DUREE, ligne: LIGNE, image: t => image(SEUL ? SEUL.de + t : t), evenements, verifie };
+if (RENDU) { document.documentElement.classList.add('rendu'); image(q.has('t') ? +q.get('t') : 0); window.film.pret = true; }
+else if (q.has('t')) image(+q.get('t'));
+else {
+  const hud = document.getElementById('hud');
+  let t0 = performance.now() / 1000 - (SEUL ? SEUL.de : 0), pause = null;
+  const maintenant = () => (pause ?? performance.now() / 1000 - t0);
+  const aller = t => { if (pause !== null) pause = t; else t0 = performance.now() / 1000 - t; };
+  const bascule = () => { if (pause === null) pause = maintenant(); else { t0 = performance.now() / 1000 - pause; pause = null; } };
+  document.getElementById('essai').addEventListener('click', bascule);
+  addEventListener('keydown', e => {
+    const T = maintenant(), L = ou(T).L, i = LIGNE.indexOf(L);
+    if (e.key === ' ') { e.preventDefault(); bascule(); }
+    else if (e.key === 'ArrowRight' && i < 11) aller(LIGNE[i + 1].de);
+    else if (e.key === 'ArrowLeft') aller(T - L.de > 1 || i === 0 ? L.de : LIGNE[i - 1].de);
+  });
+  const boucle = () => {
+    const T = maintenant(), r = image(T), L = ou(T).L;
+    hud.innerHTML = `<b>${String(r.ecran).padStart(2, '0')}/12</b> ${R.ECRANS[r.ecran].nom} · étape ${r.etape}/${R.ECRANS[r.ecran].pas} · ${(ou(T).T - L.de).toFixed(1)} s`;
+    requestAnimationFrame(boucle);
+  };
+  requestAnimationFrame(boucle);
+}
+</script>
+</body>
+</html>

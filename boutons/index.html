@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Xphi — les deux boutons</title>
+<meta name="description" content="Prototype : le questionnaire « A ou B ? » de Monsieur Phi, tel quel, dans une forme épurée.">
+<link rel="icon" href="../identite/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../shared/base.css">
+<style>
+  @font-face { font-family: "Plex Mono"; src: url("../ascii/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Plex Mono"; src: url("../ascii/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+  :root {
+    --papier: #f4f0e8; --encre: #1b1d26; --encre-2: #4b4e5b; --gris: #8d8a83; --filet: rgba(27, 29, 38, .14);
+    --dore: #c38a10; --dore-fond: #f3e3bd; --mono: "Plex Mono", ui-monospace, Menlo, monospace;
+  }
+  html, body { background: var(--papier); color: var(--encre); }
+  body { min-height: 100svh; }
+
+  /* L'avancée : un trait qui s'allonge en haut de la page */
+  #avance { position: fixed; top: 0; left: 0; height: 2px; width: 0; background: var(--encre); transition: width .6s var(--ease); z-index: 5; }
+  #marque { position: fixed; top: 12px; left: 16px; margin: 0; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--gris); }
+
+  main { max-width: 660px; margin: 0 auto; padding: 68px 22px 120px; }
+  /* Phi : son œil (vectoriel, ../shared/oeil.js), et ce qu'il dit */
+  .parole { display: flex; gap: 16px; align-items: flex-start; min-height: 56px; margin-bottom: 22px; }
+  #phi-place { flex: none; width: 54px; height: 54px; }
+  #phi-dit { margin: 0; padding-top: 4px; font-size: 17px; line-height: 1.5; color: var(--encre-2); }
+  #phi-dit p { margin: 0 0 8px; }
+  #phi-oeil { position: fixed; left: 0; top: 0; width: 54px; height: 54px; margin: -27px 0 0 -27px; color: var(--encre); pointer-events: none; z-index: 6; }
+  #phi-oeil svg { width: 100%; height: 100%; display: block; }
+
+  #ecran { transition: opacity .25s var(--ease), transform .25s var(--ease); }
+  #ecran.sort { opacity: 0; transform: translateY(-6px); }
+  #ecran.entre { opacity: 0; transform: translateY(8px); }
+
+  .question { font-size: clamp(21px, 1.4vw + 14px, 27px); line-height: 1.35; font-weight: 620; letter-spacing: -.012em; margin: 0 0 14px; }
+  .question.longue { font-size: clamp(19px, .6vw + 15px, 22px); line-height: 1.45; font-weight: 600; letter-spacing: -.005em; }
+  .texte { font-size: 18px; line-height: 1.6; margin: 0 0 12px; }
+  .aide { font-size: 15px; line-height: 1.5; color: var(--encre-2); margin: 0 0 6px; }
+  .cap { font-weight: 650; letter-spacing: .035em; font-size: .9em; }
+  .regles { list-style: none; padding: 0; margin: 6px 0 16px; }
+  .regles li { position: relative; padding: 12px 0 12px 26px; border-top: 1px solid var(--filet); font-size: 18px; line-height: 28px; }
+  .regles li:last-child { border-bottom: 1px solid var(--filet); }
+  .regles li::before { content: ""; position: absolute; left: 3px; top: 25px; width: 10px; height: 2px; background: var(--encre); }
+  .regles.nouvelle li::before { background: var(--encre); width: 6px; height: 6px; border-radius: 50%; top: 23px; }
+
+  /* Les dessins de la machine : des traits d'encre, tracés à vitesse constante */
+  svg.dessin { display: block; width: 100%; height: auto; margin: 4px 0 16px; overflow: visible; }
+  svg .trait { fill: none; stroke: var(--encre); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  svg .fin { stroke-width: 1.2; }
+  svg text { font-family: var(--mono); fill: var(--encre); }
+
+  .options { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+  .option, .suite, .pastille {
+    font: inherit; color: var(--encre); background: transparent; border: 1.5px solid var(--encre); border-radius: 999px; cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .option { text-align: left; font-size: 17px; line-height: 1.4; padding: 13px 20px; }
+  .option:hover, .option:focus-visible, .pastille:hover, .pastille:focus-visible { background: rgba(27, 29, 38, .06); outline: none; }
+  .option.pris, .pastille.pris { background: var(--dore-fond); border-color: var(--dore); }
+  .option:disabled:not(.pris) { opacity: .4; cursor: default; }
+  .suite { margin-top: 24px; font-weight: 600; font-size: 16px; padding: 12px 24px; background: var(--encre); color: var(--papier); border-color: var(--encre); }
+  .suite:hover, .suite:focus-visible { background: #000; outline: none; }
+  .suite:disabled { opacity: .3; cursor: default; }
+  .lien { font: inherit; font-size: 15px; background: none; border: 0; padding: 0; color: var(--encre-2); text-decoration: underline; cursor: pointer; margin-top: 18px; }
+
+  /* Les deux boutons, au moment du choix : les cercles tracés deviennent des boutons */
+  .boutons { display: flex; justify-content: center; gap: clamp(24px, 8vw, 72px); margin: 26px 0 10px; }
+  .bouton { position: relative; width: clamp(118px, 30vw, 156px); aspect-ratio: 1; border: 0; padding: 0; background: none; border-radius: 50%; cursor: pointer; }
+  .bouton svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .bouton .fond { fill: transparent; transition: fill .2s; }
+  .bouton span { position: relative; font: 500 clamp(40px, 9vw, 54px)/1 var(--mono); }
+  .bouton:hover .trait, .bouton:focus-visible .trait { stroke-width: 3.2; }
+  .bouton:focus-visible { outline: none; }
+  .bouton.pris .fond { fill: var(--dore-fond); }
+  .bouton.pris .trait { stroke: var(--dore); stroke-width: 3.2; }
+  .bouton:disabled:not(.pris) { opacity: .35; cursor: default; }
+
+  /* La prédiction : un nombre tapé, la barre se hachure à mesure */
+  .pourcentage { display: flex; align-items: baseline; gap: 10px; margin: 18px 0 6px; font: 500 clamp(44px, 8vw, 64px)/1 var(--mono); }
+  .pourcentage input { width: 3.3ch; font: inherit; letter-spacing: -.02em; text-align: right; color: var(--encre); background: transparent; border: 0; border-bottom: 2px solid var(--encre); border-radius: 0; padding: 0 0 6px; }
+  .pourcentage input:focus { outline: none; border-bottom-color: var(--dore); }
+  .pourcentage.faux input { border-bottom-style: dashed; color: var(--gris); }
+
+  /* La grille (Alfred) et le profil : des pastilles */
+  .grille { margin-top: 14px; }
+  .ligne { padding: 14px 0; border-top: 1px solid var(--filet); }
+  .ligne:last-child { border-bottom: 1px solid var(--filet); }
+  .ligne > p { margin: 0 0 10px; font-size: 16.5px; line-height: 1.45; }
+  .pastilles { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pastille { font-size: 14.5px; padding: 8px 14px; }
+  .champ { margin: 0 0 22px; }
+  .options + .champ { margin-top: 26px; }
+  .champ > label, .champ > p { display: block; margin: 0 0 10px; font-size: 16.5px; font-weight: 600; }
+  .champ input[type=text], .champ textarea { width: 100%; font: inherit; font-size: 16px; padding: 10px 12px; border: 1.5px solid var(--encre); border-radius: 8px; background: transparent; color: var(--encre); }
+  .champ textarea { min-height: 110px; resize: vertical; }
+  details.rappel { margin: 4px 0 18px; font-size: 15px; color: var(--encre-2); }
+  details.rappel summary { cursor: pointer; text-decoration: underline; }
+  details.rappel .regles li { font-size: 15.5px; line-height: 24px; padding-top: 9px; padding-bottom: 9px; }
+  details.rappel .regles li::before { top: 20px; }
+  details.rappel .regles.nouvelle li::before { top: 18px; }
+  details.rappel h3 { font-size: 14px; letter-spacing: .06em; text-transform: uppercase; margin: 16px 0 4px; font-weight: 600; }
+
+  .journal { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--filet); font: 13.5px/1.6 var(--mono); color: var(--encre-2); }
+  .journal h3 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--gris); margin: 0 0 12px; }
+  .journal dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
+  .journal dt { color: var(--gris); }
+  .journal dd { margin: 0; }
+  @media (max-width: 520px) { .journal dl { grid-template-columns: 1fr; } .journal dd { margin-bottom: 6px; } }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="avance" aria-hidden="true"></div>
+<p id="marque">Xphi · les deux boutons · prototype</p>
+<main>
+  <div class="parole">
+    <div id="phi-place" aria-hidden="true"></div>
+    <div id="phi-dit" aria-live="polite"></div>
+  </div>
+  <section id="ecran" aria-live="polite"></section>
+</main>
+<div id="phi-oeil" aria-hidden="true"></div>
+<script src="../shared/oeil.js"></script>
+<script type="module" src="boutons.js"></script>
+</body>
+</html>

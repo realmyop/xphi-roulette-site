@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console d'analyse</title>
+<style>
+/* Une slide d'analyse des données dans la DA des « deux pilules » (../index.html) : même toile 16:9, même fond, même trame,
+   mêmes fenêtres, même œil. Ronan : « un slide d'analyse des données. Juste pour avoir la DA, pas besoin d'en faire plus d'une ». */
+@font-face { font-family: "DotGothic16"; src: url("../fonts/dotgothic16-latin.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+:root {
+  --nuit: #0c0b0d;
+  --craie: #f1e9dc;
+  --gris: #8f877b;
+  --labo: #8fc0d6;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; margin: 0; background: var(--nuit); color: var(--craie); overflow: hidden; }
+#scene { display: block; width: 100%; height: 100%; object-fit: contain; outline: none; }
+#scene:focus-visible { box-shadow: inset 0 0 0 2px var(--labo); }
+#hud {
+  position: fixed; right: 16px; bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  font: 12px/1 var(--mono); letter-spacing: .08em; color: var(--gris); pointer-events: none;
+}
+#hud b { color: var(--craie); font-weight: 500; }
+/* le tableau des valeurs : lu par les lecteurs d'écran, invisible à l'œil */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+</style>
+</head><body>
+
+<canvas id="scene" width="1920" height="1080" tabindex="0" role="img" aria-describedby="valeurs"
+  aria-label="Analyse des résultats du test des deux pilules. Mêmes règles, deux descriptions tirées au sort, près de 10&#8239;000 répondants. Description collective&nbsp;: 65,5&#8239;% prennent la pilule bleue, 34,5&#8239;% la rouge&nbsp;; plus de la moitié de bleues, donc tout le monde vit. Description individuelle&nbsp;: 12,6&#8239;% prennent la bleue, 87,4&#8239;% la rouge&nbsp;; ceux qui ont pris la bleue meurent. Écart&nbsp;: 52,9 points de pilules bleues. Le seuil de 50&#8239;% est marqué. Source&nbsp;: questionnaire «&nbsp;A ou B&nbsp;?&nbsp;» de Monsieur Phi."></canvas>
+<table id="valeurs" class="sr-only">
+  <caption>Part de pilules bleues et rouges selon la description des règles (questionnaire «&nbsp;A ou B&nbsp;?&nbsp;» de Monsieur Phi, près de 10&#8239;000 répondants&nbsp;; bouton A = pilule bleue, bouton B = pilule rouge)</caption>
+  <thead><tr><th scope="col">Description</th><th scope="col">Pilule bleue</th><th scope="col">Pilule rouge</th><th scope="col">Issue (seuil&nbsp;: plus de 50&#8239;% de bleues)</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Collective&nbsp;: «&nbsp;si la majorité prend la bleue, tout le monde vit&nbsp;; si au moins la moitié prend la rouge, ceux qui ont pris la bleue meurent&nbsp;»</th><td>65,5&#8239;%</td><td>34,5&#8239;%</td><td>tout le monde vit</td></tr>
+    <tr><th scope="row">Individuelle&nbsp;: «&nbsp;si vous prenez la rouge, il ne vous arrive rien&nbsp;; si vous prenez la bleue, vous mourez, sauf si la majorité prend aussi la bleue&nbsp;»</th><td>12,6&#8239;%</td><td>87,4&#8239;%</td><td>ceux qui ont pris la bleue (12,6&#8239;%) meurent</td></tr>
+  </tbody>
+  <tfoot><tr><th scope="row">Écart</th><td colspan="3">52,9 points de pilules bleues en moins avec la description individuelle</td></tr></tfoot>
+</table>
+<div id="hud"><b>survol</b> les valeurs · ← → parcourir · espace : tout afficher · R : rejouer</div>
+
+<script>
+(() => {
+  // ================================================================ base (reprise de ../index.html)
+  const W = 1920, H = 1080;
+  const S = /4k/.test(location.hash) ? 2 : 1;
+  const cv = document.getElementById('scene');
+  cv.width = W * S; cv.height = H * S;
+  const ctx = cv.getContext('2d');
+
+  const CRAIE = '#f1e9dc', GRIS = '#8f877b', NUIT = '#0c0b0d', LABO = '#8fc0d6', LAITON = '#d7a548';
+  const BLEU = '#4f86e8', BLEU_TXT = '#6f9cf0', ROUGE = '#d9483b', ROUGE_TXT = '#e2675b', GRIS_FIG = '#a39a8c';
+  const MONO = '"IBM Plex Mono", ui-monospace, monospace';
+  const PIX = '"DotGothic16", "IBM Plex Mono", monospace';
+  const G = '01·:+*#%xφ'.split('');
+  const FINE = ' ';   // espace fine insécable : « 65,5 % » ne se coupe jamais
+
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const eIO = k => (k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+  const eOut = k => 1 - Math.pow(1 - k, 3);
+  const eBack = k => { const c = 1.70158; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const hache = n => { let t = (n | 0) + 0x6D2B79F5 | 0; t = Math.imul(t ^ t >>> 15, 1 | t); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const mix = (a, b, k) => { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], k))).join(',')})`; };
+  const rgba = (h, a) => { const [r, g, b] = hex(h); return `rgba(${r},${g},${b},${a})`; };
+  const pc = v => v.toFixed(1).replace('.', ',') + FINE + '%';
+  const fr = t => t.replace(/ ([:;?!»])/g, '\u00a0$1').replace(/« /g, '«\u00a0');   // espaces insécables avant : ; ? ! » et après «
+
+  class V {
+    constructor(v) { this.a = v; this.b = v; this.t0 = 0; this.d = 0; }
+    set(v, t, d = .8) { this.a = this.get(t); this.b = v; this.t0 = t; this.d = d; }
+    get(t) { if (this.d <= 0) return this.b; return lerp(this.a, this.b, eIO(seg(t, this.t0, this.t0 + this.d))); }
+  }
+
+  // ================================================================ les données (rien d'autre n'est inventé)
+  // Questionnaire « A ou B ? » de Monsieur Phi (vidéo « pilule bleue ou pilule rouge »), près de 10 000 répondants ;
+  // chiffres vérifiés dans la transcription (voir l'en-tête de ../../resultats-a3/ecrans.js) : 65,5 % de A [29:31], 12,6 % [37:48].
+  // Bouton A = pilule bleue, B = pilule rouge. On ne connaît pas l'effectif de chaque description : aucun n, aucun intervalle.
+  const ROWS = [
+    { nom: 'COLLECTIVE', mot: 'collective', bleue: 65.5, mort: false, issue: '→ tout le monde vit',
+      citation: '« si la majorité prend\nla [b]bleue[/b], tout le monde vit… »' },
+    { nom: 'INDIVIDUELLE', mot: 'individuelle', bleue: 12.6, mort: true, issue: '→ les bleus meurent',
+      citation: '« si vous prenez la [r]rouge[/r],\nil ne vous arrive rien… »' },
+  ];
+  const ECART = Math.round((ROWS[0].bleue - ROWS[1].bleue) * 10) / 10;   // 52,9 points
+  const SEUIL = 50;
+
+  // ================================================================ la mise en page (toile 1920×1080)
+  const FX = 80, FY = 176, FW = 1760, FH = 636;            // la console
+  const X0 = 630, P = 8, CW = 6, BH = 44;                  // les barres : 100 cases de 6 px au pas de 8 px, 1 case = 1 %
+  const BY = [414, 604];                                   // le haut de chaque barre
+  const YC = 532;                                          // la cote de l'écart, entre les deux barres
+  const NXR = X0 - 26;                                     // le bord droit des grands chiffres
+  const LX = 112;                                          // la colonne des descriptions
+  const FCX = 1643;                                        // le centre des foules
+  // la position d'une part p (0..100) sur l'échelle commune : au milieu de l'espace entre deux cases, ou dans la case coupée
+  const xp = p => { const n = Math.floor(p + 1e-9), f = p - n; return f < 1e-6 ? X0 + n * P - (P - CW) / 2 : X0 + n * P + f * CW; };
+
+  // ================================================================ la chronologie (secondes)
+  const D = 2.0;                        // 100 cases s'allument en D secondes
+  const TL = {
+    fen: .5, cmd: 1.05, rep: 2.65, seuil: 3.1,
+    rang: [3.7, 6.5],                   // le début du remplissage de chaque barre
+    lueur: 5.75, peur: 8.55, mort: 9.0,
+    cote: 9.75, fin: 14.2,
+  };
+
+  // ================================================================ le sujet (copie de ../index.html)
+  const SW = 11, SH = 12, CS = 4;
+  const LETTRE = { B: 1, O: 2, L: 3, E: 4, G: 5 };
+  const calque = (y0, lignes) => { const out = []; lignes.forEach((l, j) => [...l].forEach((c, x) => { if (LETTRE[c]) out.push([x, y0 + j, LETTRE[c]]); })); return out; };
+  const TETE = calque(1, ['...LLBBB...', '..LBBBBBO..', '..BBBBBBO..', '..BBBBBBO..', '...BBBBO...']);
+  const miroir = cal => cal.map(([x, y, c]) => [SW - 1 - x, y, c]);
+  const TETES = [TETE, miroir(TETE)];
+  const COIFFES = [
+    [], calque(0, ['.....O.....']), calque(1, ['...OOOOO...', '..O.....O..']), calque(0, ['....OOO....', '...OOOOO...']),
+    calque(1, ['...OOOOO...', '..O.....O..', '..O.....O..', '..O.....O..']), calque(1, ['...OOOOO...', '..OOOOOOO..']),
+    calque(0, ['......OO...', '...OOOOO...', '..OO.......']),
+  ];
+  const ECHARPE = calque(6, ['...OOOOO...']);
+  const CORPS = {
+    bas: calque(6, ['....OBO....', '...BBBBB...', '..O.BBB.O..', '..O.BBB.O..']),
+    hop: calque(6, ['....OBO....', '.OOBBBBBOO.', '....BBB....', '....BBB....']),
+    leves: calque(3, ['O.........O', 'O.........O', '.O.......O.', '..O.OBO.O..', '...BBBBB...', '....BBB....', '....BBB....']),
+    serres: calque(6, ['....OBO....', '...OBBBO...', '...OBBBO...', '...OBBBO...']),
+  };
+  const JAMBES = { droit: calque(10, ['....O.O....', '...OO.OO...']), saut: calque(10, ['...O...O...']), serre: calque(10, ['.....O.....', '....O.O....']) };
+  function grille(p) {
+    const g = new Uint8Array(SW * SH);
+    const peint = (cal, dy) => { for (const [x, y, c] of cal) { const yy = y + dy; if (yy >= 0 && yy < SH) g[yy * SW + x] = c; } };
+    peint(JAMBES[p.jambes], 0);
+    peint(CORPS[p.bras], p.acc);
+    if (p.detail) peint(ECHARPE, p.acc);
+    const dt = p.acc + p.bob;
+    peint(TETES[p.mir], dt); peint(COIFFES[p.coiffe], dt);
+    const ey = 3 + dt + p.yy;
+    for (const x of [4 + p.yx, 6 + p.yx]) {
+      g[ey * SW + x] = p.yeux === 'f' ? 2 : 4;
+      if (p.yeux === 'g') g[(ey - 1) * SW + x] = 4;
+    }
+    if (p.goutte) for (const y of [1, 2]) g[(y + p.acc + p.goutte) * SW + 9] = 5;
+    if (p.bouche && p.yy < 1) for (let x = p.bouche === 2 ? 4 : 5; x <= (p.bouche === 2 ? 6 : 5); x++) g[(4 + dt) * SW + x + p.yx] = 4;
+    return g;
+  }
+  const tons = col => [null, col, mix(col, NUIT, .45), mix(col, CRAIE, .4), '#0c0b0d', CRAIE];
+  const PAGES = [], CASES = new Map();
+  function sprite(col, p) {
+    const cle = [col, p.goutte, p.bras, p.jambes, p.yx, p.yy, p.yeux, p.bouche, p.bob, p.acc, p.coiffe, p.detail, p.mir].join('|');
+    let c = CASES.get(cle);
+    if (!c) {
+      if (CASES.size >= 170 * 157) { CASES.clear(); PAGES.length = 0; }
+      const n = CASES.size, sx = (n % 170) * (SW + 1), g = grille(p), T = tons(col);
+      if (n % 170 === 0) { const pg = document.createElement('canvas'); pg.width = 170 * (SW + 1); pg.height = SH; PAGES.push(pg); }
+      const im = PAGES[Math.floor(n / 170)], ax = im.getContext('2d');
+      g.forEach((v, k) => { if (v) { ax.fillStyle = T[v]; ax.fillRect(sx + k % SW, Math.floor(k / SW), 1, 1); } });
+      c = { im, sx, g, T };
+      CASES.set(cle, c);
+    }
+    return c;
+  }
+  const COULEURS = [GRIS_FIG, BLEU, ROUGE], GW = 40;
+  let GLY = null;
+  function prepareGlyphes() {
+    GLY = document.createElement('canvas'); GLY.width = GW * G.length * COULEURS.length; GLY.height = GW * 6;
+    const g = GLY.getContext('2d'); g.font = `36px ${MONO}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    COULEURS.forEach((col, ci) => { for (let s = 0; s < 6; s++) { g.fillStyle = mix(col, CRAIE, s / 5); G.forEach((ch, gi) => g.fillText(ch, (ci * G.length + gi) * GW + GW / 2, s * GW + GW / 2)); } });
+  }
+  const HALOS = new Map();
+  function halo(col) {
+    if (!HALOS.has(col)) {
+      const c = document.createElement('canvas'); c.width = c.height = 80; const g = c.getContext('2d');
+      const r = g.createRadialGradient(40, 40, 0, 40, 40, 40); r.addColorStop(0, rgba(col, .45)); r.addColorStop(1, rgba(col, 0));
+      g.fillStyle = r; g.fillRect(0, 0, 80, 80); HALOS.set(col, c);
+    }
+    return HALOS.get(col);
+  }
+  function regardeVers(p, c, cx, cy) {
+    const dx = c.x - cx, dy = c.y - cy;
+    p.yx = Math.abs(dx) > 40 + Math.abs(dy) * .3 ? Math.sign(dx) : 0;
+    p.yy = dy < -30 ? -1 : dy > 30 ? 1 : 0;
+  }
+  function pose(f, e, T, cx, cy) {
+    const p = { bras: 'bas', jambes: 'droit', yx: 0, yy: 0, yeux: 'o', bouche: 0, goutte: 0, bob: 0, acc: 0, coiffe: f.coiffe, detail: f.detail, mir: e.phi.x > cx ? 1 : 0 };
+    let dx = 0, dy = 0;
+    const pr = 2.6 + f.r1 * 1.4; p.bob = (T / pr + f.r2) % 1 < .42 ? 1 : 0;
+    const pb = 2.8 + f.r2 * 3.4; if ((T + f.r3 * pb) % pb < .13) p.yeux = 'f';
+    const pl = 1.1 + f.r3 * 1.5, n = Math.floor((T + f.r1 * 17) / pl), h = hache(f.i * 7919 + n * 104729);
+    let vers = !!e.fixe;
+    if (!vers) { if (h < .16) p.yx = -1; else if (h < .32) p.yx = 1; else if (h < .38) p.yy = 1; else if (h < .5) vers = true; }
+    if (vers && e.cible) regardeVers(p, e.cible, cx, cy);
+    const m = e.mode, k = T - (e.t0 ?? -99), I = e.k ?? 1;
+    if (m === 'saut') {
+      if (k >= -.16 && k < -.04) { p.acc = 1; p.bob = 0; }
+      else if (k >= -.04 && k < .3) {
+        const u = (k + .04) / .34; dy = -2.4 * Math.sin(Math.PI * u);
+        p.bras = 'hop'; p.jambes = u > .15 && u < .85 ? 'saut' : 'droit'; p.bob = 0; p.yx = 0; p.yy = -1;
+      }
+      else if (k >= .3 && k < .42) { p.acc = 1; p.bob = 0; }
+    } else if (m === 'vie') {
+      p.bras = 'leves'; p.bouche = 2; p.yy = -1; p.yx = 0; p.bob = 0;
+      const u = (T * 1.9 + f.r1) % 1; dy = -1.6 * Math.abs(Math.sin(Math.PI * u)) * I;
+      if (u < .08 || u > .92) p.acc = 1; else if (dy < -.8) p.jambes = 'saut';
+    } else if (m === 'peur') {
+      const gt = (T * .9 + f.r3) % 1; p.goutte = gt < .4 ? 1 : gt < .75 ? 2 : 0;
+      p.bras = 'serres'; p.jambes = 'serre'; p.yeux = p.yeux === 'f' ? 'f' : 'g'; p.bouche = 1; p.bob = 0; p.acc = 1; p.yy = 0;
+      p.yx = Math.floor(T * 2.7 + f.r2 * 5) % 2 ? -1 : 1;
+      dx = (Math.floor(T * 26 + f.r1 * 9) % 2 ? .25 : -.25) * I;
+    }
+    if (e.dis > 0) { p.yeux = 'f'; p.bouche = 0; p.goutte = 0; }
+    return { p, dx, dy };
+  }
+  // dessineSujet : comme dans ../index.html, à l'échelle cs (ici 2 : la vignette) ; la mort part en caractères, depuis les pieds,
+  // et monte moins haut (MONTEE) pour ne pas traverser la foule du dessus
+  const MONTEE = .5;
+  function dessineSujet(f, cx, cy, cs, e, T) {
+    const a = e.a ?? 1; if (a <= .001) return;
+    const { p, dx, dy } = pose(f, e, T, cx, cy);
+    const s = sprite(e.col, p), ox = Math.round(cx - SW * cs / 2 + dx * cs), oy = Math.round(cy - SH * cs / 2 + dy * cs), lisse = ctx.imageSmoothingEnabled;
+    if (e.mode === 'vie' && !(e.dis > 0)) {
+      const r = 40 * cs / CS * 1.2;
+      ctx.globalAlpha = a * (e.k ?? 1) * (.6 + .4 * Math.sin(T * 5 + cx * .01));
+      ctx.drawImage(halo(e.col), cx - r, cy - r + dy * cs, 2 * r, 2 * r);
+    }
+    if (!(e.dis > 0)) {
+      ctx.globalAlpha = a; ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(s.im, s.sx, 0, SW, SH, ox, oy, SW * cs, SH * cs);
+      ctx.imageSmoothingEnabled = lisse;
+      return;
+    }
+    if (e.dis >= 1) return;
+    const ci = Math.max(0, COULEURS.indexOf(e.col)), gs = 12 * cs / CS * 1.4;
+    ctx.imageSmoothingEnabled = true;
+    for (let k = 0; k < s.g.length; k++) {
+      const v = s.g[k]; if (!v) continue;
+      const x = k % SW, y = (k - x) / SW, d = (SH - 1 - y) / (SH - 1) * .45;
+      const q = clamp((e.dis * 2 - d) / 1.4, 0, 1); if (q >= 1) continue;
+      const hz = hache(f.i * 997 + k * 31), ph = hz * 6.283, vit = .6 + hache(k * 131 + f.i) * .8;
+      const px = ox + x * cs + Math.sin(q * 5 + ph) * 14 * q * cs / CS, py = oy + y * cs - Math.pow(q, 1.4) * 170 * vit * cs / CS * MONTEE;
+      ctx.globalAlpha = a * (1 - q) * .95;
+      if (q > .15) { const gi = Math.floor(hz * 1000) % G.length; ctx.drawImage(GLY, (ci * G.length + gi) * GW, Math.round(q * 5) * GW, GW, GW, px + cs / 2 - gs * .55, py + cs / 2 - gs * .55, gs * 1.1, gs * 1.1); }
+      else { ctx.fillStyle = s.T[v]; ctx.fillRect(px, py, cs, cs); }
+    }
+    ctx.imageSmoothingEnabled = lisse;
+  }
+
+  // ================================================================ les foules : 100 sujets par description, 1 sujet ≈ 1 %
+  // 65,5 % ne tombe pas juste en sujets entiers : la foule arrondit (66 et 13 bleus) et le dit ; les barres, elles, sont exactes.
+  const FP = { x: 16, y: 26 }, FCS = 2, FCOL = 20;   // la vignette : 20 × 5 sujets de 22×24 px (deux pixels par case)
+  const FOULES = ROWS.map((row, r) => {
+    const R = rng(71 + r * 29), nb = Math.round(row.bleue);
+    const ordre = [...Array(100).keys()]; for (let i = 99; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [ordre[i], ordre[j]] = [ordre[j], ordre[i]]; }
+    const bleus = new Set(ordre.slice(0, nb));
+    const x0 = FCX - (FCOL - 1) / 2 * FP.x, y0 = BY[r] + BH / 2 - 2 * FP.y + 2;
+    const figs = [...Array(100).keys()].map(i => ({
+      i: i + 100 * r, cx: x0 + (i % FCOL) * FP.x, cy: y0 + Math.floor(i / FCOL) * FP.y, r1: R(), r2: R(), r3: R(),
+      coiffe: Math.floor(hache(i * 7 + 3 + r * 500) * COIFFES.length), detail: hache(i * 17 + 11 + r * 500) < .2 ? 1 : 0,
+      col: bleus.has(i) ? BLEU : ROUGE,
+    }));
+    // le moment où chacun prend sa couleur : au rythme des cases qui s'allument, les bleus depuis la gauche, les rouges depuis la droite
+    let kb = 0, kr = 0;
+    for (const i of ordre.slice().reverse()) { const f = figs[i]; const k = f.col === BLEU ? kb++ : kr++; f.tc = TL.rang[r] + D * (k + .5) / 100; f.ta = TL.rang[r] - .9 + f.r1 * .5; }
+    for (const f of figs) { f.td = row.mort && f.col === BLEU ? TL.mort + f.r2 * .8 : null; }
+    return { r, figs, nb, nr: 100 - nb, x: x0 - 15, y: y0 - 18, w: (FCOL - 1) * FP.x + 30, h: 4 * FP.y + 36, cx: FCX, cy: y0 + 2 * FP.y };
+  });
+
+  // ================================================================ état, file d'actions
+  let st, file, debut = 0;
+  const at = (t, fn) => file.push({ t, fn });
+  function vide(jusqua) { file.sort((a, b) => a.t - b.t); while (file.length && file[0].t <= jusqua) { const it = file.shift(); it.fn(it.t); } }
+
+  // ================================================================ Xphi (copie de ../index.html)
+  const EX = 960, EY = 88, ES = 132;
+  function oeilVers(t, o, d = 1.1) { for (const k in o) st.oeil[k].set(o[k], t, d); }
+  function humeur(t, h) {
+    const base = { x: 0, y: 0, r: 12.5, rot: 0, glow: .35 };
+    const M = {
+      neutre: base, grand: { ...base, r: 17, glow: 1 }, plisse: { x: 0, y: 5, r: 6, rot: -4, glow: .2 },
+      doute: { x: -3, y: 2, r: 10, rot: -6, glow: .35 }, curieux: { x: 5, y: -5, r: 9.5, rot: 9, glow: .4 }, bas: { ...base, y: 6, r: 11 },
+    }[h];
+    for (const k in M) st.oeil[k].set(M[k], t, .5);
+  }
+  function cligne(T) {
+    const f = d => d < .1 ? 1 - d / .1 : d < .26 ? (d - .1) / .16 : 1;
+    return Math.min(f(T % 5.3), f((T + 2.1) % 7.9));
+  }
+  function dessineOeil(cx, cy, size, s, alpha) {
+    if (alpha <= .001 || size <= 0) return;
+    const R0 = 12.5, RIN = 31 - 2.6 - .4;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(cx, cy); ctx.scale(size / 100, size / 100); ctx.translate(-50 + (s.dx || 0), -50);
+    ctx.translate(50, 50); ctx.rotate(s.rot * Math.PI / 180); ctx.translate(-50, -50);
+    const ox = 50 + s.x, oy = 50 + s.y, r = Math.max(0, s.r);
+    const ha = clamp(s.glow, 0, 1) * Math.min(1, r / 6), hr = (6 + 8 * s.glow) * 1.7;
+    if (ha > 0) {
+      const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, hr);
+      g.addColorStop(0, rgba(LABO, .9 * ha)); g.addColorStop(1, rgba(LABO, 0));
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ox, oy, hr, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.strokeStyle = CRAIE; ctx.lineCap = 'round';
+    ctx.lineWidth = 5.2;
+    ctx.beginPath(); ctx.arc(50, 50, 31, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(50, 4); ctx.lineTo(50, 17); ctx.moveTo(50, 83); ctx.lineTo(50, 96); ctx.stroke();
+    const a0 = -90 + (R0 - r) * 2.6, Vx = [], U = [];
+    for (let k = 0; k < 6; k++) { const a = (a0 + 60 * k) * Math.PI / 180; U.push([Math.cos(a), Math.sin(a)]); Vx.push([ox + r * Math.cos(a), oy + r * Math.sin(a)]); }
+    ctx.lineWidth = 2.1; ctx.globalAlpha = alpha * .9; ctx.beginPath();
+    for (let k = 0; k < 6; k++) {
+      const p = (k + 5) % 6; let dx = U[k][0] - U[p][0], dy = U[k][1] - U[p][1]; const L = Math.hypot(dx, dy); dx /= L; dy /= L;
+      const [x0, y0] = Vx[k], bx = x0 - 50, by = y0 - 50, b = bx * dx + by * dy, c = bx * bx + by * by - RIN * RIN;
+      const t = -b + Math.sqrt(Math.max(0, b * b - c));
+      ctx.moveTo(Vx[p][0], Vx[p][1]); ctx.lineTo(x0 + dx * t, y0 + dy * t);
+    }
+    ctx.stroke(); ctx.globalAlpha = alpha;
+    const pr = Math.min(4.2, r * .62);
+    if (pr > .05) {
+      ctx.fillStyle = LABO; ctx.beginPath(); ctx.arc(ox, oy, pr, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.beginPath(); ctx.arc(ox + pr * .33, oy - pr * .33, pr * .24, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+  const oeilY = T => st.oeil.ey.get(T) + Math.sin(T * .9) * 4;
+  function oeil(T) {
+    const O = st.oeil, R = st.rg, e = { x: O.x.get(T), y: O.y.get(T), r: O.r.get(T), rot: O.rot.get(T), glow: O.glow.get(T) };
+    const [mx, my] = microsaccade(T), gx = R.gx + mx, gy = R.gy + my, a = -e.rot * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+    e.x = e.x * R.w + gx * ca - gy * sa; e.y = e.y * R.w + gx * sa + gy * ca;
+    e.r *= cligne(T);
+    e.glow += .06 * Math.sin(T * 2.1);
+    const k = T - st.secoue; e.dx = k >= 0 && k < .9 ? Math.sin(k * 22) * 3 * (1 - k / .9) : 0;
+    dessineOeil(O.ex.get(T), oeilY(T), O.es.get(T), e, O.a.get(T));
+  }
+
+  // ---------------------------------------------------------------- Phi suit des yeux (le système de ../index.html, simplifié)
+  // Il regarde ce dont il parle : la commande qui s'écrit, la case qui s'allume, la foule, la cote ; puis la souris ;
+  // au repos, des fixations tirées par hache entre vous, les chiffres, l'écart, les foules, le seuil.
+  // Les cibles se choisissent sur l'horloge de la scène (T), les saccades se jouent sur l'horloge réelle (Tr) :
+  // avec ?gel=…, la scène est figée mais l'œil peut encore suivre la souris.
+  let souris = null;                 // { x, y, t } : le pointeur (t en horloge réelle)
+  const VOUS = () => ({ vous: true });
+  const point = (x, y) => () => ({ x, y });
+  let REGARDS = [];
+  function regard(t, d, cible, pause = .3) { REGARDS.push({ t, d, cible, pause }); REGARDS.sort((a, b) => a.t - b.t); }
+  const ZR = 220;
+  function decalage(x, y, ex, ey, A) {
+    const dx = x - ex, dy = y - ey, m = Math.hypot(dx, dy);
+    if (m < .001) return [0, 0, 0];
+    const k = A / Math.sqrt(m * m + ZR * ZR);
+    return [dx * k, dy * k, m];
+  }
+  function microsaccade(T) {
+    let n = Math.floor(T / .3);
+    for (let j = 0; j < 4 && hache(n * 13 + 7) > .45; j++) n--;
+    return [(hache(n * 31 + 1) - .5) * 1.5, (hache(n * 31 + 2) - .5) * 1.5];
+  }
+  const remplie = (r, T) => clamp((T - TL.rang[r]) / D * 100, 0, 100);   // combien de cases se sont allumées (bleues depuis la gauche)
+  const bord = r => T => T >= TL.rang[r] ? { x: xp(Math.min(ROWS[r].bleue, remplie(r, T))), y: BY[r] + BH / 2 } : null;
+  const chiffre = r => T => T >= TL.rang[r] ? { x: NXR - 90, y: BY[r] + 20 } : null;
+  const foule = r => T => T >= TL.rang[r] - .5 ? { x: FOULES[r].cx, y: FOULES[r].cy } : null;
+  const coteK = T => eIO(seg(T, TL.cote, TL.cote + .8));
+  const coteBout = T => T >= TL.cote ? { x: lerp(xp(ROWS[0].bleue), xp(ROWS[1].bleue), coteK(T)), y: YC } : null;
+  const XCOTE = (xp(ROWS[1].bleue) + xp(SEUIL)) / 2;   // l'étiquette de la cote : entre son bout gauche et le seuil, pour ne pas le couvrir
+  const coteLab = T => T >= TL.cote + .6 ? { x: XCOTE, y: YC } : null;
+  const seuilC = T => T >= TL.seuil ? { x: xp(SEUIL), y: BY[0] - 40 } : null;
+  const plume = T => {
+    const d = st.dlg; if (!d || T < d.t0 || Math.floor((T - d.t0) * CPS) >= d.n) return null;
+    const [x, y] = d.pos[clamp(Math.floor((T - d.t0) * CPS), 0, d.n - 1)];
+    return { x, y };
+  };
+  function repos(T) {
+    const Pd = 1.15, j = n => (hache(n * 7 + 1) - .5) * .7 * Pd, n0 = Math.floor(T / Pd);
+    const n = T < n0 * Pd + j(n0) ? n0 - 1 : T >= (n0 + 1) * Pd + j(n0 + 1) ? n0 + 1 : n0;
+    const h = hache(n * 131 + 17), C = [[3, { vous: true }]];
+    const ajoute = (w, c) => { if (c) C.push([w, c]); };
+    ajoute(3, plume(T));
+    for (const r of [0, 1]) { ajoute(1.4, bord(r)(T)); ajoute(1, chiffre(r)(T)); ajoute(1.2, foule(r)(T)); }
+    ajoute(1.6, coteLab(T)); ajoute(.8, seuilC(T));
+    ajoute(.5, { x: 150 + hache(n * 29 + 3) * 1620, y: 220 + hache(n * 41 + 9) * 560 });   // nulle part : Phi rêvasse
+    let v = h * C.reduce((a, c) => a + c[0], 0);
+    for (const c of C) { v -= c[0]; if (v < 0) return c[1]; }
+    return C[0][1];
+  }
+  function cibleRegard(T, Tr) {
+    for (let i = REGARDS.length - 1; i >= 0; i--) {
+      const r = REGARDS[i];
+      if (T >= r.t && T < r.t + r.d) { const c = r.cible(T); if (c) return { ...c, pause: r.pause }; }
+    }
+    if (souris && Tr - souris.t < 2.5) return { x: souris.x, y: souris.y, pause: .12 };
+    return { ...repos(T), pause: .25 };
+  }
+  function regardPhi(T, Tr) {
+    const R = st.rg, O = st.oeil, ex = O.ex.get(T), ey = oeilY(T);
+    const A = Math.min(9, 23 - O.r.get(T));
+    const ou = k => [lerp(R.px, R.v ? ex : R.x, k), lerp(R.py, R.v ? ey : R.y, k)];
+    const c = cibleRegard(T, Tr), cx = c.vous ? ex : c.x, cy = c.vous ? ey : c.y;
+    if ((!!c.vous !== R.v || (!c.vous && Math.hypot(cx - R.x, cy - R.y) > 14)) && Tr - R.t0 >= c.pause) {
+      const [vx, vy] = ou(eOut(seg(Tr, R.t0, R.t0 + R.d)));
+      const [ax, ay] = decalage(vx, vy, ex, ey, A), [bx, by] = decalage(cx, cy, ex, ey, A);
+      R.px = vx; R.py = vy; R.x = cx; R.y = cy; R.v = !!c.vous; R.t0 = Tr; R.d = .05 + .007 * Math.hypot(bx - ax, by - ay); R.A = A;
+    }
+    else if (Math.abs(A - R.A) > 1.5) R.A = A;
+    const [px, py] = ou(eOut(seg(Tr, R.t0, R.t0 + R.d)));
+    const [gx, gy, m] = decalage(px, py, ex, ey, R.A);
+    R.gx = gx; R.gy = gy; R.w = 1 - seg(m, 0, 140);
+    R.fixe = !R.v && Tr > R.t0 + R.d ? { x: R.x, y: R.y } : null;   // le point que Phi fixe, une fois la saccade posée
+  }
+
+  // ================================================================ décor (copie de ../index.html)
+  const poussiere = (() => { const R = rng(41), out = []; for (let i = 0; i < 170; i++) out.push({ x: R() * W, y: R() * H, vx: (R() - .5) * 14, vy: -4 - R() * 10, a: .05 + R() * .14, g: G[Math.floor(R() * G.length)], c: R() < .5 ? LABO : CRAIE, sz: 10 + Math.round(R() * 8) }); return out; })();
+  let trame = null;
+  function fond(T) {
+    const g = ctx.createRadialGradient(760, 470, 40, 760, 470, 1250);
+    g.addColorStop(0, '#121a2a'); g.addColorStop(.75, NUIT); g.addColorStop(1, NUIT);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const aP = seg(T, 0, 1.2);
+    if (aP > 0) {
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      for (const p of poussiere) {
+        const x = ((p.x + p.vx * T) % W + W) % W, y = ((p.y + p.vy * T) % H + H) % H;
+        ctx.globalAlpha = p.a * aP; ctx.fillStyle = p.c; ctx.font = `${p.sz}px ${MONO}`; ctx.fillText(p.g, x, y);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+  function voile() {
+    if (!trame) { const c = document.createElement('canvas'); c.width = 1; c.height = 3 * S; const x = c.getContext('2d'); x.fillStyle = 'rgba(0,0,0,.16)'; x.fillRect(0, 0, 1, S); trame = ctx.createPattern(c, 'repeat'); }
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = trame; ctx.fillRect(0, 0, cv.width, cv.height); ctx.restore();
+    const v = ctx.createRadialGradient(960, 540, 520, 960, 540, 1180);
+    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.6)');
+    ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+  }
+  function fenetre(x, y, w, h, a, bord = CRAIE) {
+    ctx.globalAlpha = a;
+    ctx.fillStyle = 'rgba(12,11,13,.92)'; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = LAITON; ctx.lineWidth = 3; ctx.strokeRect(x - 7.5, y - 7.5, w + 15, h + 15);
+    ctx.strokeStyle = bord; ctx.lineWidth = 4; ctx.strokeRect(x, y, w, h);
+  }
+  // texte balisé : [b]…[/b] en bleu, [r]…[/r] en rouge (la convention de Thibaut) ; \n = saut de ligne
+  function balise(txt) {
+    return fr(txt).split('\n').map(l => {
+      const segs = []; const re = /\[(b|r)\](.*?)\[\/\1\]/g; let m, last = 0;
+      while ((m = re.exec(l))) { if (m.index > last) segs.push({ s: l.slice(last, m.index), c: CRAIE }); segs.push({ s: m[2], c: m[1] === 'b' ? BLEU_TXT : ROUGE_TXT }); last = re.lastIndex; }
+      if (last < l.length) segs.push({ s: l.slice(last), c: CRAIE });
+      return segs;
+    });
+  }
+  const longueur = lignes => lignes.reduce((a, l) => a + l.reduce((b, s) => b + [...s.s].length, 0), 0);
+  function ecrit(lignes, x, y, lh, n, encre) {
+    lignes.forEach((l, li) => {
+      let cx = x; const cy = y + li * lh;
+      for (const s of l) {
+        if (n <= 0) break;
+        const chars = [...s.s], vis = chars.slice(0, n).join(''); n -= chars.length;
+        ctx.fillStyle = s.c === CRAIE && encre ? encre : s.c; ctx.fillText(vis, cx, cy); cx += ctx.measureText(vis).width;
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------- dialogue
+  const CPS = 36;
+  function dit(t, txt) {
+    const l = balise(txt), pos = [];
+    ctx.save(); ctx.font = `34px ${PIX}`;
+    l.forEach((ligne, li) => { let x = 124; for (const s of ligne) for (const c of s.s) { x += ctx.measureText(c).width; pos.push([x, 918 + li * 52]); } });
+    ctx.restore();
+    st.dlg = { lignes: l, n: longueur(l), t0: t, pos };
+  }
+  function dialogue(T) {
+    const o = eOut(seg(T, .8, 1.2)), x = 80, y = 862, w = 1760, h = 178, hh = h * o;
+    if (o <= 0) return;
+    fenetre(x, y + (h - hh) / 2, w, hh, 1);
+    if (o < 1) { ctx.globalAlpha = 1; return; }
+    fenetre(112, 838, 132, 44, 1);
+    ctx.globalAlpha = 1; ctx.fillStyle = LABO; ctx.font = `26px ${PIX}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('XPHI', 178, 861);
+    const d = st.dlg; if (!d || T < d.t0) return;
+    ctx.font = `34px ${PIX}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ecrit(d.lignes, 124, 930, 52, Math.floor((T - d.t0) * CPS));
+  }
+  // Ce que dit Phi : curieux, pince-sans-rire, jamais un jugement sur un choix.
+  const REPLIQUES = [
+    [1.15, 'Même expérience, mêmes règles. Seule la description change,\ntirée au sort.'],
+    [3.75, `Description collective : 65,5${FINE}% de [b]bleues[/b]. Plus de la moitié :\ntout le monde vit.`],
+    [6.55, `Description individuelle&nbsp;: 12,6${FINE}%. Pas assez : ceux qui ont pris\nla [b]bleue[/b] meurent.`],
+    [10.05, 'Mêmes faits, autres mots : cinquante-trois points de moins.\nJ’ai vérifié mes instruments. Deux fois. Seuls les mots ont bougé.'],
+  ];
+
+  // ---------------------------------------------------------------- cartouche
+  function cartouche(T) {
+    const a = seg(T, .2, .8);
+    if (a <= 0) return;
+    fenetre(48, 40, 300, 84, a);
+    ctx.font = `24px ${PIX}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = LAITON; ctx.fillText('TEST 01', 70, 74);
+    ctx.fillStyle = CRAIE; ctx.fillText('LES DEUX PILULES', 70, 108);
+    ctx.globalAlpha = 1;
+  }
+
+  // ================================================================ la console d'analyse
+  const CMD = '> comparer description_collective description_individuelle';
+  const REP = [
+    `  près de 10${FINE}000 répondants · mêmes règles · description tirée au sort`,
+    `  mesure : part de pilules bleues · 1 case = 1${FINE}%`,
+  ];
+  const CMD_CPS = 40, REP_CPS = 90;
+  function carre(x, y, s, col) { ctx.fillStyle = col; ctx.fillRect(x, y - s, s, s); }
+  function console_(T) {
+    const o = eOut(seg(T, TL.fen, TL.fen + .4));
+    if (o <= 0) return;
+    const hh = FH * o;
+    fenetre(FX, FY + (FH - hh) / 2, FW, hh, 1);
+    ctx.globalAlpha = 1;
+    if (o < 1) return;
+    const a = seg(T, TL.fen + .4, TL.fen + .8);
+    ctx.globalAlpha = a; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+    ctx.font = `24px ${PIX}`; ctx.fillStyle = LABO; ctx.fillText('ANALYSE · LA DESCRIPTION CHANGE LE CHOIX, ET L’ISSUE', LX, FY + 42);   // une slide, un message
+    ctx.fillStyle = '#3a363a'; ctx.fillRect(LX, FY + 56, FX + FW - 32 - LX, 2);
+    // la légende : toujours là, même avec les étiquettes directes
+    ctx.font = `18px ${MONO}`; ctx.textAlign = 'right';
+    const lg = [['pilule rouge (B)', ROUGE], ['pilule bleue (A)', BLEU]];
+    let rx = FX + FW - 32;
+    for (const [txt, col] of lg) {
+      ctx.fillStyle = CRAIE; ctx.fillText(txt, rx, FY + 40); rx -= ctx.measureText(txt).width + 10;
+      carre(rx - 14, FY + 38, 14, col); rx -= 14 + 34;
+    }
+    ctx.textAlign = 'left';
+    // le terminal : la commande, puis la réponse
+    ctx.font = `22px ${MONO}`; ctx.globalAlpha = 1;
+    const nc = Math.floor((T - TL.cmd) * CMD_CPS), cw = ctx.measureText('M').width;
+    let curseur = null;
+    if (T >= TL.cmd) {
+      ctx.fillStyle = CRAIE; ctx.fillText(CMD.slice(0, clamp(nc, 0, CMD.length)), LX, FY + 100);
+      if (nc < CMD.length + 6) curseur = [LX + clamp(nc, 0, CMD.length) * cw + 4, FY + 100, 22];
+    }
+    ctx.font = `18px ${MONO}`;
+    const cw2 = ctx.measureText('M').width;
+    let reste = Math.floor((T - TL.rep) * REP_CPS);
+    REP.forEach((l, i) => {
+      if (reste <= 0) return;
+      const n = Math.min(reste, l.length); reste -= l.length;
+      ctx.fillStyle = GRIS; ctx.fillText(fr(l.slice(0, n)), LX, FY + 132 + i * 27);
+      if (n < l.length || (i === REP.length - 1)) curseur = [LX + n * cw2 + 4, FY + 132 + i * 27, 18];
+    });
+    if (curseur && Math.floor(T * 2.4) % 2 === 0) { ctx.fillStyle = LABO; ctx.fillRect(curseur[0], curseur[1] - curseur[2] * .8, curseur[2] * .5, curseur[2] * .95); }
+    ctx.globalAlpha = 1;
+  }
+
+  // ---------------------------------------------------------------- l'échelle commune, le seuil
+  function echelle(T) {
+    const a = seg(T, TL.seuil, TL.seuil + .5); if (a <= 0) return;
+    const yb = BY[1] + BH;
+    ctx.globalAlpha = a; ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'center'; ctx.font = `16px ${MONO}`;
+    for (const p of [0, 25, 50, 75, 100]) {
+      const x = xp(p);
+      ctx.fillStyle = '#4a4540'; ctx.fillRect(x - .5, yb + 8, 1, 7);
+      ctx.fillStyle = GRIS; ctx.fillText(`${p}${FINE}%`, x, yb + 34);
+    }
+    // le seuil : un trait de laiton en pointillés, de haut en bas, qui traverse les deux barres
+    const x = xp(SEUIL), y0 = BY[0] - 34, y1 = yb + 14, k = eOut(seg(T, TL.seuil, TL.seuil + .6));
+    ctx.strokeStyle = LAITON; ctx.lineWidth = 2; ctx.setLineDash([6, 6]);
+    ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, lerp(y0, y1, k)); ctx.stroke(); ctx.setLineDash([]);
+    ctx.font = `500 18px ${MONO}`; ctx.fillStyle = CRAIE; ctx.textAlign = 'center';
+    ctx.fillText(`seuil 50${FINE}%`, x, y0 - 10);
+    ctx.globalAlpha = 1;
+  }
+
+  // ---------------------------------------------------------------- une barre : 100 cases, bleues depuis la gauche, rouges depuis la droite
+  function caseP(x, y, w, col, eclat) {
+    if (w <= 0) return;
+    const c = eclat > 0 ? mix(col, CRAIE, eclat) : col;
+    ctx.fillStyle = c; ctx.fillRect(x, y, w, BH);
+    ctx.fillStyle = eclat > 0 ? mix(mix(col, CRAIE, .4), CRAIE, eclat) : mix(col, CRAIE, .38); ctx.fillRect(x, y, w, 4);          // la lumière, d'en haut (de Phi)
+    ctx.fillStyle = mix(col, NUIT, .45); ctx.fillRect(x, y + BH - 4, w, 4);                                                    // l'ombre
+  }
+  function barre(r, T, survol) {
+    const row = ROWS[r], y = BY[r], t0 = TL.rang[r];
+    const al = seg(T, t0 - .6, t0 - .2); if (al <= 0) return;
+    const b = row.bleue, nb = Math.floor(b), f = b - nb, u = remplie(r, T);
+    ctx.globalAlpha = al;
+    for (let i = 0; i < 100; i++) {
+      const x = X0 + i * P;
+      ctx.fillStyle = '#1e1c20'; ctx.fillRect(x, y, CW, BH);          // la piste éteinte
+      const litB = i < u, litR = 99 - i < u;                          // bleue : la case i s'allume quand u la dépasse ; rouge : depuis la droite
+      const flash = k => Math.max(0, 1 - k / .5);
+      if (i < nb) { if (litB) caseP(x, y, CW, BLEU, flash(u - i)); }
+      else if (i === nb && f > 0) {                                   // la case coupée : 65,5 → une demi-case bleue, une demi-case rouge
+        if (litB) caseP(x, y, CW * f, BLEU, flash(u - i));
+        if (litR) caseP(x + CW * f, y, CW * (1 - f), ROUGE, flash(u - (99 - i)));
+      }
+      else if (litR) caseP(x, y, CW, ROUGE, flash(u - (99 - i)));
+    }
+    // le survol : un cadre de laiton autour de la part visée (le laiton, c'est vous)
+    if (survol === 'b' || survol === 'r') {
+      const xb = xp(b), x1 = survol === 'b' ? X0 - 4 : xb + 2, x2 = survol === 'b' ? xb - 2 : X0 + 99 * P + CW + 4;
+      ctx.strokeStyle = LAITON; ctx.lineWidth = 2; ctx.strokeRect(x1, y - 5, x2 - x1, BH + 10);
+    }
+    // les étiquettes directes, en encre, avec la marque de couleur à côté
+    ctx.globalAlpha = seg(T, t0, t0 + .4) * al; ctx.font = `18px ${MONO}`; ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = 'left'; carre(X0, y - 11, 12, BLEU); ctx.fillStyle = CRAIE; ctx.fillText('bleue', X0 + 20, y - 10);
+    const rouge = `${pc(100 - b)} rouge`, xr = X0 + 99 * P + CW, tr = t0 + D * (100 - b) / 100;   // la part rouge s'écrit quand sa dernière case s'allume
+    ctx.globalAlpha = seg(T, tr, tr + .4) * al;
+    ctx.textAlign = 'right'; ctx.fillStyle = CRAIE; ctx.fillText(rouge, xr - 20, y - 10); carre(xr - 12, y - 11, 12, ROUGE);
+    // à gauche : la description, en mots
+    const ad = seg(T, t0 - .6, t0 - .1);
+    ctx.globalAlpha = ad; ctx.textAlign = 'left';
+    ctx.font = `18px ${PIX}`; ctx.fillStyle = GRIS; ctx.fillText('DESCRIPTION', LX, y + 2);
+    ctx.font = `30px ${PIX}`; ctx.fillStyle = CRAIE; ctx.fillText(row.nom, LX, y + 36);
+    ctx.font = `17px ${MONO}`; ecrit(balise(row.citation), LX, y + 66, 23, 999, GRIS);
+    // le grand chiffre : la part de bleues, juste avant sa barre
+    if (T >= t0) {
+      const v = Math.min(b, u), s = v.toFixed(1).replace('.', ',');
+      ctx.globalAlpha = seg(T, t0, t0 + .25);
+      ctx.textAlign = 'right'; ctx.font = `500 34px ${MONO}`; ctx.fillStyle = CRAIE;
+      const wp = ctx.measureText('%').width; ctx.fillText('%', NXR, y + BH);
+      ctx.font = `500 64px ${MONO}`; ctx.fillText(s, NXR - wp - 8, y + BH);
+      if (survol === 'b') { ctx.fillStyle = LAITON; ctx.fillRect(NXR - wp - 8 - ctx.measureText(s).width, y + BH + 9, ctx.measureText(s).width + wp + 8, 3); }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // ---------------------------------------------------------------- la cote : Phi mesure l'écart, sur la même échelle
+  function cote(T, survol) {
+    const k = coteK(T); if (k <= 0) return;
+    const xa = xp(ROWS[0].bleue), xb = xp(ROWS[1].bleue), x = lerp(xa, xb, k), y = YC;
+    const col = survol ? CRAIE : LABO;
+    ctx.globalAlpha = 1; ctx.strokeStyle = col; ctx.fillStyle = col;
+    ctx.lineWidth = 2; ctx.setLineDash([2, 4]);
+    ctx.beginPath(); ctx.moveTo(xa, BY[0] + BH + 6); ctx.lineTo(xa, y + 10);
+    if (k >= 1) { ctx.moveTo(xb, y - 10); ctx.lineTo(xb, BY[1] - 6); }
+    ctx.stroke(); ctx.setLineDash([]);
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(xa, y - 10); ctx.lineTo(xa, y + 10); ctx.moveTo(xa, y); ctx.lineTo(x, y); ctx.stroke();
+    // la pointe : la part de bleues recule de 65,5 à 12,6
+    ctx.beginPath(); ctx.moveTo(x - 2, y); ctx.lineTo(x + 12, y - 8); ctx.lineTo(x + 12, y + 8); ctx.closePath(); ctx.fill();
+    if (k >= 1) { ctx.fillRect(xb - 1.5, y - 10, 3, 20); }
+    const kl = eBack(seg(T, TL.cote + .6, TL.cote + .95)); if (kl <= 0) return;
+    const lab = `−${ECART.toFixed(1).replace('.', ',')} points`;
+    ctx.save(); ctx.translate(XCOTE, y); ctx.scale(kl, kl);
+    ctx.font = `500 26px ${MONO}`; const w = ctx.measureText(lab).width + 34, h = 42;
+    ctx.fillStyle = 'rgba(12,11,13,.96)'; ctx.fillRect(-w / 2, -h / 2, w, h);
+    ctx.strokeStyle = survol ? LAITON : LABO; ctx.lineWidth = 2; ctx.strokeRect(-w / 2, -h / 2, w, h);
+    ctx.fillStyle = CRAIE; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(lab, 0, 2);
+    ctx.restore();
+    ctx.globalAlpha = seg(T, TL.cote + .9, TL.cote + 1.4); ctx.font = `16px ${MONO}`; ctx.fillStyle = GRIS; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText('de bleues', XCOTE, y + 40);
+    ctx.globalAlpha = 1;
+  }
+
+  // ---------------------------------------------------------------- les foules
+  function etatFigure(f, F, T) {
+    const col = T < f.tc ? GRIS_FIG : f.col;
+    const phi = { x: st.oeil.ex.get(T), y: oeilY(T) };
+    const e = { col, a: col === GRIS_FIG ? .82 : 1, dis: 0, mode: 'repos', phi, cible: phi, fixe: false };
+    const fx = st.rg.fixe;   // Phi regarde cette foule : elle lui rend son regard
+    e.fixe = !!fx && Math.abs(fx.x - F.cx) < F.w / 2 + 30 && Math.abs(fx.y - F.cy) < F.h / 2 + 30;
+    if (f.td !== null) {
+      e.dis = seg(T, f.td, f.td + 2.0);
+      if (T >= TL.peur && e.dis <= 0) e.mode = 'peur';
+      else if (e.dis > 0) e.mode = 'peur';
+      return e;
+    }
+    if (T > f.tc - .2 && T < f.tc + .45) { e.mode = 'saut'; e.t0 = f.tc; }
+    else if (F.r === 0 && T > TL.lueur && col !== GRIS_FIG) {
+      const lu = seg(T, TL.lueur, TL.lueur + .6) * (1 - seg(T, TL.lueur + 1.9, TL.lueur + 2.5));   // la lueur s'éteint avant que la seconde foule ne choisisse
+      if (lu > 0) { e.mode = 'vie'; e.k = lu; }
+    }
+    return e;
+  }
+  function foules(T) {
+    for (const F of FOULES) {
+      const row = ROWS[F.r];
+      if (T < TL.rang[F.r] - 1) continue;
+      for (const f of F.figs) {
+        if (T < f.ta) continue;
+        const sc = eBack(seg(T, f.ta, f.ta + .45));
+        const e = etatFigure(f, F, T);
+        if (e.dis >= 1) {   // la place vide de celui qui est parti
+          ctx.globalAlpha = .6 * seg(T, f.td + 1.6, f.td + 2.2); ctx.fillStyle = GRIS; ctx.font = `20px ${MONO}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText('·', f.cx, f.cy + 8);
+          continue;
+        }
+        dessineSujet(f, f.cx, f.cy, Math.max(.01, FCS * sc), e, T);
+      }
+      // la légende de la vignette : l'issue, en mots
+      const ai = seg(T, F.r === 0 ? TL.lueur : TL.mort + .4, (F.r === 0 ? TL.lueur : TL.mort + .4) + .5);
+      ctx.globalAlpha = ai; ctx.font = `19px ${MONO}`; ctx.fillStyle = CRAIE; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      ctx.fillText(row.issue, F.cx, F.y + F.h + 24);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // ---------------------------------------------------------------- la source (obligatoire)
+  function source(T) {
+    const a = seg(T, TL.rang[1] + 1.5, TL.rang[1] + 2.2); if (a <= 0) return;
+    ctx.globalAlpha = a; ctx.font = `16px ${MONO}`; ctx.fillStyle = GRIS; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText(fr(`Source : questionnaire « A ou B ? » de Monsieur Phi (vidéo « pilule bleue ou pilule rouge »), près de 10${FINE}000 répondants, description tirée au sort.`), LX, FY + FH - 46);
+    ctx.fillText(fr(`Descriptions résumées ; bouton A = pilule bleue, B = pilule rouge. Foules : 1 sujet ≈ 1${FINE}% (arrondi : 66 et 13 bleus sur 100).`), LX, FY + FH - 22);
+    ctx.globalAlpha = 1;
+  }
+
+  // ================================================================ le survol : chaque marque donne sa valeur exacte
+  function zones(T) {
+    const z = [];
+    ROWS.forEach((row, r) => {
+      if (T < TL.rang[r] + D) return;   // une marque qui ne s'est pas encore construite ne répond pas
+      const y = BY[r], xb = xp(row.bleue), F = FOULES[r];
+      z.push({ id: `b${r}`, x: X0 - 6, y: y - 8, w: xb - X0 + 6, h: BH + 16, val: pc(row.bleue), lab: `pilule bleue · description ${row.mot}`, col: BLEU, r, part: 'b' });
+      z.push({ id: `r${r}`, x: xb, y: y - 8, w: X0 + 99 * P + CW + 6 - xb, h: BH + 16, val: pc(100 - row.bleue), lab: `pilule rouge · description ${row.mot}`, col: ROUGE, r, part: 'r' });
+      z.push({ id: `n${r}`, x: NXR - 210, y: y - 24, w: 216, h: BH + 36, val: pc(row.bleue), lab: `pilule bleue · description ${row.mot}`, col: BLEU, r, part: 'b' });
+      if (T >= (r === 0 ? TL.lueur : TL.mort + .4)) z.push({ id: `f${r}`, x: F.x, y: F.y, w: F.w, h: F.h + 32,
+        val: `${F.nb} bleus · ${F.nr} rouges`, lab: `100 sujets, 1 sujet ≈ 1${FINE}% (${pc(row.bleue)} arrondi)`,
+        lab2: r === 0 ? `plus de 50${FINE}% de bleues : tout le monde vit` : `moins de 50${FINE}% : les ${F.nb} bleus meurent`, col: null, r, part: 'f' });
+    });
+    if (T >= TL.cote + 1) {
+      const xa = xp(ROWS[0].bleue), xb = xp(ROWS[1].bleue);
+      z.push({ id: 'cote', x: xb - 6, y: YC - 26, w: xa - xb + 12, h: 52, val: `−${ECART.toFixed(1).replace('.', ',')} points`,
+        lab: `de bleues : ${pc(ROWS[0].bleue)} → ${pc(ROWS[1].bleue)}`, lab2: 'mêmes règles, autre description', col: LABO, part: 'c' });
+    }
+    if (T >= TL.seuil + .6) z.push({ id: 'seuil', x: xp(SEUIL) - 70, y: BY[0] - 66, w: 140, h: 40, val: `50${FINE}%`,
+      lab: `plus de 50${FINE}% de bleues : tout le monde vit`, lab2: 'sinon, ceux qui ont pris la bleue meurent', col: LAITON, part: 's', ligne: true });
+    return z;
+  }
+  const dansZ = (z, x, y) => x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h;
+  let survol = null, focusK = -1;   // survol : la zone visée (souris ou clavier) et le point d'attache de la bulle
+  function bulle(z, px, py) {
+    z = { ...z, lab: fr(z.lab), lab2: z.lab2 && fr(z.lab2) };
+    ctx.save();
+    ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+    ctx.font = `500 30px ${MONO}`; const wv = ctx.measureText(z.val).width;
+    ctx.font = `17px ${MONO}`; const wl = Math.max(ctx.measureText(z.lab).width + (z.col ? 30 : 0), z.lab2 ? ctx.measureText(z.lab2).width : 0);
+    const w = Math.max(wv, wl) + 40, h = z.lab2 ? 112 : 86;
+    let x = px + 24, y = py + 24;
+    if (x + w > W - 24) x = px - 24 - w;
+    if (y + h > H - 24) y = py - 24 - h;
+    x = clamp(x, 24, W - 24 - w); y = clamp(y, 24, H - 24 - h);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = 'rgba(12,11,13,.97)'; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = LAITON; ctx.lineWidth = 2; ctx.strokeRect(x - 5, y - 5, w + 10, h + 10);
+    ctx.strokeStyle = CRAIE; ctx.lineWidth = 3; ctx.strokeRect(x, y, w, h);
+    ctx.font = `500 30px ${MONO}`; ctx.fillStyle = CRAIE; ctx.fillText(z.val, x + 20, y + 42);   // la valeur d'abord
+    ctx.font = `17px ${MONO}`; ctx.fillStyle = GRIS;
+    let lx = x + 20;
+    if (z.col) { ctx.fillStyle = z.col; ctx.fillRect(lx, y + 62, 18, 4); lx += 30; ctx.fillStyle = GRIS; }   // un trait de couleur, pas une boîte
+    ctx.fillText(z.lab, lx, y + 70);
+    if (z.lab2) ctx.fillText(z.lab2, x + 20, y + 96);
+    ctx.restore();
+  }
+  function survolDessin(T) {
+    if (!survol) return;
+    const z = survol.z;
+    if (z.part === 'f') { const F = FOULES[z.r]; ctx.strokeStyle = LAITON; ctx.lineWidth = 2; ctx.strokeRect(F.x, F.y, F.w, F.h); }
+    if (z.part === 's') {
+      ctx.strokeStyle = LAITON; ctx.lineWidth = 4; ctx.setLineDash([6, 6]);
+      ctx.beginPath(); ctx.moveTo(xp(SEUIL), BY[0] - 34); ctx.lineTo(xp(SEUIL), BY[1] + BH + 14); ctx.stroke(); ctx.setLineDash([]);
+    }
+    bulle(z, survol.x, survol.y);
+  }
+
+  // ================================================================ rendu
+  function rendu(T, Tr) {
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    vide(T);
+    regardPhi(T, Tr);
+    fond(T);
+    console_(T);
+    const sv = survol && survol.z;
+    if (T >= TL.fen + .9) {
+      echelle(T);
+      barre(0, T, sv && sv.r === 0 ? sv.part : null);
+      barre(1, T, sv && sv.r === 1 ? sv.part : null);
+      cote(T, sv && sv.part === 'c');
+      foules(T);
+      source(T);
+    }
+    oeil(T);
+    cartouche(T);
+    dialogue(T);
+    survolDessin(T);
+    voile();
+  }
+
+  // ================================================================ l'horloge, ?gel=SECONDES
+  const q = new URLSearchParams(location.search);
+  const gelTxt = q.get('gel') ?? (location.hash.match(/gel=([\d.]+)/) || [])[1];
+  const GEL = gelTxt != null && gelTxt !== '' && isFinite(+gelTxt) ? +gelTxt : null;
+  const reel = () => performance.now() / 1000 - debut;
+  const temps = () => GEL !== null ? GEL : reel();
+  const REDUIT = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function programme() {
+    file = []; REGARDS = []; survol = null; focusK = -1;
+    st = {
+      oeil: { ex: new V(EX), ey: new V(EY), es: new V(ES), a: new V(0), x: new V(0), y: new V(0), r: new V(0), rot: new V(0), glow: new V(.35) },
+      rg: { px: EX, py: EY, x: EX, y: EY, v: true, t0: -99, d: .1, A: 9, gx: 0, gy: 0, w: 1, fixe: null },
+      secoue: -99, dlg: null,
+    };
+    at(.35, t => oeilVers(t, { a: 1 }, .6));
+    at(.6, t => st.oeil.r.set(12.5, t, .7));
+    REPLIQUES.forEach(([t, txt]) => at(t, tt => dit(tt, txt)));
+    at(TL.lueur, t => humeur(t, 'grand')); at(TL.lueur + 1.8, t => humeur(t, 'neutre'));
+    at(TL.peur, t => humeur(t, 'plisse')); at(TL.mort + .1, t => { st.secoue = t; });
+    at(TL.cote - .2, t => humeur(t, 'neutre'));
+    at(TL.cote + .7, t => humeur(t, 'grand')); at(TL.cote + 2.3, t => humeur(t, 'curieux'));
+    // ce que Phi regarde, de la commande à l'écart
+    const caret = T => ({ x: LX + clamp((T - TL.cmd) * CMD_CPS, 0, CMD.length) * 13.2, y: FY + 92 });
+    regard(.9, .9, point(1500, 300)); regard(1.0, 1.65, caret);
+    regard(2.7, .9, point(LX + 380, FY + 140)); regard(3.2, .5, seuilC);
+    regard(3.75, 1.45, bord(0)); regard(5.2, .5, chiffre(0)); regard(TL.lueur, 1.1, foule(0));
+    regard(6.55, 1.75, bord(1)); regard(8.35, .4, chiffre(1)); regard(TL.peur + .1, 1.3, foule(1), .2);
+    regard(TL.cote, .85, coteBout, .1); regard(TL.cote + .85, 1.2, coteLab); regard(TL.cote + 2.2, 1.6, VOUS);
+  }
+  function recommence(t0 = 0) {
+    debut = performance.now() / 1000 - t0;
+    programme();
+  }
+  // avec ?gel=…, on rejoue le regard de Phi depuis 0 pour qu'il soit posé où il doit l'être à cet instant
+  function rodage(T) { for (let t = 0; t < T; t += 1 / 60) { vide(t); regardPhi(t, t); } }
+
+  // ================================================================ commandes : souris, clavier
+  function versToile(e) {
+    const r = cv.getBoundingClientRect(), k = Math.min(r.width / W, r.height / H);
+    const ox = r.left + (r.width - W * k) / 2, oy = r.top + (r.height - H * k) / 2;
+    return [(e.clientX - ox) / k, (e.clientY - oy) / k];
+  }
+  cv.addEventListener('mousemove', e => {
+    const [x, y] = versToile(e), T = temps();
+    if (x < 0 || x > W || y < 0 || y > H) return;
+    souris = { x, y, t: reel() };
+    const z = zones(T).find(z => dansZ(z, x, y));
+    survol = z ? { z, x, y } : null; focusK = -1;
+    cv.style.cursor = z ? 'crosshair' : 'default';
+  });
+  cv.addEventListener('mouseleave', () => { souris = null; if (focusK < 0) survol = null; });
+  addEventListener('keydown', e => {
+    const T = temps(), k = e.key;
+    if (k === ' ' || k === 'Enter') { e.preventDefault(); if (GEL === null && T < TL.fin) debut -= TL.fin - T; }
+    else if (k === 'r' || k === 'R') { if (GEL === null) recommence(REDUIT ? TL.fin : 0); }
+    else if (k === 'ArrowRight' || k === 'ArrowLeft' || k === 'Tab' && document.activeElement === cv && survol) {
+      const zs = zones(T).filter(z => z.id[0] !== 'n'); if (!zs.length) return;
+      if (k === 'Tab') { survol = null; focusK = -1; return; }
+      e.preventDefault();
+      focusK = (focusK + (k === 'ArrowRight' ? 1 : -1) + zs.length) % zs.length;
+      const z = zs[focusK]; survol = { z, x: z.x + z.w / 2, y: z.y + z.h / 2 };
+      souris = { x: survol.x, y: survol.y, t: reel() };
+    }
+    else if (k === 'Escape') { survol = null; focusK = -1; }
+    else if (k === 'c' || k === 'C') document.getElementById('hud').hidden = !document.getElementById('hud').hidden;
+  });
+
+  function boucle() { const T = temps(); rendu(T, reel()); requestAnimationFrame(boucle); }
+  const polices = Promise.all([document.fonts.load('34px "DotGothic16"'), document.fonts.load('34px "IBM Plex Mono"'), document.fonts.load('500 26px "IBM Plex Mono"')]);
+  Promise.race([polices, new Promise(r => setTimeout(r, 2500))]).catch(() => {}).then(() => {
+    prepareGlyphes();
+    if (GEL !== null) { recommence(0); rodage(GEL); debut = performance.now() / 1000 - GEL; document.getElementById('hud').hidden = true; }
+    else recommence(REDUIT ? TL.fin : 0);   // mouvement réduit : l'image finale d'emblée
+    window.__zones = () => zones(temps()).map(z => ({ id: z.id, x: z.x + z.w / 2, y: z.y + z.h / 2, val: z.val, lab: z.lab }));
+    window.__survol = () => survol && { id: survol.z.id, val: survol.z.val, lab: survol.z.lab };
+    requestAnimationFrame(boucle);
+  });
+})();
+</script>
+
+</body></html>

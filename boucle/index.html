@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Xphi — la boucle</title>
+<meta name="description" content="Prototype : le questionnaire « Un jour sans fin » de Monsieur Phi, liberté et responsabilité dans une boucle temporelle, raconté pas à pas et dessiné par Phi.">
+<link rel="icon" href="../identite/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../shared/base.css">
+<style>
+  @font-face { font-family: "Plex Mono"; src: url("../ascii/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Plex Mono"; src: url("../ascii/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+  /* Les règles de dessin de Phi (en tête de boucle.js) : des formes exactes, un fond uni,
+     l'encre pour le monde, le doré pour le joueur, le seul à se souvenir */
+  :root {
+    --fond: #f3efe7; --encre: #1b1d26; --encre-2: #4b4e5b; --gris: #8d8a83; --filet: rgba(27, 29, 38, .14);
+    --dore: #c38a10; --dore-fonce: #8a6008; --dore-fond: #f3e3bd;
+    --mono: "Plex Mono", ui-monospace, Menlo, monospace;
+  }
+  html, body { background: var(--fond); color: var(--encre); }
+  body { min-height: 100svh; }
+  html.vite *, html.vite *::before, html.vite *::after { transition: none !important; }
+  .colonne { max-width: 660px; margin: 0 auto; padding-left: 22px; padding-right: 22px; }
+
+  /* En haut, collée : l'avancée, la marque, et la scène que Phi dessine */
+  #tete { position: sticky; top: 0; z-index: 4; background: var(--fond); }
+  #tete::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 18px; background: linear-gradient(var(--fond), rgba(243, 239, 231, 0)); pointer-events: none; }
+  @media (max-height: 560px) { #tete { position: relative; } }
+  #avance { position: absolute; top: 0; left: 0; height: 2px; width: 0; background: var(--encre); transition: width .6s var(--ease); }
+  #marque { margin: 0; padding: 12px 16px 0; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--gris); }
+  #scene { position: relative; height: var(--h, 280px); margin-top: 8px; overflow: hidden; transition: height .55s var(--ease), opacity .45s var(--ease); }
+  #tete.rangee #scene { height: 0; opacity: 0; }
+  #dessin { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+  /* Le dessin : des traits d'encre, et le doré pour le joueur */
+  #dessin .trait { fill: none; stroke: var(--encre); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  #dessin .fin { stroke-width: 1; }
+  #dessin .gris { stroke: var(--gris); }
+  #dessin .plein { fill: var(--encre); stroke: none; }
+  #dessin .anneau { fill: none; stroke: var(--encre); stroke-width: 1.2; }
+  #dessin .fleche { fill: none; stroke: var(--encre); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: opacity .3s; }
+  #dessin .jour { fill: none; stroke: var(--encre); stroke-width: 3.2; stroke-linecap: round; }
+  #dessin .pointe { fill: var(--encre); }
+  #dessin .graduation { stroke: var(--encre); stroke-width: 1; }
+  #dessin .heure, #dessin .etiquette, #dessin .compte, #dessin .compteur { font: 500 9.5px var(--mono); letter-spacing: .06em; fill: var(--gris); }
+  #dessin .compteur { font-size: 10.5px; fill: var(--encre-2); }
+  #dessin .nom { font: 500 9.5px var(--mono); letter-spacing: .08em; fill: var(--encre-2); }
+  #dessin .compte { fill: var(--encre-2); }
+  #dessin .parole { font: 500 11.5px Inter, system-ui, sans-serif; fill: var(--encre); }
+  #dessin .bulle { fill: var(--fond); stroke: var(--encre); stroke-width: 1.2; }
+  #dessin .joueur .plein { fill: var(--dore); }
+  #dessin .joueur .trait { stroke: var(--dore-fonce); }
+  #dessin .joueur .nom { fill: var(--dore-fonce); }
+  #dessin .souvenir { fill: var(--dore); }
+  #dessin .dore { stroke: var(--dore); }
+  #dessin .labo .trait { stroke: var(--encre-2); }
+  #dessin .mort .plein { opacity: 0 !important; transition: opacity .5s .2s; }
+  #dessin .a-tracer { visibility: hidden; }
+  #dessin .mort .trait { stroke: var(--gris); stroke-dasharray: 2.5 2.5 !important; stroke-dashoffset: 0 !important; }
+  #dessin .barre { fill: var(--encre); }
+  #dessin .barre-fond { fill: rgba(27, 29, 38, .08); }
+  #dessin .repere { fill: none; stroke: var(--encre); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  #passer { position: fixed; right: 14px; bottom: 14px; z-index: 7; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--encre-2); background: var(--fond); border: 1px solid var(--filet); border-radius: 999px; padding: 9px 14px; cursor: pointer; }
+  #passer:hover { border-color: var(--encre); }
+
+  main { padding-top: 16px; padding-bottom: 120px; }
+  /* Phi : son œil (vectoriel, ../shared/oeil.js), et ce qu'il dit */
+  .parole-phi { display: flex; gap: 16px; align-items: flex-start; min-height: 56px; margin-bottom: 14px; }
+  #phi-place { flex: none; width: 54px; height: 54px; }
+  #phi-dit { margin: 0; padding-top: 4px; font-size: 17px; line-height: 1.5; color: var(--encre-2); }
+  #phi-dit p { margin: 0 0 8px; }
+  #phi-oeil { position: fixed; left: 0; top: 0; width: 54px; height: 54px; margin: -27px 0 0 -27px; color: var(--encre); pointer-events: none; z-index: 6; transition: opacity .25s; }
+  #phi-oeil svg { width: 100%; height: 100%; display: block; }
+
+  #ecran { transition: opacity .25s var(--ease), transform .25s var(--ease); }
+  #ecran.sort { opacity: 0; transform: translateY(-6px); }
+  #ecran.entre { opacity: 0; transform: translateY(8px); }
+
+  .question { font-size: clamp(21px, 1.4vw + 14px, 26px); line-height: 1.35; font-weight: 620; letter-spacing: -.012em; margin: 0 0 14px; }
+  .texte { font-size: 18px; line-height: 1.6; margin: 0 0 12px; }
+  /* Une étape du récit : une ou deux phrases, en grand */
+  .pas { font-size: clamp(20px, .9vw + 15px, 23px); line-height: 1.5; font-weight: 500; letter-spacing: -.006em; margin: 0 0 10px; }
+  .aparte { font-size: 15px; line-height: 1.5; color: var(--encre-2); margin: 0 0 6px; }
+  .aide { font-size: 15px; line-height: 1.5; color: var(--encre-2); margin: 0 0 6px; }
+  .cap { font-weight: 650; letter-spacing: .035em; font-size: .9em; }
+  .options { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+  .option, .suite, .pastille {
+    font: inherit; color: var(--encre); background: transparent; border: 1.5px solid var(--encre); border-radius: 999px; cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s, opacity .2s;
+  }
+  .option { text-align: left; font-size: 17px; line-height: 1.4; padding: 13px 20px; }
+  .option:hover, .option:focus-visible, .pastille:hover, .pastille:focus-visible { background: rgba(27, 29, 38, .06); outline: none; }
+  .option.pris, .pastille.pris { background: var(--dore-fond); border-color: var(--dore); }
+  .option:disabled:not(.pris) { opacity: .4; cursor: default; }
+  /* Les échelles d'accord : en ligne quand la place le permet */
+  @media (min-width: 600px) {
+    .options.echelle { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .options.echelle .option { text-align: center; border-radius: 14px; padding: 12px 8px; font-size: 15px; line-height: 1.3; }
+  }
+  .suite { margin-top: 22px; font-weight: 600; font-size: 16px; padding: 12px 24px; background: var(--encre); color: var(--fond); border-color: var(--encre); }
+  .suite:hover, .suite:focus-visible { background: #000; outline: none; }
+  .suite:disabled { opacity: .3; cursor: default; }
+  .lien { font: inherit; font-size: 15px; background: none; border: 0; padding: 0; color: var(--encre-2); text-decoration: underline; cursor: pointer; margin-top: 18px; }
+
+  /* Le profil : des pastilles, et une grille */
+  .grille { margin-top: 10px; }
+  .ligne { padding: 12px 0; border-top: 1px solid var(--filet); }
+  .ligne:last-child { border-bottom: 1px solid var(--filet); }
+  .ligne > p { margin: 0 0 10px; font-size: 16px; line-height: 1.45; }
+  .pastilles { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pastille { font-size: 14.5px; padding: 8px 14px; }
+  .champ { margin: 0 0 24px; }
+  .champ > label, .champ > p { display: block; margin: 0 0 10px; font-size: 16.5px; font-weight: 600; }
+  .champ > .aide { font-weight: 400; margin-top: -4px; }
+  .champ input[type=text], .champ textarea { width: 100%; font: inherit; font-size: 16px; padding: 10px 12px; border: 1.5px solid var(--encre); border-radius: 8px; background: transparent; color: var(--encre); }
+  .champ textarea { min-height: 110px; resize: vertical; }
+
+  .journal { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--filet); font: 13.5px/1.6 var(--mono); color: var(--encre-2); }
+  .journal h3 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--gris); margin: 0 0 12px; }
+  .journal dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
+  .journal dt { color: var(--gris); }
+  .journal dd { margin: 0; }
+  @media (max-width: 520px) { .journal dl { grid-template-columns: 1fr; } .journal dd { margin-bottom: 6px; } }
+</style>
+</head>
+<body>
+<header id="tete" class="rangee">
+  <div id="avance" aria-hidden="true"></div>
+  <p id="marque">Xphi · la boucle · prototype</p>
+  <div class="colonne">
+    <div id="scene" role="img" aria-label="La scène">
+      <svg id="dessin" aria-hidden="true"></svg>
+    </div>
+  </div>
+</header>
+<main class="colonne">
+  <div class="parole-phi">
+    <div id="phi-place" aria-hidden="true"></div>
+    <div id="phi-dit" aria-live="polite"></div>
+  </div>
+  <section id="ecran" aria-live="polite"></section>
+</main>
+<button id="passer" type="button" hidden>Passer l’animation</button>
+<div id="phi-oeil" aria-hidden="true"></div>
+<script src="../shared/oeil.js"></script>
+<script type="module" src="boucle.js"></script>
+</body>
+</html>

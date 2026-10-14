@@ -1,0 +1,77 @@
+/* ==========================================================================
+   Direction 2 — « Cadran »
+   Tout est centré, comme un instrument de mesure. Le barillet est le
+   protagoniste : grand, seul au milieu de l'écran. Le texte est léger
+   (graisse fine), les choix sont deux pastilles identiques. Pas d'étiquettes :
+   la progression est un fin trait en haut. Accent : bleu cobalt.
+   ========================================================================== */
+:root { --accent: #2f5bff; }
+html.screen { --accent: #5d80ff; }
+
+.safe { align-items: center; text-align: center; }
+
+/* Progression : quatre segments, le cran courant en encre */
+.progress { display: flex; gap: 6px; width: 100%; max-width: 220px; margin: 4px auto 0; }
+.progress i { flex: 1; height: 2px; background: var(--line); }
+.progress i.on { background: var(--ink); }
+.act { margin: 12px 0 0; font-size: 12px; color: var(--grey); letter-spacing: .02em; }
+
+.face { width: 38px; margin: 0 auto; }
+.face.big { width: 150px; }
+.hello { margin: 18px 0 0; font-size: 14px; color: var(--grey); }
+.speech { margin: 14px auto 0; font-size: 27px; line-height: 1.22; font-weight: 340; letter-spacing: -.018em; max-width: 17ch; }
+.speech em { font-style: normal; color: var(--grey); }
+
+.push { flex: 1; min-height: 20px; }
+.pill {
+  height: 54px; padding: 0 30px; border-radius: 999px; border: 1px solid var(--ink);
+  background: transparent; font-size: 16px; font-weight: 500; cursor: pointer; min-width: 140px;
+}
+.pill.solid { background: var(--ink); color: var(--bg); }
+.choices { display: flex; gap: 12px; justify-content: center; width: 100%; }
+.choices .pill { flex: 1; max-width: 200px; }
+.note { margin: 14px 0 0; font-size: 12px; color: var(--grey); }
+
+/* Cran */
+.dial { width: 82%; max-width: 330px; margin: 30px auto 0; }
+.dial .barillet .b-ch, .dial .barillet .b-axis, .dial .barillet .b-mark { stroke-width: 1; }
+.risk { margin: 22px 0 0; font-size: 44px; font-weight: 260; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.risk-phrase { margin: 4px 0 0; font-size: 16px; color: var(--grey); }
+.story { margin: 20px auto 0; font-size: 19px; line-height: 1.35; font-weight: 380; max-width: 22ch; }
+
+/* Résultats */
+.title { margin: 26px 0 0; font-size: 26px; font-weight: 340; letter-spacing: -.02em; }
+.lede { margin: 6px 0 0; font-size: 14px; color: var(--grey); }
+.chart-wrap { width: 100%; margin: 26px 0 0; }
+.chart .c-line { stroke-width: 1.2; }
+.chart .c-label { font-weight: 500; }
+.caption { margin: 18px auto 0; font-size: 17px; line-height: 1.38; font-weight: 380; max-width: 26ch; }
+.small { margin: 10px 0 0; font-size: 12px; color: var(--grey); }
+
+/* --- Écran 16:9 ----------------------------------------------------------- */
+html.screen .progress { max-width: 420px; gap: 10px; }
+html.screen .progress i { height: 3px; }
+html.screen .act { font-size: 20px; margin-top: 18px; }
+html.screen .face { width: 64px; }
+html.screen .face.big { width: 260px; margin-top: 60px; }
+html.screen .hello { font-size: 24px; margin-top: 30px; }
+html.screen .speech { font-size: 60px; max-width: 26ch; margin-top: 20px; }
+html.screen .pill { height: 88px; font-size: 28px; min-width: 300px; padding: 0 50px; }
+html.screen .choices { gap: 24px; }
+html.screen .choices .pill { flex: 0 0 300px; max-width: none; }
+html.screen .note { font-size: 20px; }
+
+html.screen .dial { width: 440px; max-width: none; margin-top: 34px; }
+html.screen .risk { font-size: 84px; margin-top: 24px; }
+html.screen .risk-phrase { font-size: 26px; }
+html.screen .story { font-size: 32px; max-width: 40ch; margin-top: 22px; }
+
+html.screen .title { font-size: 56px; margin-top: 30px; }
+html.screen .lede { font-size: 24px; }
+html.screen .chart-wrap { margin-top: 30px; }
+html.screen .chart .c-line { stroke-width: 2.4; }
+html.screen .caption { font-size: 34px; max-width: 46ch; margin-top: 26px; }
+html.screen .small { font-size: 20px; }
+html.screen .fake-data { position: absolute; top: 0; right: 0; }
+.speech.aside { font-size: 19px; margin-top: 16px; color: var(--ink-2); }
+html.screen .speech.aside { font-size: 34px; margin-top: 28px; }

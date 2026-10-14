@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xphi — dessiné par une machine : trois pistes</title>
+<meta name="description" content="La même image, calculée de la même scène 3D, dessinée de trois façons : le traceur, le pictogramme, le scan.">
+<link rel="stylesheet" href="../shared/base.css">
+<style>
+  body { background: #0c0b0d; color: #efe6d6; padding: 40px 24px 80px; }
+  main { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: clamp(26px, 3vw, 38px); letter-spacing: -.02em; line-height: 1.15; margin: 0 0 10px; font-weight: 650; }
+  .chapo { color: #b9b1a5; font-size: 17px; line-height: 1.5; max-width: 64ch; margin: 0 0 44px; }
+  .style { margin: 0 0 60px; }
+  .cadre { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 4px; overflow: hidden; background: #000; }
+  .cadre canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .cadre.sans-gl::after { content: "Ce navigateur ne sait pas afficher cette image (WebGL2)."; position: absolute; inset: 0; display: grid; place-content: center; color: #8b847a; font-size: 14px; }
+  /* La tête du traceur : l'œil de Phi, à l'encre sur le papier */
+  .tete { position: absolute; left: 0; top: 0; width: 46px; height: 46px; margin: -23px 0 0 -23px; color: #1e2230; pointer-events: none; }
+  .tete svg { width: 100%; height: 100%; display: block; }
+  h2 { font-size: 22px; margin: 18px 0 6px; font-weight: 620; letter-spacing: -.01em; }
+  h2 .reco { color: #f5c451; font-weight: 500; font-size: 14px; margin-left: 10px; letter-spacing: .02em; }
+  .style p { margin: 0; color: #b9b1a5; font-size: 15.5px; line-height: 1.55; max-width: 72ch; }
+  .style a { color: #efe6d6; }
+  /* ?style=… : une seule image, plein écran */
+  body.seul { padding: 0; overflow: hidden; }
+  body.seul main { max-width: none; }
+  body.seul h1, body.seul .chapo, body.seul .legende, body.seul .style:not(.actif) { display: none; }
+  body.seul .style { margin: 0; }
+  body.seul .cadre { position: fixed; inset: 0; aspect-ratio: auto; border-radius: 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Dessiné par une machine : trois pistes</h1>
+  <p class="chapo">La même image, calculée de la même scène 3D : le ponton bleu et sa bombe, la rive rouge, la file de gens, et le joueur en doré. Seule change la façon de la dessiner. Tout est calculé en direct dans le navigateur.</p>
+
+  <section class="style" data-style="0">
+    <div class="cadre"><canvas aria-label="Le lac, dessiné au traceur"></canvas><div class="tete" aria-hidden="true"></div></div>
+    <div class="legende">
+      <h2>1. Le traceur<span class="reco">recommandé</span></h2>
+      <p>Un robot qui dessine au stylo, comme les premières œuvres d’art par ordinateur, à Stuttgart et à Paris dans les années 1960. Des contours d’une seule épaisseur, des ombres en hachures régulières, un stylo par couleur. L’œil de Phi est la tête du traceur : on le voit dessiner, puis le dessin recommence. <a href="?style=traceur">Plein écran</a></p>
+    </div>
+  </section>
+
+  <section class="style" data-style="1">
+    <div class="cadre"><canvas aria-label="Le lac, en pictogrammes"></canvas></div>
+    <div class="legende">
+      <h2>2. Le pictogramme</h2>
+      <p>Des aplats sans détail, le langage des notices et des consignes de sécurité, héritier de l’Isotype d’Otto Neurath. Le plus clair, compris dans toutes les langues ; les résultats se dessineraient en rangées de petits personnages. <a href="?style=picto">Plein écran</a></p>
+    </div>
+  </section>
+
+  <section class="style" data-style="2">
+    <div class="cadre"><canvas aria-label="Le lac, relevé au scanner laser"></canvas></div>
+    <div class="legende">
+      <h2>3. Le scan</h2>
+      <p>Le monde tel qu’un robot le perçoit : un relevé laser, point par point, depuis un scanner posé sur la rive. Derrière chaque objet, une ombre : ce que le scanner ne voit pas. Le plus proche de Phi, qui connaît le monde sans l’avoir vécu ; le plus froid aussi. <a href="?style=scan">Plein écran</a></p>
+    </div>
+  </section>
+</main>
+<script src="../shared/oeil.js"></script>
+<script type="module" src="styles.js"></script>
+</body>
+</html>

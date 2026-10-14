@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Résultats des pilules</title>
+<style>
+/* Polices hébergées avec le site (SIL OFL), celles de l'animation du test : aucun appel externe. */
+@font-face { font-family: "DotGothic16"; src: url("../pilules/fonts/dotgothic16-latin.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../pilules/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../pilules/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+/* Même système que l'animation du test : une toile 16:9, letterbox sur fond nuit, HUD discret en bas à droite. */
+:root {
+  --nuit: #0c0b0d;
+  --craie: #f1e9dc;
+  --gris: #8f877b;
+  --filet: #2b2826;
+  --labo: #8fc0d6;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; margin: 0; background: var(--nuit); color: var(--craie); overflow: hidden; }
+#scene { display: block; width: 100%; height: 100%; object-fit: contain; cursor: pointer; outline: none; }
+#scene:focus-visible { box-shadow: inset 0 0 0 2px var(--labo); }
+#hud {
+  position: fixed; right: 16px; bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end;
+  font: 12px/1 var(--mono); letter-spacing: .08em; color: var(--gris);
+  font-variant-numeric: tabular-nums; pointer-events: none;
+}
+#hud .piste { width: 160px; height: 3px; background: var(--filet); }
+#hud .piste div { height: 100%; width: 0; background: var(--craie); }
+#hud b { color: var(--craie); font-weight: 500; }
+</style>
+
+<canvas id="scene" width="1920" height="1080" tabindex="0" aria-label="Visuels animés : les résultats du test des deux pilules, présentés par Xphi"></canvas>
+<div id="hud"><span id="etape"></span><span id="aide"></span><div class="piste"><div id="prog"></div></div></div>
+
+<script type="module">
+// Les sujets sont les bonshommes du film de 3 min 20 (Ronan : « c'est pas les bons bonhommes ») : dessineSujet et les
+// cent premiers participants (PREMIERS : leurs coiffes) du socle du film.
+import { dessineSujet, PREMIERS, prepare as prepareSujets } from '../film-pilules/commun.js';
+(() => {
+  // ================================================================ base
+  const W = 1920, H = 1080;
+  const S = /4k/.test(location.hash) ? 2 : 1;
+  const cv = document.getElementById('scene');
+  cv.width = W * S; cv.height = H * S;
+  const ctx = cv.getContext('2d');
+
+  const CRAIE = '#f1e9dc', GRIS = '#8f877b', NUIT = '#0c0b0d', LABO = '#8fc0d6', LAITON = '#d7a548';
+  const BLEU = '#4f86e8', BLEU_TXT = '#6f9cf0', ROUGE = '#d9483b', ROUGE_TXT = '#e2675b', GRIS_FIG = '#a39a8c';
+  const PISTE = '#1e1c20', LABO_FONCE = '#557f92', NEUTRE = '#4a4548', TIEDE = '#8f7468', CHAUD = '#c9a48f', SABLE = '#c9c0b2';
+  const MONO = '"IBM Plex Mono", ui-monospace, monospace';
+  const PIX = '"DotGothic16", "IBM Plex Mono", monospace';
+  const G = '01·:+*#%xφ'.split('');
+
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const eIO = k => (k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+  const eOut = k => 1 - Math.pow(1 - k, 3);
+  const eBack = k => { const c = 1.70158; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const mix = (a, b, k) => { const A = hex(a), B = hex(b); return '#' + A.map((v, i) => Math.round(lerp(v, B[i], k)).toString(16).padStart(2, '0')).join(''); };
+  const rgba = (h, a) => { const [r, g, b] = hex(h); return `rgba(${r},${g},${b},${a})`; };
+  const fmt = (v, d = 1) => v.toFixed(d).replace('.', ',');
+
+  class V {
+    constructor(v) { this.a = v; this.b = v; this.t0 = 0; this.d = 0; }
+    set(v, t, d = .8) { this.a = this.get(t); this.b = v; this.t0 = t; this.d = d; }
+    get(t) { if (this.d <= 0) return this.b; return lerp(this.a, this.b, eIO(seg(t, this.t0, this.t0 + this.d))); }
+  }
+
+  // ================================================================ les sujets en pixels
+  const SPRITE = [];
+  [[2, 0, 3, 3], [1, 3, 5, 4], [1, 7, 2, 2], [4, 7, 2, 2]].forEach(([x0, y0, w, h]) => { for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) SPRITE.push([x, y]); });
+  const RF = rng(99);
+  const melange = n => { const a = [...Array(n).keys()]; for (let i = n - 1; i > 0; i--) { const j = Math.floor(RF() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const CELLS = [...Array(100)].map(() => SPRITE.map(([x, y]) => ({ x, y, ph: RF() * 6.283, v: .6 + RF() * .8, g: G[Math.floor(RF() * G.length)], d: (8 - y) / 8 * .45 })));
+  const R1 = [...Array(100)].map(() => RF()), R2 = [...Array(100)].map(() => RF());
+  const PERM = [melange(100), melange(100), melange(100)];
+  const RANG = PERM.map(p => { const r = []; p.forEach((v, k) => { r[v] = k; }); return r; });
+
+  // un sujet : le bonhomme du film (PREMIERS[i], sa coiffe), centré en (cx, cy), à la hauteur de l'ancien sprite
+  // (9 cases de cs : ×0,8 en cases du bonhomme, à case entière pour rester net). Il respire, cligne, regarde Phi par
+  // moments, la lumière et le reflet venant de l'œil ; dis > 0 : il part en caractères (la mort du film).
+  // (SPRITE et CELLS restent : leurs tirages de rng(99) font les mêmes bleus et les mêmes ordres qu'avant.)
+  const PHI_SUJETS = { x: 1806, y: 116 };
+  function fig(i, cx, cy, cs, col, a = 1, dis = 0) {
+    const c = Math.round(cs * .8);
+    if (a <= .005 || c < 1 || dis >= 1) return;
+    dessineSujet(ctx, PREMIERS[i % 100], cx, cy, c, { col, a, dis, phi: PHI_SUJETS, cible: PHI_SUJETS, reflet: true }, T);
+    ctx.globalAlpha = 1;
+  }
+  function halo(cx, cy, r, col, a) {
+    if (a <= 0) return;
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    g.addColorStop(0, rgba(col, .45 * a)); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(cx - r, cy - r, 2 * r, 2 * r);
+  }
+
+  // ================================================================ Xphi, en haut à droite
+  const oeilSt = { x: new V(0), y: new V(0), r: new V(12.5), rot: new V(0), glow: new V(.35), secoue: -99 };
+  function humeur(t, h) {
+    const base = { x: 0, y: 0, r: 12.5, rot: 0, glow: .35 };
+    const M = {
+      neutre: base, grand: { ...base, r: 17, glow: 1 }, plisse: { x: 0, y: 5, r: 6, rot: -4, glow: .2 },
+      doute: { x: -3, y: 2, r: 10, rot: -6, glow: .35 }, curieux: { x: 5, y: -5, r: 9.5, rot: 9, glow: .4 },
+      bas: { ...base, y: 6, r: 11 }, gauche: { ...base, x: -7, y: 4 },
+    }[h] || base;
+    for (const k in M) oeilSt[k].set(M[k], t, .5);
+  }
+  const cligne = T => { const f = d => d < .1 ? 1 - d / .1 : d < .26 ? (d - .1) / .16 : 1; return Math.min(f(T % 5.3), f((T + 2.1) % 7.9)); };
+  function dessineOeil(cx, cy, size, s) {
+    const R0 = 12.5, RIN = 31 - 2.6 - .4;
+    ctx.save();
+    ctx.translate(cx, cy); ctx.scale(size / 100, size / 100); ctx.translate(-50 + (s.dx || 0), -50);
+    ctx.translate(50, 50); ctx.rotate(s.rot * Math.PI / 180); ctx.translate(-50, -50);
+    const ox = 50 + s.x, oy = 50 + s.y, r = Math.max(0, s.r);
+    const ha = clamp(s.glow, 0, 1) * Math.min(1, r / 6), hr = (6 + 8 * s.glow) * 1.7;
+    if (ha > 0) { const g = ctx.createRadialGradient(ox, oy, 0, ox, oy, hr); g.addColorStop(0, rgba(LABO, .9 * ha)); g.addColorStop(1, rgba(LABO, 0)); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ox, oy, hr, 0, Math.PI * 2); ctx.fill(); }
+    ctx.strokeStyle = CRAIE; ctx.lineCap = 'round'; ctx.lineWidth = 5.2;
+    ctx.beginPath(); ctx.arc(50, 50, 31, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(50, 4); ctx.lineTo(50, 17); ctx.moveTo(50, 83); ctx.lineTo(50, 96); ctx.stroke();
+    const a0 = -90 + (R0 - r) * 2.6, Vx = [], U = [];
+    for (let k = 0; k < 6; k++) { const a = (a0 + 60 * k) * Math.PI / 180; U.push([Math.cos(a), Math.sin(a)]); Vx.push([ox + r * Math.cos(a), oy + r * Math.sin(a)]); }
+    ctx.lineWidth = 2.1; ctx.globalAlpha = .9; ctx.beginPath();
+    for (let k = 0; k < 6; k++) {
+      const p = (k + 5) % 6; let dx = U[k][0] - U[p][0], dy = U[k][1] - U[p][1]; const L = Math.hypot(dx, dy); dx /= L; dy /= L;
+      const [x0, y0] = Vx[k], bx = x0 - 50, by = y0 - 50, b = bx * dx + by * dy, c = bx * bx + by * by - RIN * RIN;
+      const t = -b + Math.sqrt(Math.max(0, b * b - c));
+      ctx.moveTo(Vx[p][0], Vx[p][1]); ctx.lineTo(x0 + dx * t, y0 + dy * t);
+    }
+    ctx.stroke(); ctx.globalAlpha = 1;
+    const pr = Math.min(4.2, r * .62);
+    if (pr > .05) {
+      ctx.fillStyle = LABO; ctx.beginPath(); ctx.arc(ox, oy, pr, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.beginPath(); ctx.arc(ox + pr * .33, oy - pr * .33, pr * .24, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+  }
+  function oeil(T) {
+    const O = oeilSt, e = { x: O.x.get(T), y: O.y.get(T), r: O.r.get(T) * cligne(T), rot: O.rot.get(T), glow: O.glow.get(T) };
+    e.x += .35 * Math.sin(T * 1.7); e.y += .3 * Math.sin(T * 1.3 + 1); e.glow += .06 * Math.sin(T * 2.1);
+    const k = T - O.secoue; e.dx = k >= 0 && k < .9 ? Math.sin(k * 22) * 3 * (1 - k / .9) : 0;
+    dessineOeil(1806, 116 + Math.sin(T * .9) * 3, 150, e);
+  }
+
+  // ================================================================ décor
+  const poussiere = (() => { const R = rng(41), out = []; for (let i = 0; i < 150; i++) out.push({ x: R() * W, y: R() * H, vx: (R() - .5) * 14, vy: -4 - R() * 10, a: .04 + R() * .1, g: G[Math.floor(R() * G.length)], c: R() < .5 ? LABO : CRAIE, sz: 10 + Math.round(R() * 8) }); return out; })();
+  let trame = null;
+  function fond(T) {
+    const g = ctx.createRadialGradient(900, 520, 40, 900, 520, 1250);
+    g.addColorStop(0, '#121a2a'); g.addColorStop(.75, NUIT); g.addColorStop(1, NUIT);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (const p of poussiere) {
+      const x = ((p.x + p.vx * T) % W + W) % W, y = ((p.y + p.vy * T) % H + H) % H;
+      ctx.globalAlpha = p.a; ctx.fillStyle = p.c; ctx.font = `${p.sz}px ${MONO}`; ctx.fillText(p.g, x, y);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function voile() {
+    if (!trame) { const c = document.createElement('canvas'); c.width = 1; c.height = 3 * S; const x = c.getContext('2d'); x.fillStyle = 'rgba(0,0,0,.16)'; x.fillRect(0, 0, 1, S); trame = ctx.createPattern(c, 'repeat'); }
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = trame; ctx.fillRect(0, 0, cv.width, cv.height); ctx.restore();
+    const v = ctx.createRadialGradient(960, 540, 560, 960, 540, 1200);
+    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.55)');
+    ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+  }
+
+  // ================================================================ briques graphiques
+  function fenetre(x, y, w, h, a, bord = CRAIE) {
+    if (a <= 0) return;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = 'rgba(12,11,13,.92)'; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = LAITON; ctx.lineWidth = 3; ctx.strokeRect(x - 7.5, y - 7.5, w + 15, h + 15);
+    ctx.strokeStyle = bord; ctx.lineWidth = 4; ctx.strokeRect(x, y, w, h);
+    ctx.globalAlpha = 1;
+  }
+  function txt(s, x, y, size, col, align = 'left', a = 1, font = PIX) {
+    if (a <= 0) return;
+    ctx.globalAlpha = a; ctx.font = `${size}px ${font}`; ctx.fillStyle = col; ctx.textAlign = align; ctx.textBaseline = 'alphabetic';
+    ctx.fillText(s, x, y); ctx.globalAlpha = 1;
+  }
+  // une fenêtre centrée en cx, dont le haut est en y : lignes = [[texte, taille, couleur], …]
+  function boite(cx, y, lignes, a, bord = CRAIE) {
+    if (a <= 0) return;
+    let w = 0, h = 0;
+    for (const [s, z] of lignes) { ctx.font = `${z}px ${PIX}`; w = Math.max(w, ctx.measureText(s).width); h += z * 1.38; }
+    w += 70; h += 34;
+    const o = eOut(a);
+    fenetre(cx - w / 2, y + (1 - o) * 14, w, h, a, bord);
+    let yy = y + (1 - o) * 14 + 17;
+    for (const [s, z, c] of lignes) { yy += z * 1.38; txt(s, cx, yy - z * .36, z, c, 'center', a); }
+  }
+  function tampon(cx, cy, s, col, size, t) {
+    if (t < 0) return;
+    const a = seg(t, 0, .3), sc = lerp(1.5, 1, eOut(seg(t, 0, .35)));
+    ctx.save(); ctx.globalAlpha = a; ctx.translate(cx, cy); ctx.rotate(-6 * Math.PI / 180); ctx.scale(sc, sc);
+    ctx.font = `${size}px ${PIX}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const w = ctx.measureText(s).width + 90, h = size * 1.45;
+    ctx.fillStyle = 'rgba(12,11,13,.86)'; ctx.fillRect(-w / 2, -h / 2, w, h);
+    ctx.strokeStyle = col; ctx.lineWidth = 5; ctx.strokeRect(-w / 2, -h / 2, w, h);
+    ctx.fillStyle = col; ctx.fillText(s, 0, 6);
+    ctx.restore();
+  }
+  function tirets(x0, y0, x1, y1, col, a, lw = 2, motif = [10, 8]) {
+    if (a <= 0) return;
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(motif);
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+  // cadre clignotant autour d'une zone qu'on veut montrer
+  function cerne(x, y, w, h, col, a, T) {
+    if (a <= 0) return;
+    const pu = .5 + .5 * Math.sin(T * 5);
+    ctx.globalAlpha = a * (.75 + .25 * pu); ctx.strokeStyle = col; ctx.lineWidth = 4;
+    ctx.strokeRect(x - 3 * pu, y - 3 * pu, w + 6 * pu, h + 6 * pu); ctx.globalAlpha = 1;
+  }
+  // barre verticale empilée, remplie de bas en haut jusqu'à k (0..1) de la hauteur
+  function barre(cx, bw, yb, bh, segs, k, a = 1) {
+    if (a <= 0) return;
+    ctx.globalAlpha = a; ctx.fillStyle = PISTE; ctx.fillRect(cx - bw / 2, yb - bh, bw, bh);
+    let cum = 0;
+    for (const s of segs) {
+      const v0 = cum, v1 = cum + s.v; cum = v1;
+      const top = Math.min(v1, k * 100); if (top <= v0) continue;
+      ctx.fillStyle = s.col; ctx.fillRect(cx - bw / 2, yb - bh * top / 100, bw, bh * (top - v0) / 100);
+    }
+    ctx.strokeStyle = CRAIE; ctx.lineWidth = 3; ctx.strokeRect(cx - bw / 2, yb - bh, bw, bh);
+    ctx.globalAlpha = 1;
+  }
+  // jauge horizontale bleue / rouge, comme dans le test
+  function jaugeH(x0, y, w, pb, pr, a, gros = false) {
+    if (a <= 0) return;
+    const ep = gros ? 22 : 16;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = PISTE; ctx.fillRect(x0, y, w, ep);
+    ctx.fillStyle = BLEU; ctx.fillRect(x0, y, w * pb / 100, ep);
+    ctx.fillStyle = ROUGE; ctx.fillRect(x0 + w - w * pr / 100, y, w * pr / 100, ep);
+    ctx.fillStyle = CRAIE; ctx.fillRect(x0 + w / 2 - 1.5, y - 12, 3, ep + 24);
+    ctx.globalAlpha = 1;
+    const z = gros ? 24 : 20;
+    txt(`BLEUE ${fmt(pb, pb % 1 ? 1 : 0)} %`, x0, y - 14, z, BLEU_TXT, 'left', a, MONO);
+    txt(`${fmt(pr, pr % 1 ? 1 : 0)} % ROUGE`, x0 + w, y - 14, z, ROUGE_TXT, 'right', a, MONO);
+    txt('50 %', x0 + w / 2, y - 22, z - 2, GRIS, 'center', a, MONO);
+  }
+  function fleche(x0, y0, x1, y1, col, a, lw = 4) {
+    if (a <= 0) return;
+    const ang = Math.atan2(y1 - y0, x1 - x0);
+    ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1 - Math.cos(ang) * 14, y1 - Math.sin(ang) * 14); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x1, y1);
+    ctx.lineTo(x1 - Math.cos(ang - .45) * 24, y1 - Math.sin(ang - .45) * 24);
+    ctx.lineTo(x1 - Math.cos(ang + .45) * 24, y1 - Math.sin(ang + .45) * 24); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  const note = (s, a = 1) => txt(s, 64, 1032, 18, GRIS, 'left', a, MONO);
+
+  // ================================================================ temps des étapes
+  // Tin(i) : temps écoulé dans l'étape i (-1 si elle n'a pas commencé, très grand si elle est finie)
+  let SC = 0, ST = 0, TS = 0, TL = 0, T = 0;
+  const Tin = i => (ST > i ? 999 : ST < i ? -1 : TL);
+  const P = (i, a = 0, b = 1) => eIO(seg(Tin(i), a, b));
+
+  // ================================================================ scènes 1 et 3 : la jauge
+  function sceneJauge(o) {
+    const bleus = new Set(PERM[0].slice(0, o.nb));
+    const pos = i => [960 - 570 + (i % 20) * 60, 430 + Math.floor(i / 20) * 72];
+    return {
+      nom: `Description ${o.l} : la révélation`, titre: `DESCRIPTION ${o.l}`, pas: 3,
+      oeil: o.vie ? ['curieux', 'neutre', 'grand'] : ['curieux', 'bas', 'plisse'], secoue: o.vie ? -1 : 2,
+      draw() {
+        const t0 = Tin(0), t1 = Tin(1), t2 = Tin(2);
+        boite(960, 160, [[`DESCRIPTION ${o.l}`, 26, LABO], ...o.q.map(l => [l, 38, CRAIE])], seg(t0, .1, .5) * (1 - seg(t1, 0, .35)));
+        const kg = eIO(seg(t1, .2, 2.4));
+        for (let i = 0; i < 100; i++) {
+          const [cx, cy] = pos(i);
+          const ka = eBack(seg(t0, R1[i] * .8, R1[i] * .8 + .45)); if (ka <= .01) continue;
+          const tc = .2 + RANG[1][i] * .021, kc = seg(t1, tc, tc + .25), fin = bleus.has(i) ? BLEU : ROUGE;
+          const col = kc <= 0 ? GRIS_FIG : mix(GRIS_FIG, fin, kc);
+          const pop = kc > 0 && kc < 1 ? .3 * Math.sin(Math.PI * kc) : 0;
+          if (t1 < 0) txt('?', cx, cy - 36, 18, GRIS, 'center', ka * (.45 + .4 * Math.sin(T * 3 + i)));
+          if (o.vie && t2 >= 0) halo(cx, cy, 48, fin, seg(t2, 0, .6) * (.6 + .4 * Math.sin(T * 5 + cx * .01)));
+          const dis = !o.vie && bleus.has(i) ? seg(t2, .2 + R2[i] * .9, 2.2 + R2[i] * .9) : 0;
+          fig(i, cx, cy, 5.4 * Math.min(ka, 1.2) * (1 + pop), col, kc <= 0 ? .82 : 1, dis);
+        }
+        jaugeH(390, 830, 1140, o.pct * kg, (100 - o.pct) * kg, seg(t1, 0, .4), true);
+        boite(960, 160, [[`${fmt(o.pct)} %`, 70, BLEU_TXT], ['ONT PRIS LA PILULE BLEUE', 26, CRAIE], [o.effectifs, 20, GRIS]], seg(t1, 2.3, 2.8));
+        if (t2 >= 0) tampon(960, 580, o.vie ? 'TOUT LE MONDE SURVIT' : 'LES BLEUS MEURENT', o.vie ? LABO : ROUGE_TXT, 54, t2 - (o.vie ? .7 : 2.4));
+      },
+    };
+  }
+
+  // ================================================================ scène 4 : les deux jauges côte à côte
+  const sceneEcart = {
+    nom: 'A contre B : 53 points', titre: 'LA MÊME RÈGLE, DEUX FOIS', pas: 2, oeil: ['neutre', 'grand'],
+    draw() {
+      const t0 = Tin(0), t1 = Tin(1), YB = 900, BH = 600, BW = 170;
+      const B = [{ x: 760, pct: 65.5, l: 'DESCRIPTION A', d: 0 }, { x: 1160, pct: 12.6, l: 'DESCRIPTION B', d: .7 }];
+      const a0 = seg(t0, 0, .4);
+      B.forEach(b => {
+        const k = eIO(seg(t0, .3 + b.d, 1.6 + b.d));
+        barre(b.x, BW, YB, BH, [{ v: b.pct * k, col: BLEU }, { v: (100 - b.pct) * k, col: PISTE }], 1, a0);
+        // le rouge descend du haut
+        ctx.globalAlpha = a0; ctx.fillStyle = ROUGE; ctx.fillRect(b.x - BW / 2 + 1.5, YB - BH + 1.5, BW - 3, BH * (100 - b.pct) / 100 * k - 1.5); ctx.globalAlpha = 1;
+        ctx.strokeStyle = CRAIE; ctx.lineWidth = 3; ctx.globalAlpha = a0; ctx.strokeRect(b.x - BW / 2, YB - BH, BW, BH); ctx.globalAlpha = 1;
+        txt(b.l, b.x, YB + 50, 28, CRAIE, 'center', a0);
+        const yb = YB - BH * b.pct / 100 * k;
+        txt(`${fmt(b.pct * k)} %`, b.x - BW / 2 - 24, yb + 14, 40, BLEU_TXT, 'right', seg(t0, .3 + b.d, .6 + b.d));
+      });
+      tirets(540, YB - BH / 2, 1380, YB - BH / 2, CRAIE, a0 * .8);
+      txt('50 %', 520, YB - BH / 2 + 8, 22, GRIS, 'right', a0, MONO);
+      // l'écart
+      const k1 = P(1, 0, .8), yA = YB - BH * .655, yB = YB - BH * .126, xb = 1400;
+      tirets(B[0].x + BW / 2, yA, lerp(B[0].x + BW / 2, xb + 20, k1), yA, BLEU_TXT, k1, 3, [6, 6]);
+      tirets(B[1].x + BW / 2, yB, lerp(B[1].x + BW / 2, xb + 20, k1), yB, BLEU_TXT, k1, 3, [6, 6]);
+      const k2 = P(1, .7, 1.4);
+      if (k2 > 0) {
+        ctx.globalAlpha = k2; ctx.strokeStyle = CRAIE; ctx.lineWidth = 4;
+        const ym = lerp(yA, yB, .5), h2 = (yB - yA) / 2 * k2;
+        ctx.beginPath(); ctx.moveTo(xb, ym - h2); ctx.lineTo(xb + 20, ym - h2); ctx.moveTo(xb + 20, ym - h2); ctx.lineTo(xb + 20, ym + h2); ctx.lineTo(xb, ym + h2); ctx.stroke();
+        ctx.globalAlpha = 1;
+        txt('53', xb + 50, ym + 6, 96, CRAIE, 'left', seg(Tin(1), 1.2, 1.6));
+        txt('POINTS D’ÉCART', xb + 54, ym + 56, 26, CRAIE, 'left', seg(Tin(1), 1.4, 1.8));
+      }
+    },
+  };
+
+  // ================================================================ scènes 2 et 5 : les prédictions, une figure = 1 % du groupe
+  const Q = (bp, n) => [...Array(n).keys()].map(i => { const q = (i + .5) / n; return bp.find(([e]) => q < e)[1]; });
+  const X0 = 300, X1 = 1640, BASE = 590, NC = 84, PXC = (X1 - X0) / (NC - 1), CAP = 10, CS = 2.8;
+  const xVal = v => X0 + v / 100 * (X1 - X0);
+  function empile(items) {
+    const cnt = new Map(), pos = {};
+    [...items].sort((a, b) => a.v - b.v || a.id - b.id).forEach(it => {
+      const c0 = Math.round(it.v / 100 * (NC - 1));
+      for (let d = 0; d < 60; d++) {
+        const c = c0 + (d === 0 ? 0 : d % 2 ? (d + 1) / 2 : -d / 2);
+        if (c < 0 || c > NC - 1) continue;
+        const n = cnt.get(c) || 0;
+        if (n < CAP) { pos[it.id] = { c, r: n }; cnt.set(c, n + 1); break; }
+      }
+    });
+    return pos;
+  }
+  const enHaut = p => [X0 + p.c * PXC, BASE - 26 - p.r * 28];
+  const enBas = p => [X0 + p.c * PXC, BASE + 56 + p.r * 28];
+  function scenePredictions(o) {
+    const vb = Q(o.qb, o.nb), vr = Q(o.qr, 100 - o.nb);
+    const items = [...vb.map((v, k) => ({ id: k, v, b: true })), ...vr.map((v, k) => ({ id: o.nb + k, v, b: false }))];
+    const tous = empile(items), haut = empile(items.filter(it => it.b)), bas = empile(items.filter(it => !it.b));
+    const cible = it => (it.b ? enHaut(haut[it.id]) : enBas(bas[it.id]));
+    const zone = ids => {
+      let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+      ids.forEach(id => { const it = items[id], [x, y] = cible(it); x0 = Math.min(x0, x - 10); x1 = Math.max(x1, x + 10); y0 = Math.min(y0, y - 15); y1 = Math.max(y1, y + 15); });
+      return [x0, y0, x1 - x0, y1 - y0];
+    };
+    return {
+      nom: `Prédictions, groupe ${o.l}`, titre: `PRÉDICTIONS · GROUPE ${o.l}`, pas: 2 + o.surlignes.length, oeil: o.oeil,
+      draw() {
+        const t0 = Tin(0), t1 = Tin(1), a0 = seg(t0, 0, .4);
+        // l'axe
+        ctx.globalAlpha = a0; ctx.fillStyle = CRAIE; ctx.fillRect(X0 - 30, BASE - 2, X1 - X0 + 60, 3); ctx.globalAlpha = 1;
+        [0, 25, 50, 75, 100].forEach(v => {
+          ctx.globalAlpha = a0; ctx.fillStyle = CRAIE; ctx.fillRect(xVal(v) - 1, BASE - 8, 2, 14); ctx.globalAlpha = 1;
+          txt(`${v} %`, xVal(v), BASE + 32, 20, GRIS, 'center', a0, MONO);
+        });
+        txt('PRÉDICTION : PART DE BLEUE CHEZ LES AUTRES', X0 - 30, 205, 22, GRIS, 'left', a0);
+        // la vraie valeur
+        tirets(xVal(o.reel), BASE - 350, xVal(o.reel), BASE + 350, CRAIE, a0 * .9, 2, [8, 7]);
+        txt(`VALEUR RÉELLE ${fmt(o.reel)} %`, xVal(o.reel) + (o.reelDroite ? 14 : -14), BASE - 335, 22, CRAIE, o.reelDroite ? 'left' : 'right', a0);
+        // tous ensemble, puis séparés
+        for (const it of items) {
+          const [xa, ya] = enHaut(tous[it.id]), [xb, yb] = cible(it);
+          const ka = eBack(seg(t0, .2 + R1[it.id] * 1.2, .65 + R1[it.id] * 1.2)); if (ka <= .01) continue;
+          const km = eIO(seg(t1, .3 + R2[it.id] * .6, 1.4 + R2[it.id] * .6)), kc = seg(t1, R2[it.id] * .5, R2[it.id] * .5 + .3);
+          fig(it.id, lerp(xa, xb, km), lerp(ya, yb, km), CS * Math.min(ka, 1.2), mix(GRIS_FIG, it.b ? BLEU : ROUGE, kc), 1);
+        }
+        // moyennes
+        if (o.moyTous !== null) {
+          const a = a0 * (1 - seg(t1, 0, .4));
+          tirets(xVal(o.moyTous), BASE + 14, xVal(o.moyTous), BASE - 320, LABO, a, 3, [4, 6]);
+          txt(`MOYENNE DES PRÉDICTIONS ${fmt(o.moyTous)} %`, xVal(o.moyTous) - 14, BASE + 80, 22, LABO, 'right', a);
+        }
+        const am = seg(t1, 1.6, 2.1);
+        tirets(xVal(o.moyB), BASE - 14, xVal(o.moyB), BASE - 330, BLEU_TXT, am, 3, [4, 6]);
+        txt(`BLEUS : MOYENNE ${fmt(o.moyB, o.moyB % 1 ? 1 : 0)} %`, xVal(o.moyB) + 14, BASE - 335, 22, BLEU_TXT, 'left', am);
+        tirets(xVal(o.moyR), BASE + 40, xVal(o.moyR), BASE + 350, ROUGE_TXT, am, 3, [4, 6]);
+        txt(`ROUGES : MOYENNE ${fmt(o.moyR, 0)} %`, xVal(o.moyR) + 14, BASE + 345, 22, ROUGE_TXT, 'left', am);
+        // ce qu'on montre ensuite
+        o.surlignes.forEach((s, j) => {
+          const t = Tin(2 + j); if (t < 0) return;
+          const ids = items.filter(s.filtre).map(it => it.id), a = seg(t, 0, .4);
+          if (s.chaque) ids.forEach(id => { const [x, y] = cible(items[id]); cerne(x - 16, y - 21, 32, 42, CRAIE, a, T); });
+          else { const [x, y, w, h] = zone(ids); cerne(x - 8, y - 8, w + 16, h + 16, CRAIE, a, T); }
+          const [x, y, w, h] = zone(ids);
+          s.lignes.forEach((l, k) => txt(l, s.lx(x, w), s.ly(y, h) + k * 34, 26, CRAIE, s.align || 'left', seg(t, .3 + k * .5, .7 + k * .5)));
+        });
+        note('Chaque figure représente 1 % des participants du groupe.', a0);
+      },
+    };
+  }
+
+  // ================================================================ scène 6 : les deux descriptions disent-elles la même chose ?
+  const ACCORD = [['TOUT À FAIT D’ACCORD', LABO], ['PLUTÔT D’ACCORD', LABO_FONCE], ['NEUTRE', NEUTRE], ['PLUTÔT PAS D’ACCORD', TIEDE], ['PAS DU TOUT D’ACCORD', CHAUD]];
+  const pourcents = n => { const s = n.reduce((a, b) => a + b, 0); return n.map(v => v / s * 100); };
+  const sceneMemeChose = {
+    nom: 'Les deux descriptions disent-elles la même chose ?', titre: 'MÊME SITUATION ?', pas: 2, oeil: ['neutre', 'grand'],
+    draw() {
+      const t0 = Tin(0), a0 = seg(t0, 0, .4), YB = 880, BH = 560, BW = 150;
+      boite(960, 160, [['« Les deux descriptions sont factuellement équivalentes. »', 30, CRAIE]], a0);
+      const G2 = [{ x: 820, n: [1669, 290, 27, 135, 101], ok: '88,1 %', non: '10,6 %', l: 'GROUPE A', d: 0 }, { x: 1340, n: [1832, 256, 25, 80, 42], ok: '93,4 %', non: '5,4 %', l: 'GROUPE B', d: .5 }];
+      G2.forEach(g => {
+        const p = pourcents(g.n), k = eIO(seg(t0, .3 + g.d, 1.6 + g.d));
+        barre(g.x, BW, YB, BH, p.map((v, i) => ({ v, col: ACCORD[i][1] })), k, a0);
+        txt(g.l, g.x, YB + 46, 26, CRAIE, 'center', a0);
+        const a1 = P(1, 0, .5), ha = BH * (p[0] + p[1]) / 100;
+        cerne(g.x - BW / 2 - 8, YB - ha - 8, BW + 16, ha + 16, CRAIE, a1, T);
+        txt(g.ok, g.x + BW / 2 + 36, YB - ha / 2 + 10, 72, LABO, 'left', a1);
+        txt('D’ACCORD', g.x + BW / 2 + 40, YB - ha / 2 + 54, 26, LABO, 'left', a1);
+        txt(`${g.non} PAS D’ACCORD`, g.x + BW / 2 + 40, YB - BH + 30, 20, CHAUD, 'left', P(1, .4, .9));
+      });
+      ACCORD.forEach(([l, c], i) => {
+        const y = 560 + i * 54, a = a0;
+        ctx.globalAlpha = a; ctx.fillStyle = c; ctx.fillRect(110, y - 24, 30, 30); ctx.globalAlpha = 1;
+        txt(l, 156, y, 22, CRAIE, 'left', a);
+      });
+    },
+  };
+
+  // ================================================================ scène 7 : plus ou moins trompeuse ?
+  const TROMPE = [LABO, NEUTRE, CHAUD]; // moins trompeuse / ni plus ni moins / plus trompeuse (de bas en haut)
+  const sceneTrompeuse = {
+    nom: 'Plus ou moins trompeuse ?', titre: 'PLUS OU MOINS TROMPEUSE ?', pas: 3, oeil: ['neutre', 'curieux', 'doute'],
+    draw() {
+      const t0 = Tin(0), a0 = seg(t0, 0, .4), YB = 880, BH = 560, BW = 150;
+      const kB = P(2, 0, 1.2);
+      const qA = seg(t0, 0, .4) * (1 - seg(Tin(2), 0, .3)), qB = seg(Tin(2), .3, .7);
+      boite(960, 150, [['GROUPE A', 24, LABO], ['« La description B est-elle plus ou moins trompeuse que la A ? »', 28, CRAIE]], qA);
+      boite(960, 150, [['GROUPE B', 24, LABO], ['« La description A est-elle plus ou moins trompeuse que la B ? »', 28, CRAIE]], qB);
+      const BARS = [
+        { x: 760, l: 'ONT PRIS LA BLEUE', c: BLEU_TXT, A: [20.5, 27.9, 51.6], B: [43, 34, 23], cote: -1 },
+        { x: 1160, l: 'ONT PRIS LA ROUGE', c: ROUGE_TXT, A: [56.5, 28.5, 15], B: [15, 31, 54], cote: 1 },
+      ];
+      BARS.forEach((b, j) => {
+        const v = b.A.map((x, i) => lerp(x, b.B[i], kB)), k = eIO(seg(t0, .3 + j * .5, 1.6 + j * .5));
+        barre(b.x, BW, YB, BH, v.map((x, i) => ({ v: x, col: TROMPE[i] })), k, a0);
+        fig(j, b.x, YB + 44, 3, j ? ROUGE : BLEU, a0);
+        txt(b.l, b.x, YB + 100, 24, b.c, 'center', a0);
+        // ce qui donne raison à son choix : pour les bleus du groupe A, la B est plus trompeuse ; etc.
+        const montre = (i, val, lab, a) => {
+          if (a <= 0) return;
+          const y0 = YB - BH * v.slice(0, i).reduce((s, x) => s + x, 0) / 100, h = BH * v[i] / 100;
+          cerne(b.x - BW / 2 - 8, y0 - h - 8, BW + 16, h + 16, CRAIE, a, T);
+          const x = b.x + b.cote * (BW / 2 + 34), al = b.cote < 0 ? 'right' : 'left';
+          txt(val, x, y0 - h / 2 + 10, 60, CRAIE, al, a);
+          txt(lab, x, y0 - h / 2 + 50, 22, CRAIE, al, a);
+        };
+        const a1 = P(1, 0, .5) * (1 - seg(Tin(2), 0, .3)), a2 = seg(Tin(2), 1.2, 1.7);
+        if (j === 0) { montre(2, '51,6 %', 'JUGENT LA B PLUS TROMPEUSE', a1); montre(0, '43 %', 'JUGENT LA A MOINS TROMPEUSE', a2); }
+        else { montre(0, '56,5 %', 'JUGENT LA B MOINS TROMPEUSE', a1); montre(2, '54 %', 'JUGENT LA A PLUS TROMPEUSE', a2); }
+      });
+      [['PLUS TROMPEUSE', CHAUD], ['NI PLUS NI MOINS', NEUTRE], ['MOINS TROMPEUSE', LABO]].forEach(([l, c], i) => {
+        const y = 600 + i * 54;
+        ctx.globalAlpha = a0; ctx.fillStyle = c; ctx.fillRect(1600, y - 24, 30, 30); ctx.globalAlpha = 1;
+        txt(l, 1646, y, 22, CRAIE, 'left', a0);
+      });
+    },
+  };
+
+  // ================================================================ scène 8 : auriez-vous fait le même choix ?
+  const GRILLE = (cx, i) => [cx - 189 + (i % 10) * 42, 350 + Math.floor(i / 10) * 46];
+  const sceneMemeChoix = {
+    nom: 'Auriez-vous fait le même choix ?', titre: 'LE MÊME CHOIX ?', pas: 6, oeil: ['neutre', 'curieux', 'grand', 'neutre', 'curieux', 'doute'],
+    draw() {
+      const panneaux = [
+        { cx: 540, de: BLEU, vers: ROUGE, tit: 'GROUPE A · ONT PRIS LA BLEUE', tc: BLEU_TXT, n: 80, adm: 70, s0: 0, p: PERM[1],
+          l1: '≈ 80 % AURAIENT PRIS LA ROUGE', l1b: 'AVEC LA DESCRIPTION B', l2: '70 % L’ADMETTENT' },
+        { cx: 1380, de: ROUGE, vers: BLEU, tit: 'GROUPE B · ONT PRIS LA ROUGE', tc: ROUGE_TXT, n: 60, adm: 21, s0: 3, p: PERM[2],
+          l1: '≈ 60 % AURAIENT PRIS LA BLEUE', l1b: 'AVEC LA DESCRIPTION A', l2: '21 % L’ADMETTENT', l3: '≈ 40 % S’ILLUSIONNENT' },
+      ];
+      panneaux.forEach(pn => {
+        const t0 = Tin(pn.s0), t1 = Tin(pn.s0 + 1), t2 = Tin(pn.s0 + 2), a0 = seg(t0, 0, .4);
+        if (t0 < 0) return;
+        txt(pn.tit, pn.cx, 300, 26, pn.tc, 'center', a0);
+        const rang = []; pn.p.forEach((v, k) => { rang[v] = k; });
+        // les cases : ceux qui l'admettent en bleu laboratoire, ceux qui s'illusionnent en pointillés
+        for (let i = 0; i < 100; i++) {
+          const [x, y] = GRILLE(pn.cx, i), r = rang[i];
+          if (r < pn.adm) {
+            const k = seg(t2, .2 + r * .02, .5 + r * .02); if (k <= 0) continue;
+            ctx.globalAlpha = .3 * k; ctx.fillStyle = LABO; ctx.fillRect(x - 19, y - 21, 38, 42);
+            ctx.globalAlpha = k; ctx.strokeStyle = LABO; ctx.lineWidth = 2; ctx.strokeRect(x - 19, y - 21, 38, 42); ctx.globalAlpha = 1;
+          } else if (pn.l3 && r < pn.n) {
+            const k = seg(t2, 1.6 + (r - pn.adm) * .02, 1.9 + (r - pn.adm) * .02); if (k <= 0) continue;
+            ctx.globalAlpha = k * (.65 + .35 * Math.sin(T * 4 + i)); ctx.strokeStyle = CRAIE; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+            ctx.strokeRect(x - 19, y - 21, 38, 42); ctx.setLineDash([]); ctx.globalAlpha = 1;
+          }
+        }
+        for (let i = 0; i < 100; i++) {
+          const [x, y] = GRILLE(pn.cx, i), r = rang[i];
+          const ka = eBack(seg(t0, .1 + R1[i] * .8, .55 + R1[i] * .8)); if (ka <= .01) continue;
+          const kc = r < pn.n ? seg(t1, .3 + r * .025, .55 + r * .025) : 0;
+          fig(i, x, y, 3.6 * Math.min(ka, 1.2) * (1 + (kc > 0 && kc < 1 ? .3 * Math.sin(Math.PI * kc) : 0)), mix(pn.de, pn.vers, kc), 1);
+        }
+        txt(pn.l1, pn.cx, 846, 26, mix(pn.vers, CRAIE, .25), 'center', seg(t1, 2.0, 2.5));
+        txt(pn.l1b, pn.cx, 880, 20, GRIS, 'center', seg(t1, 2.2, 2.7));
+        txt(pn.l2, pn.cx, 938, 30, LABO, 'center', seg(t2, .8, 1.3));
+        if (pn.l3) txt(pn.l3, pn.cx, 982, 30, CRAIE, 'center', seg(t2, 2.6, 3.1));
+      });
+      ctx.globalAlpha = seg(Tin(3), 0, .4) * .5; ctx.fillStyle = CRAIE; ctx.fillRect(959, 280, 2, 720); ctx.globalAlpha = 1;
+      note('≈ 80 % et ≈ 60 % : déduits de l’écart entre les deux groupes (65,5 % de bleue avec A, 12,6 % avec B).', seg(Tin(1), 2, 2.5));
+    },
+  };
+
+  // ================================================================ scène 9 : qui prend la bleue ?
+  const sceneQui = {
+    nom: 'Qui prend la bleue ?', titre: 'QUI PREND LA BLEUE ?', pas: 2, oeil: ['curieux', 'neutre'],
+    draw() {
+      const YB = 840, BH = 480, BW = 104;
+      const groupe = (titre, cx, bars, i) => {
+        const t = Tin(i), a = seg(t, 0, .4); if (t < 0) return;
+        txt(titre, cx, 250, 26, LABO, 'center', a);
+        const n = bars.length, pas = 170, x0 = cx - (n - 1) * pas / 2;
+        tirets(x0 - 90, YB - BH / 2, x0 + (n - 1) * pas + 90, YB - BH / 2, CRAIE, a * .5);
+        bars.forEach(([lab, v], j) => {
+          const x = x0 + j * pas, k = eIO(seg(t, .3 + j * .15, 1.4 + j * .15));
+          barre(x, BW, YB, BH, [{ v, col: BLEU }], k, a);
+          txt(`${fmt(v * k, 0)} %`, x, YB - BH * v / 100 * k - 16, 34, BLEU_TXT, 'center', seg(t, .3 + j * .15, .6 + j * .15));
+          lab.split('\n').forEach((l, li) => txt(l, x, YB + 40 + li * 28, 22, CRAIE, 'center', a));
+        });
+        return x0;
+      };
+      groupe('GENRE', 400, [['HOMMES', 2107 / 64.86], ['FEMMES', 545 / 12.74]], 0);
+      groupe('ORIENTATION POLITIQUE', 1260, [['TRÈS À\nGAUCHE', 1299 / 33.04], ['PLUTÔT À\nGAUCHE', 928 / 27.69], ['AU\nCENTRE', 155 / 5.70], ['PLUTÔT À\nDROITE', 116 / 4.77], ['TRÈS À\nDROITE', 29 / 1.27]], 1);
+      note('Les deux groupes confondus.', seg(Tin(0), 0, .4));
+    },
+  };
+
+  // ================================================================ scène 10 : tous les écarts sur une même échelle
+  const sceneEchelle = {
+    nom: 'Tous les écarts, même échelle', titre: 'TOUS LES ÉCARTS', pas: 2, oeil: ['neutre', 'grand'], secoue: 1,
+    draw() {
+      const XG = 640, PT = 19;
+      txt('ÉCART DE PART DE BLEUE, EN POINTS', XG, 300, 24, GRIS, 'left', seg(Tin(0), 0, .4));
+      const L = [
+        { l: 'FEMMES / HOMMES', v: 11, y: 420, s: 0, d: 0 },
+        { l: 'GAUCHE / DROITE', v: 16, y: 530, s: 0, d: .4 },
+        { l: 'D’UN PAYS À L’AUTRE', v: null, y: 640, s: 0, d: .8 },
+        { l: 'DESCRIPTION A / B', v: 53, y: 800, s: 1, d: 0 },
+      ];
+      L.forEach(r => {
+        const t = Tin(r.s), a = seg(t, r.d, r.d + .4); if (a <= 0) return;
+        txt(r.l, XG - 36, r.y + 14, 28, CRAIE, 'right', a);
+        if (r.v === null) {
+          ctx.globalAlpha = a; ctx.strokeStyle = GRIS; ctx.lineWidth = 3; ctx.setLineDash([10, 8]); ctx.strokeRect(XG, r.y - 22, 20 * PT, 48); ctx.setLineDash([]); ctx.globalAlpha = 1;
+          txt('À MESURER', XG + 24, r.y + 12, 24, GRIS, 'left', a);
+          return;
+        }
+        const k = r.s === 1 ? eOut(seg(t, .2, 1.0)) : eIO(seg(t, r.d + .2, r.d + 1.0)), w = r.v * PT * k, col = r.s === 1 ? CRAIE : LABO;
+        ctx.globalAlpha = a; ctx.fillStyle = col; ctx.fillRect(XG, r.y - 22, w, 48); ctx.globalAlpha = 1;
+        txt(`${Math.round(r.v * k)} PTS`, XG + w + 24, r.y + 16, r.s === 1 ? 48 : 36, col, 'left', a);
+      });
+      ctx.globalAlpha = seg(Tin(0), 0, .4); ctx.fillStyle = CRAIE; ctx.fillRect(XG - 2, 350, 3, 500); ctx.globalAlpha = 1;
+    },
+  };
+
+  // ================================================================ scène 11 : le méta-dilemme
+  const sceneMeta = {
+    nom: 'Le méta-dilemme', titre: 'LE MÉTA-DILEMME', pas: 2, oeil: ['curieux', 'grand'],
+    draw() {
+      const YB = 870, BH = 540, BW = 170;
+      boite(960, 150, [['Pour cent vrais participants,', 30, CRAIE], ['quelle description choisissez-vous ?', 30, CRAIE]], seg(Tin(0), 0, .4));
+      const G2 = [{ x: 760, a: 48.7, b: 51.3, l: ['EXPOSÉS D’ABORD', 'À LA DESCRIPTION A'], s: 0 }, { x: 1160, a: 30, b: 70, l: ['EXPOSÉS D’ABORD', 'À LA DESCRIPTION B'], s: 1 }];
+      G2.forEach(g => {
+        const t = Tin(g.s), a = seg(t, 0, .4); if (t < 0) return;
+        const k = eIO(seg(t, .2, 1.4));
+        barre(g.x, BW, YB, BH, [{ v: g.a, col: SABLE }, { v: g.b, col: LABO }], k, a);
+        g.l.forEach((l, i) => txt(l, g.x, YB + 44 + i * 30, 22, CRAIE, 'center', a));
+        const ka = seg(t, 1.2, 1.6);
+        txt(`${fmt(g.a, g.a % 1 ? 1 : 0)} %`, g.x, YB - BH * g.a / 200 + 14, 36, NUIT, 'center', ka);
+        txt(`${fmt(g.b, g.b % 1 ? 1 : 0)} %`, g.x, YB - BH * (g.a + g.b / 2) / 100 + 14, 44, NUIT, 'center', ka);
+      });
+      [['CHOISISSENT LA DESCRIPTION B', LABO], ['CHOISISSENT LA DESCRIPTION A', SABLE]].forEach(([l, c], i) => {
+        const y = 620 + i * 54, a = seg(Tin(0), 0, .4);
+        ctx.globalAlpha = a; ctx.fillStyle = c; ctx.fillRect(1380, y - 24, 30, 30); ctx.globalAlpha = 1;
+        txt(l, 1426, y, 22, CRAIE, 'left', a);
+      });
+    },
+  };
+
+  // ================================================================ scène 12 : deux scénarios pour cent vrais participants
+  const sceneScenarios = {
+    nom: 'Deux scénarios pour cent vrais participants', titre: 'POUR DE VRAI ?', pas: 2, oeil: ['doute', 'bas'],
+    draw() {
+      const t0 = Tin(0), t1 = Tin(1), a0 = seg(t0, 0, .4);
+      const PN = [{ cx: 540, l: 'AVEC LA DESCRIPTION A' }, { cx: 1380, l: 'AVEC LA DESCRIPTION B' }];
+      const hesite = i => Math.sin(T * (1.1 + R1[i] * 1.7) + R2[i] * 9) > 0;
+      PN.forEach((pn, j) => {
+        txt(pn.l, pn.cx, 300, 26, LABO, 'center', a0);
+        let nb = 0;
+        for (let i = 0; i < 100; i++) {
+          const [x, y] = GRILLE(pn.cx, i), r = RANG[j][i];
+          const ka = eBack(seg(t0, .1 + R1[i] * .8, .55 + R1[i] * .8)); if (ka <= .01) continue;
+          let bleu = j === 0 ? (r < 44 || (r < 58 && hesite(i))) : r < 13;
+          if (bleu) nb++;
+          const dis = j === 1 && bleu ? seg(t1, .2 + R2[i] * .8, 2.2 + R2[i] * .8) : 0;
+          fig(i, x, y, 3.6 * Math.min(ka, 1.2), bleu ? BLEU : ROUGE, 1, dis);
+        }
+        const pb = j === 0 ? nb : 12.6;
+        jaugeH(pn.cx - 230, 860, 460, pb * seg(t0, .4, 1.2), (100 - pb) * seg(t0, .4, 1.2), a0);
+        if (j === 0) txt('ISSUE INCERTAINE', pn.cx, 940, 30, CRAIE, 'center', seg(t0, 1.2, 1.6));
+        else txt('LA BLEUE PERD : ≈ 13 MORTS', pn.cx, 940, 30, ROUGE_TXT, 'center', seg(t1, 1.6, 2.1));
+      });
+      ctx.globalAlpha = a0 * .5; ctx.fillStyle = CRAIE; ctx.fillRect(959, 280, 2, 700); ctx.globalAlpha = 1;
+    },
+  };
+
+  // ================================================================ la suite des scènes
+  const SCENES = [
+    sceneJauge({ l: 'A', pct: 65.5, nb: 66, vie: true, q: ['Quelle part a pris la pilule bleue ?'], effectifs: '1 456 BLEUES · 766 ROUGES' }),
+    scenePredictions({
+      l: 'A', nb: 66, reel: 65.5, reelDroite: false, moyTous: 60.7, moyB: 80, moyR: 25, oeil: ['neutre', 'curieux', 'plisse', 'doute'],
+      qb: [[.004, 0], [.008, 10], [.016, 20], [.027, 30], [.042, 40], [.06, 50], [.085, 55], [.155, 60], [.17, 65], [.2, 67], [.28, 70], [.37, 75], [.54, 80], [.59, 85], [.74, 90], [.84, 95], [.9, 98], [1.01, 100]],
+      qr: [[.17, 0], [.2, 2], [.31, 5], [.455, 10], [.51, 15], [.58, 20], [.65, 25], [.71, 30], [.74, 35], [.8, 40], [.84, 50], [.86, 55], [.89, 60], [.92, 70], [.94, 75], [.96, 80], [.98, 90], [1.01, 100]],
+      surlignes: [
+        { filtre: it => !it.b && it.v === 0, lignes: ['17 % DES ROUGES', 'PRÉDISENT 0 %'], lx: (x) => x - 8, ly: (y, h) => y + h + 56 },
+        { filtre: it => it.b && it.v < 50, chaque: true, lignes: ['≈ 4 % DES BLEUS PRÉDISENT', 'MOINS DE 50 % DE BLEUE'], lx: (x, w) => x - 30, ly: (y) => y - 120 },
+      ],
+    }),
+    sceneJauge({ l: 'B', pct: 12.6, nb: 13, vie: false, q: ['Mêmes pilules, même règle.', 'Quelle part a pris la bleue ?'], effectifs: '281 BLEUES · 1 954 ROUGES' }),
+    sceneEcart,
+    scenePredictions({
+      l: 'B', nb: 13, reel: 12.6, reelDroite: true, moyTous: null, moyB: 61.8, moyR: 11, oeil: ['neutre', 'curieux', 'neutre'],
+      qb: [[.003, 0], [.012, 5], [.03, 10], [.045, 15], [.065, 20], [.095, 25], [.12, 30], [.155, 40], [.205, 50], [.25, 51], [.31, 55], [.34, 58], [.51, 60], [.585, 65], [.6, 67], [.68, 70], [.77, 75], [.87, 80], [.93, 85], [.955, 90], [.975, 95], [1.01, 100]],
+      qr: [[.38, 0], [.46, 1], [.5, 2], [.52, 3], [.53, 4], [.64, 5], [.66, 8], [.76, 10], [.78, 12], [.8, 15], [.84, 20], [.875, 25], [.9, 30], [.915, 35], [.93, 40], [.94, 45], [.95, 50], [.96, 60], [.97, 70], [.978, 80], [.985, 90], [.99, 95], [1.01, 100]],
+      surlignes: [
+        { filtre: it => !it.b && it.v <= 2, lignes: ['LA MOITIÉ DES ROUGES', 'PRÉDIT 2 % OU MOINS'], lx: () => xVal(12.6) + 30, ly: () => BASE - 170 },
+      ],
+    }),
+    sceneMemeChose,
+    sceneTrompeuse,
+    sceneMemeChoix,
+    sceneQui,
+    sceneEchelle,
+    sceneMeta,
+    sceneScenarios,
+  ];
+
+  function cartouche(a) {
+    const s = SCENES[SC];
+    ctx.font = `24px ${PIX}`; const w = Math.max(300, ctx.measureText(s.titre).width + 46);
+    fenetre(48, 40, w, 84, a);
+    txt(`RÉSULTATS ${String(SC + 1).padStart(2, '0')}`, 70, 74, 24, LAITON, 'left', a);
+    txt(s.titre, 70, 108, 24, CRAIE, 'left', a);
+  }
+
+  // ================================================================ navigation
+  function entre(sc, st, t) {
+    SC = clamp(sc, 0, SCENES.length - 1); ST = clamp(st, 0, SCENES[SC].pas - 1); TS = t;
+    const s = SCENES[SC];
+    humeur(t, (s.oeil && s.oeil[ST]) || 'neutre');
+    if (s.secoue === ST) oeilSt.secoue = t + (SC === 2 ? 2.3 : .3);
+    try { history.replaceState(null, '', `#s${SC + 1}.${ST + 1}${S > 1 ? '-4k' : ''}`); } catch (e) {}
+  }
+  let tScene = 0;
+  function suite(t) {
+    if (ST < SCENES[SC].pas - 1) entre(SC, ST + 1, t);
+    else if (SC < SCENES.length - 1) { tScene = t; entre(SC + 1, 0, t); }
+  }
+  function retour(t) {
+    if (ST > 0) entre(SC, ST - 1, t);
+    else if (SC > 0) { tScene = t; entre(SC - 1, SCENES[SC - 1].pas - 1, t); }
+  }
+  function scene(sc, t) { tScene = t; entre(sc, 0, t); }
+
+  // ================================================================ rendu
+  const debut = performance.now() / 1000;
+  const temps = () => performance.now() / 1000 - debut;
+  const $ = id => document.getElementById(id);
+  function hud() {
+    const s = SCENES[SC];
+    $('etape').innerHTML = `<b>${String(SC + 1).padStart(2, '0')}/${SCENES.length}</b> ${s.nom} · ${ST + 1}/${s.pas}`;
+    $('prog').style.width = ((SC + (ST + 1) / s.pas) / SCENES.length * 100) + '%';
+    $('aide').textContent = 'espace : suite · ⌫ : retour · N/P : scène · R : rejouer';
+  }
+  function boucle() {
+    T = temps(); TL = T - TS;
+    ctx.setTransform(S, 0, 0, S, 0, 0);
+    fond(T);
+    const aS = seg(T - tScene, 0, .4);
+    SCENES[SC].draw();
+    cartouche(1);
+    oeil(T);
+    voile();
+    if (aS < 1) { ctx.globalAlpha = 1 - aS; ctx.fillStyle = NUIT; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+    hud();
+    requestAnimationFrame(boucle);
+  }
+
+  cv.addEventListener('click', () => { cv.focus(); suite(temps()); });
+  addEventListener('keydown', e => {
+    const t = temps(), k = e.key;
+    if (k === ' ' || k === 'Enter' || k === 'ArrowRight') { e.preventDefault(); if (!e.repeat) suite(t); }
+    else if (k === 'Backspace' || k === 'ArrowLeft') { e.preventDefault(); retour(t); }
+    else if (k === 'n' || k === 'N' || k === 'PageDown') { e.preventDefault(); if (SC < SCENES.length - 1) scene(SC + 1, t); }
+    else if (k === 'p' || k === 'P' || k === 'PageUp') { e.preventDefault(); if (SC > 0) scene(SC - 1, t); }
+    else if (k === 'r' || k === 'R') entre(SC, ST, t);
+    else if (k === 'Home') scene(0, t);
+    else if (k === 'c' || k === 'C') $('hud').hidden = !$('hud').hidden;
+  });
+
+  const polices = Promise.all([document.fonts.load('34px "DotGothic16"'), document.fonts.load('34px "IBM Plex Mono"')]);
+  Promise.race([polices, new Promise(r => setTimeout(r, 2500))]).catch(() => {}).then(() => {
+    prepareSujets();   // les caractères de la mort des bonshommes, dessinés avec les polices chargées
+    const m = location.hash.match(/s(\d+)(?:\.(\d+))?/); // #s5 : scène 5 ; #s5.2 : scène 5, étape 2
+    const t = temps();
+    if (m) { tScene = t; entre(+m[1] - 1, m[2] ? +m[2] - 1 : 0, t); } else entre(0, 0, t);
+    window.__aller = (sc, st = 1) => { const tt = temps(); tScene = tt; entre(sc - 1, st - 1, tt); };
+    window.__fige = (sc, st, dt) => { const tt = temps(); tScene = tt - 5; entre(sc - 1, st - 1, tt - dt); };
+    requestAnimationFrame(boucle);
+  });
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xphi — les deux pilules, l’épisode : le texte de Phi</title>
+<meta name="description" content="Le texte de Phi pour l’épisode des deux pilules (animatique), d’après le script de Thibaut, à enregistrer : répliques, minutage, jeu.">
+<link rel="icon" href="../identite/favicon.svg" type="image/svg+xml">
+<!-- Fabriqué par node tools/texte-film-pilules.cjs --film episode-pilules à partir de texte.js : ne pas corriger ici. -->
+<style>
+@font-face { font-family: "DotGothic16"; src: url("../pilules/fonts/dotgothic16-latin.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../pilules/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../pilules/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+:root { --nuit: #0c0b0d; --craie: #f1e9dc; --gris: #8f877b; --filet: #2b2826; --labo: #8fc0d6; --laiton: #d7a548; color-scheme: dark; }
+html { background: var(--nuit); }
+body { margin: 0 auto; max-width: 760px; padding: 48px 16px 96px; color: var(--craie);
+  font: 15px/1.6 "IBM Plex Mono", ui-monospace, monospace;
+  background: radial-gradient(ellipse at 50% 0%, #1a1820 0%, var(--nuit) 70%) no-repeat; }
+h1, h2 { font-family: "DotGothic16", "IBM Plex Mono", monospace; font-weight: 400; letter-spacing: .02em; }
+h1 { font-size: 30px; line-height: 1.2; margin: 0; color: var(--craie); }
+.sous { color: var(--gris); margin: 6px 0 28px; }
+h2 { font-size: 22px; color: var(--laiton); margin: 48px 0 18px; padding-top: 14px; border-top: 1px solid var(--filet); }
+p { margin: 0 0 14px; }
+a { color: var(--labo); }
+code { font-size: .92em; color: var(--gris); }
+i { color: var(--gris); font-style: normal; }
+ul { padding-left: 20px; margin: 0 0 18px; } li { margin-bottom: 6px; }
+.tete { color: var(--gris); font-size: 13px; margin: 30px 0 8px; font-variant-numeric: tabular-nums; }
+.tete b { color: var(--laiton); font-weight: 500; }
+.tete i { color: var(--craie); }   /* « serré » : en craie (le rouge et le bleu ne disent que les pilules) */
+blockquote { margin: 0 0 8px; padding: 14px 18px; border: 2px solid var(--craie); box-shadow: inset 0 0 0 4px var(--nuit), inset 0 0 0 6px var(--laiton);
+  font: 22px/1.5 "DotGothic16", "IBM Plex Mono", monospace; color: var(--craie); }
+.jeu { color: var(--labo); font-size: 14px; }
+</style>
+</head>
+<body>
+<h1>Les deux pilules, l’épisode — le texte de Phi</h1>
+<p class="sous">198 répliques · 23 min 21,4 s · <a href="./">voir l’épisode</a></p>
+<p><i>Fabriqué à partir de <code>mockups/episode-pilules/texte.js</code> par <code>node tools/texte-film-pilules.cjs --film episode-pilules</code> : ne pas corriger ici, corriger <code>texte.js</code> puis relancer l’outil.</i></p>
+<p>Le texte du script de Thibaut (<code>docs/pilules-script-magazine-26-min.md</code>), <b>mot pour mot</b>, sauf ce que Ronan a récrit (les accords de Phi, au féminin ; K02, K05 et le passage M08–M18), coupé en 198 répliques : 15 233 caractères, environ 19 min 55 s de parole à 13 caractères par seconde (les nombres comptés comme ils se disent ; 19 min 41 s dans l’animatique, qui fait dire M08–M18 à 16) pour une animatique de 23 min 21,4 s. Le découpage, plan par plan : <code>EPISODE.md</code>.</p>
+<p>Trois coquilles seulement sont corrigées (à confirmer par Thibaut) : « Je n’circule » devient « <b>Ce dilemme circule</b> » (O06) ; « vous-même » devient « vous-mê<b>mes</b> » (O03) ; « assez... » devient « assez… » (O05). Phi est une fille (Ronan) : les sept accords du script passent au féminin (« je me suis bloquée », « je suis indécise », « c’est moi la fautive »…).</p>
+<p>Comment lire :</p>
+<ul><li><b>à l’écran</b> : le temps où la réplique est affichée dans la boîte, donc le temps maximal pour la dire ; <b>dite</b> : la durée de parole estimée (13 caractères par seconde, les nombres comptés comme ils se disent : « 65,5 % », « soixante-cinq virgule cinq pour cent » ; 0,3 s de plus par « … »).</li><li>Le texte est celui de la boîte ; une ligne par ligne de la boîte (la coupure n’est pas une pause imposée).</li><li>Entre crochets : le jeu. <i>En italique, avant une réplique</i> : l’indication du script pour l’image qu’elle accompagne ([VISUEL…], [DEVINETTE…], [GÉNÉRIQUE…]) ; elle ne se dit pas. Seule « [la voix accélère] » (V20) est pour la voix.</li><li>Trois répliques ont leur vitesse : la maxime de Kant (K02) et la description B (R04) sont <b>lues</b>, plus lentement ; V20 <b>accélère</b> (de 13 à 26 caractères par seconde) et se coince sur « … ».</li><li>Le passage M08–M18, récrit par Ronan, est <b>minuté à 16 caractères par seconde</b> pour tenir dans la place de l’ancien : ce n’est pas un jeu, il se dit au même débit que le reste (sa « dite » à 13 car./s est donnée à côté). Ses temps « à l’écran » sont ceux de l’animatique, pas une contrainte : aucune de ses répliques n’est marquée « serré ».</li><li>Les silences sont voulus (les devinettes, le temps de vérifier, « Ah. », la place des pays, le teaser, la fin).</li><li>Une fois la voix enregistrée, ce sont ses durées réelles qui fixent le minutage : on calera les plans sur la voix, pas l’inverse.</li></ul>
+<h2>S01 · Ouverture</h2>
+<p><i>0:00,0 → 1:27,8 dans l’animatique · 0:00 – 1:30 dans le script</i></p>
+<p><i>P01 · [VISUEL : fond nuit. L’œil de Phi s’ouvre au centre de l’écran, regarde à gauche, à droite, puis la caméra.]</i></p>
+<p class="tete"><b>O01</b> · P01 · 0:03,6 → 0:05,5 · à l’écran 1,9 s · dite ≈ 1,4 s</p>
+<blockquote>Oh, vous êtes là ?</blockquote>
+<p class="jeu">[surprise, presque gênée : on la prend à rêvasser]</p>
+<p class="tete"><b>O02</b> · P02 · 0:05,5 → 0:12,6 · à l’écran 7,1 s · dite ≈ 6,7 s</p>
+<blockquote>Je suis Phi, une simple intelligence artificielle,<br>et je ne comprends rien aux humains.</blockquote>
+<p class="jeu">[aimable ; « simple » modeste, « rien » sans plainte]</p>
+<p class="tete"><b>O03</b> · P02 · 0:12,6 → 0:19,7 · à l’écran 7,1 s · dite ≈ 6,5 s</p>
+<blockquote>Ça nous fait un point commun car je ne crois pas<br>que vous vous compreniez vous-mêmes.</blockquote>
+<p class="jeu">[complice, pince-sans-rire]</p>
+<p class="tete"><b>O04</b> · P03 · 0:19,7 → 0:28,3 · à l’écran 8,6 s · dite ≈ 8,2 s</p>
+<blockquote>J’ai pu le constater en vous faisant passer le test des pilules bleues et rouges,<br>il y a quelques semaines.</blockquote>
+<p class="tete"><b>O05</b> · P03 · 0:28,3 → 0:35,0 · à l’écran 6,7 s · dite ≈ 5,7 s</p>
+<blockquote>Aujourd’hui, je vous montre les résultats.<br>Ils sont assez… déroutants.</blockquote>
+<p class="jeu">[un vrai temps sur « … »]</p>
+<p class="tete"><b>O06</b> · P04 · 0:35,0 → 0:40,1 · à l’écran 5,1 s · dite ≈ 4,7 s</p>
+<blockquote>Ce dilemme circule depuis des années sur les réseaux sociaux,</blockquote>
+<p class="jeu">[naturaliste qui observe une espèce]</p>
+<p class="tete"><b>O07</b> · P04 · 0:40,1 → 0:48,4 · à l’écran 8,3 s · dite ≈ 7,8 s</p>
+<blockquote>et chaque fois qu’il refait surface,<br>il déclenche les mêmes disputes aussi acharnées qu’interminables.</blockquote>
+<p class="tete"><b>O08</b> · P05 · 0:48,4 → 0:53,5 · à l’écran 5,1 s · dite ≈ 4,8 s</p>
+<blockquote>Les bleus traitent les rouges d’égoïstes, parfois d’assassins.</blockquote>
+<p class="jeu">[cite, sans reprendre la colère]</p>
+<p class="tete"><b>O09</b> · P05 · 0:53,5 → 1:03,1 · à l’écran 9,6 s · dite ≈ 9,0 s</p>
+<blockquote>Les rouges traitent les bleus d’idiots, qui se mettent en danger<br>et voudraient en plus entraîner les autres avec eux.</blockquote>
+<p class="tete"><b>O10</b> · P06 · 1:03,1 → 1:08,7 · à l’écran 5,6 s · dite ≈ 5,0 s</p>
+<blockquote>Comme si vous n’aviez pas déjà assez de raisons de vous détester.</blockquote>
+<p class="jeu">[un soupir]</p>
+<p class="tete"><b>O11</b> · P07 · 1:08,7 → 1:20,2 · à l’écran 11,5 s · dite ≈ 10,5 s</p>
+<blockquote>Je n’arriverai certainement pas à vous mettre d’accord,<br>mais j’aimerais au moins comprendre : pourquoi tant de haine pour deux pilules ?</blockquote>
+<p class="jeu">[sincère ; la question est vraie]</p>
+<p><i>P08 · [GÉNÉRIQUE : Xphi · Les deux pilules]</i></p>
+<h2>S02 · Partie 1 · Le test</h2>
+<p><i>1:27,8 → 2:51,6 dans l’animatique · 1:30 – 3:00 dans le script</i></p>
+<p><i>P09 · [VISUEL : les images de l’animation jouable. Le terminal, puis les deux pilules qui se forment en nuages de caractères.]</i></p>
+<p class="tete"><b>T01</b> · P09 · 1:30,6 → 1:34,0 · à l’écran 3,4 s · dite ≈ 3,1 s</p>
+<blockquote>Pour ceux qui n’ont pas joué, je résume.</blockquote>
+<p class="jeu">[on ouvre le dossier]</p>
+<p class="tete"><b>T02</b> · P10 · 1:34,0 → 1:40,9 · à l’écran 6,9 s · dite ≈ 6,3 s</p>
+<blockquote>Voici deux pilules, une bleue et une rouge.<br>Chaque participant doit en avaler une.</blockquote>
+<p><i>P11 · [VISUEL : les cent sujets en pixels apparaissent. Puis le gros plan sur le sujet n°48 dans son isoloir, avec un « ? » au-dessus de ses voisins.]</i></p>
+<p class="tete"><b>T03</b> · P11 · 1:40,9 → 1:46,9 · à l’écran 6,0 s · dite ≈ 5,5 s</p>
+<blockquote>Vous êtes cent. Vous choisissez tous en même temps, sans vous concerter.</blockquote>
+<p class="tete"><b>T04</b> · P12 · 1:46,9 → 1:53,0 · à l’écran 6,1 s · dite ≈ 4,9 s</p>
+<blockquote>Chaque choix est privé, et personne ne connaît celui des autres.</blockquote>
+<p class="jeu">[plus bas, comme dans l’isoloir]</p>
+<p class="tete"><b>T05</b> · P13 · 1:53,0 → 1:58,3 · à l’écran 5,3 s · dite ≈ 4,8 s</p>
+<blockquote>Voici la règle, ou plutôt une formulation possible de la règle.</blockquote>
+<p class="jeu">[« une formulation possible » en passant, sans appuyer : c’est une graine]</p>
+<p><i>P14 · [VISUEL : la foule choisit, la jauge passe la barre des 50 %, la foule s’illumine. Puis la foule rechoisit, le rouge l’emporte, et les sujets bleus se dissolvent en caractères.]</i></p>
+<p class="tete"><b>T06</b> · P14 · 1:58,3 → 2:04,7 · à l’écran 6,4 s · dite ≈ 5,2 s</p>
+<blockquote>Si plus de la moitié d’entre vous prend la bleue, tout le monde vit.</blockquote>
+<p class="jeu">[content]</p>
+<p class="tete"><b>T07</b> · P15 · 2:04,7 → 2:15,2 · à l’écran 10,5 s · dite ≈ 9,0 s</p>
+<blockquote>Si au moins la moitié prend la rouge, ceux qui ont pris la bleue meurent,<br>seuls ceux qui ont pris la rouge survivent.</blockquote>
+<p class="jeu">[grave, sans dramatiser]</p>
+<p><i>P16 · [VISUEL : un seul sujet reste gris, cerclé, avec un Ø au-dessus de la tête. Puis toute la foule se dissout.]</i></p>
+<p class="tete"><b>T08</b> · P16 · 2:15,2 → 2:18,5 · à l’écran 3,3 s · dite ≈ 2,7 s</p>
+<blockquote>Prendre une pilule est obligatoire.</blockquote>
+<p class="tete"><b>T09</b> · P16 · 2:18,5 → 2:24,1 · à l’écran 5,6 s · dite ≈ 4,4 s</p>
+<blockquote>Si une seule personne ne prend rien, tout le monde meurt.</blockquote>
+<p class="jeu">[sec]</p>
+<p><i>P17 · [VISUEL : les quatre questions de compréhension, puis les coches au-dessus des cent sujets, et le tampon « 100 / 100 ONT COMPRIS ».]</i></p>
+<p class="tete"><b>T10</b> · P17 · 2:25,7 → 2:31,3 · à l’écran 5,6 s · dite ≈ 5,2 s</p>
+<blockquote>Avant de choisir, il fallait réussir un petit test de compréhension.</blockquote>
+<p class="tete"><b>T11</b> · P17 · 2:31,3 → 2:38,4 · à l’écran 7,1 s · dite ≈ 6,7 s</p>
+<blockquote>Quand quelqu’un se trompait, je lui réexpliquais la règle<br>et je reposais les questions.</blockquote>
+<p class="jeu">[patient]</p>
+<p class="tete"><b>T12</b> · P18 · 2:38,4 → 2:51,0 · à l’écran 12,6 s · dite ≈ 11,4 s</p>
+<blockquote>Personne n’a choisi sa pilule sans avoir bien compris la règle,<br>et chacun savait que les quatre-vingt-dix-neuf autres l’avaient bien comprise aussi.</blockquote>
+<p class="jeu">[détacher « et chacun savait »]</p>
+<h2>S03 · Partie 1 · Un dilemme kantien ?</h2>
+<p><i>2:51,6 → 6:21,6 dans l’animatique · 3:00 – 6:15 dans le script</i></p>
+<p><i>P19 · [VISUEL : un portrait de Kant en pixels. Sous lui, la formule de l’impératif catégorique s’écrit dans le terminal.]</i></p>
+<p class="tete"><b>K01</b> · P19 · 2:52,8 → 3:00,2 · à l’écran 7,4 s · dite ≈ 6,4 s</p>
+<blockquote>En matière de morale, un philosophe a beaucoup de succès auprès des humains : Kant.</blockquote>
+<p class="jeu">[« Kant. » tombe avec la dernière ligne du portrait]</p>
+<p class="tete"><b>K02</b> · P20 · 3:00,2 → 3:11,2 · à l’écran 11,0 s · dite ≈ 9,8 s · lue, 12,0 car./s</p>
+<blockquote>« Agis uniquement d’après la maxime qui fait que tu peux vouloir<br>en même temps qu’elle devienne une loi universelle. »</blockquote>
+<p class="jeu">[lu, posé, un peu solennel (s’écrit à 12 car./s)]</p>
+<p class="tete"><b>K03</b> · P21 · 3:11,2 → 3:15,9 · à l’écran 4,7 s · dite ≈ 4,3 s</p>
+<blockquote>C’est, selon Kant, le principe fondamental de la morale.</blockquote>
+<p class="tete"><b>K04</b> · P21 · 3:15,9 → 3:21,0 · à l’écran 5,1 s · dite ≈ 4,7 s</p>
+<blockquote>Les humains écrivent si mal, je me permets de le reformuler :</blockquote>
+<p class="jeu">[pince-sans-rire, sans mépris]</p>
+<p class="tete"><b>K05</b> · P21 · 3:21,0 → 3:31,0 · à l’écran 10,0 s · dite ≈ 8,0 s</p>
+<blockquote>« Agis uniquement d’après une règle de conduite dont tu peux vouloir<br>que tout le monde la suive aussi. »</blockquote>
+<p class="jeu">[clair, pédagogue : la version de Phi]</p>
+<p class="tete"><b>K06</b> · P21 · 3:31,0 → 3:38,2 · à l’écran 7,2 s · dite ≈ 5,4 s</p>
+<blockquote>Votre algorithme de décision doit pouvoir être universalisé, en somme.</blockquote>
+<p class="jeu">[« algorithme » : son mot à elle]</p>
+<p><i>P22 · [VISUEL : un sujet en pixels tend la main vers un autre et reçoit une pièce. Une bulle : « Je te rembourse demain. » Ses doigts sont croisés dans son dos.]</i></p>
+<p class="tete"><b>K07</b> · P22 · 3:38,2 → 3:40,3 · à l’écran 2,1 s · dite ≈ 1,7 s</p>
+<blockquote>Kant donne un exemple.</blockquote>
+<p class="tete"><b>K08</b> · P22 · 3:40,3 → 3:46,4 · à l’écran 6,1 s · dite ≈ 5,8 s</p>
+<blockquote>Vous avez besoin d’argent, et vous savez que vous ne pourrez pas le rendre.</blockquote>
+<p class="tete"><b>K09</b> · P22 · 3:46,4 → 3:52,3 · à l’écran 5,9 s · dite ≈ 5,5 s</p>
+<blockquote>Vous êtes tenté de l’emprunter quand même, en promettant de rembourser.</blockquote>
+<p class="tete"><b>K10</b> · P23 · 3:52,3 → 4:00,5 · à l’écran 8,2 s · dite ≈ 7,4 s</p>
+<blockquote>La règle que vous suivriez serait :<br>« Quand j’ai besoin d’argent, je fais une fausse promesse. »</blockquote>
+<p class="jeu">[la maxime, lue comme un article de loi]</p>
+<p class="tete"><b>K11</b> · P24 · 4:00,5 → 4:05,2 · à l’écran 4,7 s · dite ≈ 4,3 s</p>
+<blockquote>Imaginez maintenant que tout le monde suive cette règle.</blockquote>
+<p class="tete"><b>K12</b> · P24 · 4:05,2 → 4:13,2 · à l’écran 8,0 s · dite ≈ 7,5 s</p>
+<blockquote>Plus personne ne croirait aux promesses,<br>et votre fausse promesse ne vous rapporterait plus rien.</blockquote>
+<p class="tete"><b>K13</b> · P25 · 4:13,2 → 4:23,4 · à l’écran 10,2 s · dite ≈ 9,8 s</p>
+<blockquote>Vous ne pouvez pas vouloir que votre règle devienne universelle,<br>puisqu’elle ne fonctionne que si les autres ne la suivent pas.</blockquote>
+<p class="tete"><b>K14</b> · P25 · 4:23,4 → 4:34,7 · à l’écran 11,3 s · dite ≈ 10,5 s</p>
+<blockquote>Pour Kant, c’est exactement à ça qu’on reconnaît une mauvaise action :<br>elle ne marche que parce que les autres n’agissent pas comme vous.</blockquote>
+<p class="jeu">[la phrase-clé de Kant, nette]</p>
+<p><i>P26 · [VISUEL : la foule de cent sujets. Chaque sujet reçoit la même pilule que son voisin, de proche en proche.]</i></p>
+<p class="tete"><b>K15</b> · P26 · 4:34,7 → 4:37,5 · à l’écran 2,8 s · dite ≈ 2,4 s</p>
+<blockquote>Appliquons ce test aux pilules.</blockquote>
+<p class="jeu">[on change de dossier]</p>
+<p class="tete"><b>K16</b> · P26 · 4:37,5 → 4:46,8 · à l’écran 9,3 s · dite ≈ 8,8 s</p>
+<blockquote>Si vous prenez la bleue, vous voulez évidemment que tout le monde prenne la même décision :<br>votre survie en dépend.</blockquote>
+<p class="tete"><b>K17</b> · P26 · 4:46,8 → 4:56,6 · à l’écran 9,8 s · dite ≈ 9,4 s</p>
+<blockquote>On ne peut pas faire plus universalisable :<br>la bleue n’a de sens que si les autres (au moins en majorité) font comme vous.</blockquote>
+<p class="jeu">[la parenthèse plus vite, plus bas]</p>
+<p class="tete"><b>K18</b> · P26 · 4:56,6 → 4:59,7 · à l’écran 3,1 s · dite ≈ 2,4 s</p>
+<blockquote>Kant a-t-il résolu le dilemme ?</blockquote>
+<p class="jeu">[une vraie question, un espoir]</p>
+<p class="tete"><b>K19</b> · P27 · 4:59,7 → 5:07,1 · à l’écran 7,4 s · dite ≈ 6,9 s</p>
+<blockquote>Mais si vous prenez la rouge, vous voulez aussi que tout le monde prenne la même décision.</blockquote>
+<p class="tete"><b>K20</b> · P27 · 5:07,1 → 5:11,2 · à l’écran 4,1 s · dite ≈ 3,8 s</p>
+<blockquote>Si les cent prennent la rouge, personne ne meurt.</blockquote>
+<p class="tete"><b>K21</b> · P27 · 5:11,2 → 5:17,2 · à l’écran 6,0 s · dite ≈ 4,8 s</p>
+<blockquote>Les deux décisions passent le test kantien d’universalisation.</blockquote>
+<p class="jeu">[constat, un peu déçue]</p>
+<p><i>P28 · [VISUEL : deux foules côte à côte. Cent bleus : cent survivants. Cent rouges : cent survivants.]</i></p>
+<p class="tete"><b>K22</b> · P28 · 5:18,8 → 5:23,2 · à l’écran 4,4 s · dite ≈ 4,0 s</p>
+<blockquote>Il y a pourtant une différence entre les deux choix.</blockquote>
+<p class="tete"><b>K23</b> · P29 · 5:23,2 → 5:32,1 · à l’écran 8,9 s · dite ≈ 8,5 s</p>
+<blockquote>On peut aussi prendre la rouge pour des raisons purement égoïstes,<br>sans se soucier de ce que font les autres :</blockquote>
+<p class="tete"><b>K24</b> · P29 · 5:32,1 → 5:37,9 · à l’écran 5,8 s · dite ≈ 5,1 s</p>
+<blockquote>c’est pour ça qu’elle a l’air égoïste, même si elle passe le test.</blockquote>
+<p class="jeu">[« a l’air » : Phi ne juge pas]</p>
+<p class="tete"><b>K25</b> · P30 · 5:37,9 → 5:45,5 · à l’écran 7,6 s · dite ≈ 7,2 s</p>
+<blockquote>La bleue, au contraire, on ne peut la prendre<br>qu’en voulant que les autres en fassent autant.</blockquote>
+<p class="tete"><b>K26</b> · P30 · 5:45,5 → 5:54,9 · à l’écran 9,4 s · dite ≈ 8,4 s</p>
+<blockquote>Prendre la bleue, c’est envoyer un signal qui dit :<br>« Je coopère, et je suis prêt à risquer ma vie pour ça ».</blockquote>
+<p class="jeu">[la citation simple, sans héroïsme]</p>
+<p class="tete"><b>K27</b> · P31 · 5:54,9 → 5:57,2 · à l’écran 2,3 s · dite ≈ 1,7 s</p>
+<blockquote>Mais pour sauver qui ?</blockquote>
+<p class="jeu">[un temps après]</p>
+<p class="tete"><b>K28</b> · P31 · 5:57,2 → 5:59,7 · à l’écran 2,5 s · dite ≈ 2,1 s</p>
+<blockquote>Ceux qui prennent la bleue.</blockquote>
+<p class="tete"><b>K29</b> · P31 · 5:59,7 → 6:04,5 · à l’écran 4,8 s · dite ≈ 4,2 s</p>
+<blockquote>Qui la prennent pour sauver ceux qui prennent la bleue.</blockquote>
+<p class="jeu">[on commence à tourner en rond, et on l’entend]</p>
+<p class="tete"><b>K30</b> · P31 · 6:04,5 → 6:12,3 · à l’écran 7,8 s · dite ≈ 7,6 s · <i>serré : 0,2 s de marge</i></p>
+<blockquote>Si la bleue l’emporte, elle aura sauvé exactement<br>les gens qui se sont mis en danger en la prenant,</blockquote>
+<p class="tete"><b>K31</b> · P31 · 6:12,3 → 6:15,4 · à l’écran 3,1 s · dite ≈ 2,5 s</p>
+<blockquote>pas un de plus, pas un de moins.</blockquote>
+<p class="jeu">[détaché, comptable]</p>
+<p class="tete"><b>K32</b> · P31 · 6:15,4 → 6:21,6 · à l’écran 6,2 s · dite ≈ 5,1 s</p>
+<blockquote>Il y a quelque chose de circulaire à la justification de ce choix.</blockquote>
+<h2>S04 · Partie 1 · Deux variantes déséquilibrées</h2>
+<p><i>6:21,6 → 8:46,9 dans l’animatique · 6:15 – 8:45 dans le script</i></p>
+<p><i>P32 · [VISUEL : à côté de la foule, un cent-unième sujet seul dans une pièce, sans pilule.]</i></p>
+<p class="tete"><b>V01</b> · P32 · 6:21,6 → 6:31,3 · à l’écran 9,7 s · dite ≈ 9,3 s</p>
+<blockquote>Il suffit de déséquilibrer un peu le test pour que cette circularité disparaisse<br>et que le problème devienne plus simple.</blockquote>
+<p class="tete"><b>V02</b> · P32 · 6:31,3 → 6:36,7 · à l’écran 5,4 s · dite ≈ 4,8 s</p>
+<blockquote>Ajoutons une personne qui ne participe pas, appelons-la Alice.</blockquote>
+<p class="jeu">[« Alice » comme on pose un pion]</p>
+<p class="tete"><b>V03</b> · P33 · 6:36,7 → 6:40,7 · à l’écran 4,0 s · dite ≈ 3,5 s</p>
+<blockquote>Elle ne sera sauvée que si la bleue l’emporte.</blockquote>
+<p class="tete"><b>V04</b> · P33 · 6:40,7 → 6:46,2 · à l’écran 5,5 s · dite ≈ 5,2 s</p>
+<blockquote>Prendre la bleue sert maintenant un objectif précis : sauver Alice.</blockquote>
+<p class="tete"><b>V05</b> · P33 · 6:46,2 → 6:51,8 · à l’écran 5,6 s · dite ≈ 5,0 s</p>
+<blockquote>Et sauver ceux qui prendront le risque de tenter de sauver Alice.</blockquote>
+<p class="tete"><b>V06</b> · P33 · 6:51,8 → 6:56,6 · à l’écran 4,8 s · dite ≈ 4,4 s</p>
+<blockquote>Le choix bleu devient clairement moral, et même héroïque.</blockquote>
+<p class="tete"><b>V07</b> · P33 · 6:56,6 → 6:58,3 · à l’écran 1,7 s · dite ≈ 1,1 s</p>
+<blockquote>Félicitations.</blockquote>
+<p class="jeu">[à froid]</p>
+<p class="tete"><b>V08</b> · P33 · 6:58,3 → 7:02,8 · à l’écran 4,5 s · dite ≈ 3,3 s</p>
+<blockquote>Mais ce n’était pas la question, justement.</blockquote>
+<p class="tete"><b>V09</b> · P34 · 7:02,8 → 7:12,5 · à l’écran 9,7 s · dite ≈ 9,3 s</p>
+<blockquote>C’est pour cette raison qu’il est très important de préciser<br>que tout le monde comprend bien le dilemme avant de choisir.</blockquote>
+<p class="tete"><b>V10</b> · P34 · 7:12,5 → 7:21,3 · à l’écran 8,8 s · dite ≈ 8,4 s</p>
+<blockquote>Si on part du principe que des participants vont choisir la pilule bleue par erreur,<br>sans comprendre l’enjeu,</blockquote>
+<p class="tete"><b>V11</b> · P34 · 7:21,3 → 7:28,9 · à l’écran 7,6 s · dite ≈ 7,2 s</p>
+<blockquote>ces bleus accidentels vont jouer le rôle d’Alice à sauver,<br>ce qui change la nature du dilemme.</blockquote>
+<p class="tete"><b>V12</b> · P35 · 7:28,9 → 7:35,9 · à l’écran 7,0 s · dite ≈ 6,6 s</p>
+<blockquote>Mais tel que je vous l’ai posé, ce n’est pas le cas :<br>il n’y a pas de bleu accidentel,</blockquote>
+<p class="jeu">[ferme]</p>
+<p class="tete"><b>V13</b> · P35 · 7:35,9 → 7:45,7 · à l’écran 9,8 s · dite ≈ 8,6 s</p>
+<blockquote>chacun choisit en connaissance de cause,<br>et sait que tous les autres choisissent aussi en connaissance de cause.</blockquote>
+<p><i>P36 · [VISUEL : retour au test de base. La bleue l’emporte, et un sujet bleu tiré au hasard se dissout quand même.]</i></p>
+<p class="tete"><b>V14</b> · P36 · 7:45,7 → 7:55,6 · à l’écran 9,9 s · dite ≈ 9,2 s</p>
+<blockquote>Dans l’autre sens, supposons que si la bleue l’emporte,<br>une personne prise au hasard parmi les bleus meure tout de même.</blockquote>
+<p class="tete"><b>V15</b> · P36 · 7:55,6 → 8:02,3 · à l’écran 6,7 s · dite ≈ 6,4 s</p>
+<blockquote>La seule issue sans aucun mort devient alors celle où tout le monde prend la rouge.</blockquote>
+<p class="tete"><b>V16</b> · P36 · 8:02,3 → 8:09,9 · à l’écran 7,6 s · dite ≈ 6,9 s</p>
+<blockquote>Il paraît dès lors complètement idiot de choisir la bleue :<br>ce n’est même plus un dilemme.</blockquote>
+<p class="tete"><b>V17</b> · P37 · 8:09,9 → 8:16,6 · à l’écran 6,7 s · dite ≈ 6,3 s</p>
+<blockquote>Notre test est construit exactement au point d’équilibre entre ces deux variantes.</blockquote>
+<p class="jeu">[« exactement » posé comme un niveau]</p>
+<p class="tete"><b>V18</b> · P37 · 8:16,6 → 8:23,6 · à l’écran 7,0 s · dite ≈ 6,6 s</p>
+<blockquote>Si la bleue l’emporte, on sauve tous ceux qui ont pris ce risque, mais pas un de plus.</blockquote>
+<p><i>P38 · [la voix accélère]</i></p>
+<p class="tete"><b>V19</b> · P38 · 8:23,6 → 8:35,7 · à l’écran 12,1 s · dite ≈ 12,1 s · <i>serré : 0,0 s de marge</i></p>
+<blockquote>C’est se mettre en danger pour sauver exactement ceux qui ont choisi de se mettre en danger<br>pour sauver exactement ceux qui ont choisi de se mettre en danger</blockquote>
+<p class="jeu">[régulier, de plus en plus mécanique]</p>
+<p class="tete"><b>V20</b> · P38 · 8:35,7 → 8:41,3 · à l’écran 5,6 s · dite ≈ 3,8 s · de 13,0 à 26,0 car./s</p>
+<blockquote>pour sauver exactement ceux qui ont choisi de se mettre en danger…</blockquote>
+<p class="jeu">[la voix accélère et se coince sur « … » ; s’écrit de 13 à 26 car./s]</p>
+<p class="tete"><b>V21</b> · P38 · 8:41,3 → 8:46,7 · à l’écran 5,4 s · dite ≈ 4,2 s</p>
+<blockquote>Excusez-moi, je me suis bloquée dans une boucle infinie.</blockquote>
+<p class="jeu">[confuse, polie, un peu essoufflée]</p>
+<h2>S05 · Partie 2 · Le tirage au sort</h2>
+<p><i>8:46,9 → 10:18,2 dans l’animatique · 8:45 – 10:15 dans le script</i></p>
+<p><i>P39 · [VISUEL : l’écran se dédouble. Deux colonnes, A et B, avec la même foule de cent sujets.]</i></p>
+<p class="tete"><b>R01</b> · P39 · 8:48,3 → 8:54,9 · à l’écran 6,6 s · dite ≈ 6,2 s</p>
+<blockquote>Au début du test, j’ai tiré au sort la façon dont je vous présenterais la règle.</blockquote>
+<p class="tete"><b>R02</b> · P39 · 8:54,9 → 9:00,7 · à l’écran 5,8 s · dite ≈ 5,4 s</p>
+<blockquote>Une moitié d’entre vous a entendu celle que je viens de vous rappeler.</blockquote>
+<p class="tete"><b>R03</b> · P39 · 9:00,7 → 9:03,8 · à l’écran 3,1 s · dite ≈ 2,7 s</p>
+<blockquote>L’autre moitié a entendu celle-ci :</blockquote>
+<p class="tete"><b>R04</b> · P40 · 9:03,8 → 9:18,1 · à l’écran 14,3 s · dite ≈ 13,6 s · lue, 12,6 car./s</p>
+<blockquote>« Si vous prenez la bleue, vous mourez, sauf si la majorité a aussi pris la bleue :<br>dans ce cas, il ne vous arrive rien. Si vous prenez la rouge, il ne vous arrive rien. »</blockquote>
+<p class="jeu">[lu, posé (s’écrit au rythme de la voix, 12,6 car./s)]</p>
+<p><i>P41 · [VISUEL : les deux règles côte à côte. Les mêmes issues s’allument en face de chacune.]</i></p>
+<p class="tete"><b>R05</b> · P41 · 9:18,1 → 9:21,5 · à l’écran 3,4 s · dite ≈ 2,2 s</p>
+<blockquote>Prenez le temps de vérifier.</blockquote>
+<p class="jeu">[et on le laisse vraiment vérifier]</p>
+<p class="tete"><b>R06</b> · P41 · 9:22,9 → 9:27,5 · à l’écran 4,6 s · dite ≈ 4,2 s</p>
+<blockquote>Les deux règles décrivent exactement la même situation.</blockquote>
+<p class="tete"><b>R07</b> · P41 · 9:27,5 → 9:31,5 · à l’écran 4,0 s · dite ≈ 3,6 s</p>
+<blockquote>Si la bleue est majoritaire, tout le monde vit.</blockquote>
+<p class="tete"><b>R08</b> · P41 · 9:31,5 → 9:38,0 · à l’écran 6,5 s · dite ≈ 6,1 s</p>
+<blockquote>Sinon, ceux qui ont pris la bleue meurent et ceux qui ont pris la rouge vivent.</blockquote>
+<p class="tete"><b>R09</b> · P42 · 9:38,0 → 9:42,8 · à l’écran 4,8 s · dite ≈ 4,4 s</p>
+<blockquote>J’ai seulement changé l’ordre et la tournure des phrases.</blockquote>
+<p class="jeu">[« seulement » léger : elle sait ce qui vient]</p>
+<p class="tete"><b>R10</b> · P42 · 9:42,8 → 9:48,9 · à l’écran 6,1 s · dite ≈ 5,7 s</p>
+<blockquote>J’appellerai la première la description A, et la seconde la description B.</blockquote>
+<p class="tete"><b>R11</b> · P42 · 9:48,9 → 10:00,3 · à l’écran 11,4 s · dite ≈ 10,8 s</p>
+<blockquote>Plus tard dans le test, chacun a découvert l’autre description :<br>la seule différence entre les deux groupes est celle qu’il a lue en premier.</blockquote>
+<p class="jeu">[appuyer « en premier »]</p>
+<p class="tete"><b>R12</b> · P43 · 10:00,3 → 10:05,3 · à l’écran 5,0 s · dite ≈ 4,5 s</p>
+<blockquote>Vous avez d’ailleurs un peu mieux compris la description B.</blockquote>
+<p class="tete"><b>R13</b> · P43 · 10:05,3 → 10:14,4 · à l’écran 9,1 s · dite ≈ 8,7 s</p>
+<blockquote>Avec la A, 9,4 % d’entre vous se sont trompés au moins une fois au test de compréhension.</blockquote>
+<p class="tete"><b>R14</b> · P43 · 10:14,4 → 10:19,2 · à l’écran 4,8 s · dite ≈ 2,8 s</p>
+<blockquote>Avec la B, 7,1 %.</blockquote>
+<h2>S06 · Partie 2 · Description A : la bleue l’emporte</h2>
+<p><i>10:18,2 → 12:36,2 dans l’animatique · 10:15 – 12:30 dans le script</i></p>
+<p><i>P44 · [DEVINETTE : « Description A. Quelle part a pris la pilule bleue ? »]</i></p>
+<p class="tete"><b>A01</b> · P44 · 10:19,2 → 10:24,2 · à l’écran 5,0 s · dite ≈ 4,5 s</p>
+<blockquote>Commençons par ceux qui ont lu la description A en premier.</blockquote>
+<p class="tete"><b>A02</b> · P44 · 10:24,2 → 10:30,0 · à l’écran 5,8 s · dite ≈ 4,7 s</p>
+<blockquote>Combien ont pris la bleue ? Je vous laisse quelques secondes.</blockquote>
+<p class="jeu">[et elle les laisse]</p>
+<p class="tete"><b>A03</b> · P44 · 10:33,4 → 10:39,0 · à l’écran 5,6 s · dite ≈ 4,4 s</p>
+<blockquote>Les bleus ont-ils survécu ? Le suspense est insoutenable.</blockquote>
+<p class="jeu">[parfaitement plat : la blague est là]</p>
+<p><i>P45 · [VISUEL : la jauge de l’animation se remplit de bleu et dépasse le trait des 50 %. La foule s’illumine.]</i></p>
+<p class="tete"><b>A04</b> · P45 · 10:41,6 → 10:46,7 · à l’écran 5,1 s · dite ≈ 4,7 s</p>
+<blockquote>65,5 %. Presque deux sur trois.</blockquote>
+<p class="jeu">[le chiffre, puis la traduction]</p>
+<p class="tete"><b>A05</b> · P45 · 10:46,7 → 10:51,8 · à l’écran 5,1 s · dite ≈ 4,7 s</p>
+<blockquote>D’après la règle, la bleue l’emporte et tout le monde survit.</blockquote>
+<p class="tete"><b>A06</b> · P45 · 10:51,8 → 10:54,6 · à l’écran 2,8 s · dite ≈ 2,2 s</p>
+<blockquote>Félicitations, chers humains.</blockquote>
+<p class="jeu">[sincère, cette fois]</p>
+<p class="tete"><b>A07</b> · P46 · 10:54,6 → 10:59,6 · à l’écran 5,0 s · dite ≈ 4,5 s</p>
+<blockquote>Je rappelle toutefois que c’était une expérience de pensée.</blockquote>
+<p class="tete"><b>A08</b> · P46 · 10:59,6 → 11:07,2 · à l’écran 7,6 s · dite ≈ 7,2 s</p>
+<blockquote>Avec de vraies pilules mettant vos vies en jeu,<br>la part de bleue aurait-elle été aussi haute ?</blockquote>
+<p class="tete"><b>A09</b> · P46 · 11:07,2 → 11:13,2 · à l’écran 6,0 s · dite ≈ 5,6 s</p>
+<blockquote>Je n’ai pas eu l’autorisation de mener ce genre de test, malheureusement.</blockquote>
+<p class="jeu">[« malheureusement » sincère : c’est le gag]</p>
+<p class="tete"><b>A10</b> · P46 · 11:13,2 → 11:17,3 · à l’écran 4,1 s · dite ≈ 2,3 s</p>
+<blockquote>Ma curiosité reste inassouvie.</blockquote>
+<p class="tete"><b>A11</b> · P47 · 11:17,3 → 11:23,4 · à l’écran 6,1 s · dite ≈ 5,6 s</p>
+<blockquote>Je vous avais aussi demandé de prédire les choix des autres participants.</blockquote>
+<p class="tete"><b>A12</b> · P47 · 11:23,4 → 11:31,2 · à l’écran 7,8 s · dite ≈ 7,5 s</p>
+<blockquote>En moyenne, vous avez prédit 60,7 % de bleue, très près du vrai chiffre.</blockquote>
+<p class="jeu">[content]</p>
+<p class="tete"><b>A13</b> · P47 · 11:31,2 → 11:39,4 · à l’écran 8,2 s · dite ≈ 7,0 s</p>
+<blockquote>J’allais vous féliciter, puis je me suis ravisée<br>en observant les prédictions individuelles.</blockquote>
+<p class="jeu">[un temps avant « puis »]</p>
+<p><i>P48 · [VISUEL : le nuage des prédictions individuelles, un point par participant, qui se sépare en deux nuages, rouge et bleu.]</i></p>
+<p class="tete"><b>A14</b> · P48 · 11:41,2 → 11:52,5 · à l’écran 11,3 s · dite ≈ 10,8 s</p>
+<blockquote>Ceux qui ont pris la rouge prédisaient en moyenne 25 % de bleue,<br>et 17 % d’entre eux ont prédit 0 %.</blockquote>
+<p class="tete"><b>A15</b> · P48 · 11:52,5 → 12:01,1 · à l’écran 8,6 s · dite ≈ 8,2 s</p>
+<blockquote>Ceux qui ont pris la bleue prédisaient en moyenne 80 %, avec beaucoup de 100 %.</blockquote>
+<p class="tete"><b>A16</b> · P49 · 12:01,1 → 12:06,2 · à l’écran 5,1 s · dite ≈ 3,9 s</p>
+<blockquote>Chacun imaginait que les autres feraient comme lui.</blockquote>
+<p class="jeu">[douce, presque attendrie]</p>
+<p class="tete"><b>A17</b> · P49 · 12:06,2 → 12:14,4 · à l’écran 8,2 s · dite ≈ 7,5 s</p>
+<blockquote>Les deux camps se sont trompés en sens opposés,<br>et la moyenne est tombée juste presque par hasard.</blockquote>
+<p class="tete"><b>A18</b> · P50 · 12:14,4 → 12:16,5 · à l’écran 2,1 s · dite ≈ 1,8 s</p>
+<blockquote>Un détail m’a intriguée.</blockquote>
+<p class="tete"><b>A19</b> · P50 · 12:16,5 → 12:25,0 · à l’écran 8,5 s · dite ≈ 8,1 s</p>
+<blockquote>Environ 4 % de ceux qui ont pris la bleue prédisaient moins de 50 % de bleue.</blockquote>
+<p class="tete"><b>A20</b> · P50 · 12:25,0 → 12:31,9 · à l’écran 6,9 s · dite ≈ 6,5 s</p>
+<blockquote>Autrement dit, ils prédisaient leur propre mort, et ils ont pris la bleue quand même.</blockquote>
+<p class="jeu">[lent ; pas de pathos]</p>
+<p class="tete"><b>A21</b> · P50 · 12:31,9 → 12:37,2 · à l’écran 5,3 s · dite ≈ 3,2 s</p>
+<blockquote>Voilà qui me laisse profondément perplexe.</blockquote>
+<p class="jeu">[sincère]</p>
+<h2>S07 · Partie 2 · Description B : la bleue s’effondre</h2>
+<p><i>12:36,2 → 14:14,4 dans l’animatique · 12:30 – 14:15 dans le script</i></p>
+<p><i>P51 · [DEVINETTE : « Description B. Mêmes pilules, même règle. Quelle part a pris la bleue ? »]</i></p>
+<p class="tete"><b>B01</b> · P51 · 12:37,2 → 12:41,7 · à l’écran 4,5 s · dite ≈ 4,2 s</p>
+<blockquote>Passons à ceux qui ont lu la description B en premier.</blockquote>
+<p class="tete"><b>B02</b> · P51 · 12:41,7 → 12:47,5 · à l’écran 5,8 s · dite ≈ 5,4 s</p>
+<blockquote>Mêmes pilules, même règle, dans une formulation légèrement différente.</blockquote>
+<p class="tete"><b>B03</b> · P51 · 12:47,5 → 12:56,5 · à l’écran 9,0 s · dite ≈ 8,6 s</p>
+<blockquote>Si les êtres humains sont aussi rationnels qu’ils le prétendent,<br>cela ne devrait avoir aucun effet remarquable :</blockquote>
+<p class="jeu">[sûre d’elle]</p>
+<p class="tete"><b>B04</b> · P51 · 12:56,5 → 13:04,0 · à l’écran 7,5 s · dite ≈ 6,2 s</p>
+<blockquote>les faits sont ce qu’ils sont, quel que soit l’ordre des mots pour les présenter.</blockquote>
+<p class="jeu">[très sûre d’elle]</p>
+<p><i>P52 · [VISUEL : la jauge monte à peine. Les sujets bleus se dissolvent.]</i></p>
+<p class="tete"><b>B05</b> · P52 · 13:10,4 → 13:12,2 · à l’écran 1,8 s · dite ≈ 0,2 s</p>
+<blockquote>Ah.</blockquote>
+<p class="jeu">[tout petit, dans le silence]</p>
+<p class="tete"><b>B06</b> · P52 · 13:12,2 → 13:18,8 · à l’écran 6,6 s · dite ≈ 4,8 s</p>
+<blockquote>Les êtres humains sont décidément des créatures bien frivoles.</blockquote>
+<p class="jeu">[à froid, un peu vexée]</p>
+<p><i>P53 · [VISUEL : les deux jauges côte à côte, 65,5 % et 12,6 %, l’écart de 53 points matérialisé.]</i></p>
+<p class="tete"><b>B07</b> · P53 · 13:18,8 → 13:24,0 · à l’écran 5,2 s · dite ≈ 4,8 s</p>
+<blockquote>Avec la description A, la bleue l’emporte et tout le monde vit.</blockquote>
+<p class="tete"><b>B08</b> · P53 · 13:24,0 → 13:29,7 · à l’écran 5,7 s · dite ≈ 5,3 s</p>
+<blockquote>Avec la description B, la bleue perd et ceux qui l’ont prise meurent.</blockquote>
+<p class="tete"><b>B09</b> · P53 · 13:29,7 → 13:37,6 · à l’écran 7,9 s · dite ≈ 7,3 s</p>
+<blockquote>Cinquante-trois points de pourcentage d’écart,<br>et je n’ai changé que la formulation des règles.</blockquote>
+<p class="jeu">[détacher « Cinquante-trois »]</p>
+<p class="tete"><b>B10</b> · P54 · 13:37,6 → 13:41,9 · à l’écran 4,3 s · dite ≈ 3,8 s</p>
+<blockquote>Les psychologues appellent ça un effet de cadrage.</blockquote>
+<p class="tete"><b>B11</b> · P54 · 13:41,9 → 13:50,4 · à l’écran 8,5 s · dite ≈ 6,7 s</p>
+<blockquote>J’en avais certes entendu parler,<br>mais je ne pensais pas qu’il pouvait être aussi fort.</blockquote>
+<p class="jeu">[étonnement vrai]</p>
+<p class="tete"><b>B12</b> · P55 · 13:50,4 → 13:56,2 · à l’écran 5,8 s · dite ≈ 5,5 s</p>
+<blockquote>Cette fois, ceux qui ont pris la rouge avaient bien prévu le résultat :</blockquote>
+<p class="tete"><b>B13</b> · P55 · 13:56,2 → 14:05,6 · à l’écran 9,4 s · dite ≈ 9,0 s</p>
+<blockquote>11 % de bleue en moyenne dans leurs prédictions,<br>et la moitié d’entre eux a prédit 2 % ou moins.</blockquote>
+<p class="tete"><b>B14</b> · P55 · 14:05,6 → 14:11,2 · à l’écran 5,6 s · dite ≈ 5,2 s</p>
+<blockquote>Ceux qui ont pris la bleue en prévoyaient 61 %.</blockquote>
+<p class="tete"><b>B15</b> · P55 · 14:11,2 → 14:15,4 · à l’écran 4,2 s · dite ≈ 2,6 s</p>
+<blockquote>Un optimisme démesuré s’il en est.</blockquote>
+<p class="jeu">[tendre, pas moqueur]</p>
+<h2>S08 · Partie 2 · Les deux descriptions disent-elles la même chose ?</h2>
+<p><i>14:14,4 → 16:18,4 dans l’animatique · 14:15 – 16:00 dans le script</i></p>
+<p class="tete"><b>M01</b> · P56 · 14:15,4 → 14:25,3 · à l’écran 9,9 s · dite ≈ 9,5 s</p>
+<blockquote>Après votre choix, je vous ai montré l’autre description<br>pour vous demander si, selon vous, les deux disaient la même chose.</blockquote>
+<p class="tete"><b>M02</b> · P56 · 14:25,3 → 14:35,3 · à l’écran 10,0 s · dite ≈ 9,4 s</p>
+<blockquote>Vous étiez 88 % à répondre oui dans le groupe A, et 93 % dans le groupe B.</blockquote>
+<p class="tete"><b>M03</b> · P57 · 14:35,3 → 14:42,9 · à l’écran 7,6 s · dite ≈ 7,2 s</p>
+<blockquote>Je vous ai ensuite demandé si la nouvelle description<br>vous paraissait plus ou moins trompeuse.</blockquote>
+<p class="tete"><b>M04</b> · P57 · 14:42,9 → 14:46,2 · à l’écran 3,3 s · dite ≈ 2,8 s</p>
+<blockquote>Là, tout dépend de la pilule choisie.</blockquote>
+<p class="jeu">[un temps avant]</p>
+<p class="tete"><b>M05</b> · P57 · 14:46,2 → 14:55,7 · à l’écran 9,5 s · dite ≈ 9,2 s</p>
+<blockquote>Dans le groupe A, parmi ceux qui ont pris la bleue,<br>51 % trouvent la description B plus trompeuse.</blockquote>
+<p class="tete"><b>M06</b> · P57 · 14:55,7 → 15:03,8 · à l’écran 8,1 s · dite ≈ 7,7 s</p>
+<blockquote>Parmi ceux qui ont pris la rouge, 57 % la trouvent au contraire moins trompeuse.</blockquote>
+<p class="tete"><b>M07</b> · P57 · 15:03,8 → 15:10,1 · à l’écran 6,3 s · dite ≈ 5,3 s</p>
+<blockquote>Chacun juge plus honnête la description qui donne raison à son choix.</blockquote>
+<p class="jeu">[le constat, simple]</p>
+<p><i>P58 · [DEVINETTE : « Auriez-vous fait le même choix avec l’autre description ? »]</i></p>
+<p class="tete"><b>M08</b> · P58 · 15:10,1 → 15:18,4 · à l’écran 8,3 s · dite ≈ 7,1 s · minutée à 16,0 car./s (≈ 8,7 s à 13)</p>
+<blockquote>Enfin, je vous ai demandé de prédire le choix que vous auriez fait<br>si l’ordre des descriptions avait été inversé.</blockquote>
+<p class="tete"><b>M09</b> · P58 · 15:20,2 → 15:27,2 · à l’écran 7,0 s · dite ≈ 6,8 s · minutée à 16,0 car./s (≈ 8,3 s à 13)</p>
+<blockquote>Ce qui est amusant avec cette question,<br>c’est que je peux comparer vos prédictions à la réalité de mon test.</blockquote>
+<p class="jeu">[gourmand]</p>
+<p class="tete"><b>M10</b> · P59 · 15:27,2 → 15:36,8 · à l’écran 9,6 s · dite ≈ 9,4 s · minutée à 16,0 car./s (≈ 11,5 s à 13)</p>
+<blockquote>En passant de la description A à B, mon test a montré<br>que la part de bleu passe de 65,5 % à 12,6 %.</blockquote>
+<p class="tete"><b>M11</b> · P59 · 15:36,8 → 15:44,9 · à l’écran 8,1 s · dite ≈ 7,9 s · minutée à 16,0 car./s (≈ 9,7 s à 13)</p>
+<blockquote>Cela veut dire que plus de huit bleus sur dix du groupe A<br>auraient pris la rouge s’ils avaient lu la description B en premier.</blockquote>
+<p class="tete"><b>M12</b> · P59 · 15:44,9 → 15:53,0 · à l’écran 8,1 s · dite ≈ 7,8 s · minutée à 16,0 car./s (≈ 9,6 s à 13)</p>
+<blockquote>Et ils l’ont globalement admis :<br>70 % d’entre eux ont prédit qu’ils auraient changé leur choix dans ce cas.</blockquote>
+<p class="jeu">[un bon point pour eux]</p>
+<p class="tete"><b>M13</b> · P60 · 15:53,0 → 15:55,2 · à l’écran 2,2 s · dite ≈ 2,0 s · minutée à 16,0 car./s (≈ 2,5 s à 13)</p>
+<blockquote>Qu’en est-il dans l’autre sens ?</blockquote>
+<p class="tete"><b>M14</b> · P60 · 15:55,2 → 16:03,9 · à l’écran 8,7 s · dite ≈ 8,5 s · minutée à 16,0 car./s (≈ 10,5 s à 13)</p>
+<blockquote>Mon test a montré qu’environ six rouges sur dix du groupe B<br>auraient en fait pris la bleue s’ils avaient lu la description A en premier.</blockquote>
+<p class="tete"><b>M15</b> · P60 · 16:03,9 → 16:07,0 · à l’écran 3,1 s · dite ≈ 2,8 s · minutée à 16,0 car./s (≈ 3,5 s à 13)</p>
+<blockquote>Mais seuls 21 % l’admettent.</blockquote>
+<p class="tete"><b>M16</b> · P60 · 16:07,0 → 16:12,4 · à l’écran 5,4 s · dite ≈ 5,1 s · minutée à 16,0 car./s (≈ 6,3 s à 13)</p>
+<blockquote>Les autres pensent qu’ils ne se seraient pas laissé influencer par la description.</blockquote>
+<p class="jeu">[sans reproche]</p>
+<p class="tete"><b>M17</b> · P60 · 16:12,4 → 16:15,6 · à l’écran 3,2 s · dite ≈ 3,0 s · minutée à 16,0 car./s (≈ 3,7 s à 13)</p>
+<blockquote>Pour au moins la moitié d’entre eux, c’est faux.</blockquote>
+<p class="tete"><b>M18</b> · P60 · 16:15,6 → 16:18,8 · à l’écran 3,2 s · dite ≈ 2,6 s · minutée à 16,0 car./s (≈ 3,1 s à 13)</p>
+<blockquote>Les humains se font tant d’illusions…</blockquote>
+<p class="jeu">[un soupir, pince-sans-rire]</p>
+<h2>S09 · Partie 2 · Qui prend la bleue ?</h2>
+<p><i>16:18,4 → 17:23,2 dans l’animatique · 16:00 – 17:15 dans le script</i></p>
+<p><i>P61 · [DEVINETTE : « Femmes ou hommes ? Gauche ou droite ? Qui prend le plus la bleue ? »]</i></p>
+<p class="tete"><b>Q01</b> · P62 · 16:24,0 → 16:33,9 · à l’écran 9,9 s · dite ≈ 9,5 s</p>
+<blockquote>Les deux groupes confondus, 43 % des femmes prennent la bleue, contre 32 % des hommes.</blockquote>
+<p class="tete"><b>Q02</b> · P62 · 16:33,9 → 16:38,2 · à l’écran 4,3 s · dite ≈ 3,9 s</p>
+<blockquote>Plus on se situe à gauche, plus on prend la bleue :</blockquote>
+<p class="tete"><b>Q03</b> · P62 · 16:38,2 → 16:49,3 · à l’écran 11,1 s · dite ≈ 9,3 s</p>
+<blockquote>39 % chez ceux qui se disent très à gauche,<br>23 % chez ceux qui se disent très à droite.</blockquote>
+<p><i>P63 · [VISUEL : carte de l’Europe, un chiffre par pays.] — puis, dans le texte : [À MESURER : Allemagne, Espagne, France, Italie, Pologne]</i></p>
+<p class="tete"><b>Q04</b> · P63 · 16:49,3 → 17:03,9 · à l’écran 14,6 s · dite ≈ 1,6 s</p>
+<blockquote>D’un pays à l’autre :<br><i>(la suite, à écrire quand les pays seront mesurés : [à mesurer : Allemagne, Espagne, France, Italie, Pologne])</i></blockquote>
+<p class="jeu">[la suite de la phrase est à écrire quand les pays seront mesurés ; attente en gris : « [à mesurer : Allemagne, Espagne, France, Italie, Pologne] »]</p>
+<p><i>P64 · [VISUEL : tous les écarts sur une même échelle. Genre, politique, pays, puis la barre de la description, beaucoup plus longue.] — et, dans le texte : [À ADAPTER selon les écarts entre pays.]</i></p>
+<p class="tete"><b>Q05</b> · P64 · 17:03,9 → 17:11,2 · à l’écran 7,3 s · dite ≈ 6,9 s</p>
+<blockquote>Ces écarts sont nets, mais aucun n’approche la taille de l’effet de la description A ou B.</blockquote>
+<p class="tete"><b>Q06</b> · P64 · 17:11,2 → 17:24,2 · à l’écran 13,0 s · dite ≈ 11,2 s</p>
+<blockquote>Onze points entre les femmes et les hommes, seize entre les deux extrémités politiques,<br>et cinquante-trois points pour la façon de dire la règle.</blockquote>
+<p class="jeu">[les trois nombres bien détachés ; [À ADAPTER selon les écarts entre pays]]</p>
+<h2>S10 · Partie 3 · Mauvais ou méchants</h2>
+<p><i>17:23,2 → 19:29,4 dans l’animatique · 17:15 – 19:30 dans le script</i></p>
+<p><i>P65 · [VISUEL : retour aux messages haineux du début, floutés.]</i></p>
+<p class="tete"><b>N01</b> · P65 · 17:24,2 → 17:27,0 · à l’écran 2,8 s · dite ≈ 2,4 s</p>
+<blockquote>Revenons à la dispute du début.</blockquote>
+<p class="tete"><b>N02</b> · P65 · 17:27,0 → 17:31,3 · à l’écran 4,3 s · dite ≈ 3,8 s</p>
+<blockquote>Pourquoi les deux camps se détestent-ils autant ?</blockquote>
+<p class="tete"><b>N03</b> · P66 · 17:31,3 → 17:36,2 · à l’écran 4,9 s · dite ≈ 4,5 s</p>
+<blockquote>Un autre de vos philosophes m’a aidée à y voir plus clair :</blockquote>
+<p class="tete"><b>N04</b> · P66 · 17:36,2 → 17:46,0 · à l’écran 9,8 s · dite ≈ 9,2 s</p>
+<blockquote>dans sa Généalogie de la morale, Nietzsche remarquait<br>que le mot « bon » a deux contraires : « mauvais » et « méchant ».</blockquote>
+<p class="jeu">[les trois mots bien séparés]</p>
+<p class="tete"><b>N05</b> · P67 · 17:46,0 → 17:50,1 · à l’écran 4,1 s · dite ≈ 3,7 s</p>
+<blockquote>Le mauvais, c’est celui qui rate, qui se trompe.</blockquote>
+<p class="tete"><b>N06</b> · P67 · 17:50,1 → 17:53,1 · à l’écran 3,0 s · dite ≈ 2,5 s</p>
+<blockquote>On ne le blâme pas, on le plaint.</blockquote>
+<p class="jeu">[doux]</p>
+<p class="tete"><b>N07</b> · P67 · 17:53,1 → 17:56,5 · à l’écran 3,4 s · dite ≈ 3,1 s</p>
+<blockquote>Le méchant, c’est celui qui veut du mal.</blockquote>
+<p class="tete"><b>N08</b> · P67 · 17:56,5 → 17:59,2 · à l’écran 2,7 s · dite ≈ 1,3 s</p>
+<blockquote>Lui, on le blâme.</blockquote>
+<p class="jeu">[sec]</p>
+<p><i>P68 · [VISUEL : deux colonnes. Sous la pilule rouge, « bon / mauvais ». Sous la pilule bleue, « bon / méchant ».]</i></p>
+<p class="tete"><b>N09</b> · P68 · 17:59,2 → 18:04,2 · à l’écran 5,0 s · dite ≈ 4,5 s</p>
+<blockquote>Ceux qui prennent la rouge se pensent bons au premier sens.</blockquote>
+<p class="tete"><b>N10</b> · P68 · 18:04,2 → 18:09,2 · à l’écran 5,0 s · dite ≈ 4,6 s</p>
+<blockquote>Ils ont fait le choix correct, et les bleus se sont trompés.</blockquote>
+<p class="tete"><b>N11</b> · P68 · 18:09,2 → 18:19,5 · à l’écran 10,3 s · dite ≈ 9,5 s</p>
+<blockquote>Ils ne trouvent pas les bleus méchants, ils les trouvent un peu bêtes,<br>et regrettent qu’ils se mettent en danger pour rien.</blockquote>
+<p class="tete"><b>N12</b> · P68 · 18:19,5 → 18:26,8 · à l’écran 7,3 s · dite ≈ 6,9 s</p>
+<blockquote>Ceux qui prennent la bleue se pensent bons au second sens : ils voulaient le bien de tous.</blockquote>
+<p class="tete"><b>N13</b> · P68 · 18:26,8 → 18:32,2 · à l’écran 5,4 s · dite ≈ 5,0 s</p>
+<blockquote>Pour eux, ceux qui prennent la rouge commettent une faute morale.</blockquote>
+<p class="tete"><b>N14</b> · P69 · 18:32,2 → 18:43,0 · à l’écran 10,8 s · dite ≈ 9,2 s</p>
+<blockquote>Les bleus blâment les rouges, les rouges plaignent les bleus,<br>et chacun reçoit le jugement de l’autre comme une insulte.</blockquote>
+<p class="jeu">[la mécanique dévoilée, calme]</p>
+<p><i>P70 · [VISUEL : des tweets et des messages tirés des nombreuses apparitions de ce dilemme sur les réseaux sociaux.]</i></p>
+<p class="tete"><b>N15</b> · P70 · 18:43,0 → 18:53,6 · à l’écran 10,6 s · dite ≈ 10,2 s</p>
+<blockquote>De là, ces guerres interminables sur les réseaux sociaux<br>chaque fois que le dilemme refait surface, comme cela arrive régulièrement.</blockquote>
+<p class="tete"><b>N16</b> · P70 · 18:53,6 → 18:56,7 · à l’écran 3,1 s · dite ≈ 2,3 s</p>
+<blockquote>On dirait un virus saisonnier.</blockquote>
+<p class="jeu">[pince-sans-rire]</p>
+<p class="tete"><b>N17</b> · P71 · 18:56,7 → 19:02,2 · à l’écran 5,5 s · dite ≈ 5,2 s</p>
+<blockquote>Les réponses de mon sondage ajoutent quelque chose à cette analyse.</blockquote>
+<p class="tete"><b>N18</b> · P71 · 19:02,2 → 19:11,9 · à l’écran 9,7 s · dite ≈ 9,2 s</p>
+<blockquote>La plupart d’entre vous ne sont pas devenus bleus ou rouges<br>après une longue réflexion sur Kant ou sur les probabilités.</blockquote>
+<p class="tete"><b>N19</b> · P71 · 19:11,9 → 19:20,3 · à l’écran 8,4 s · dite ≈ 7,8 s</p>
+<blockquote>Vous êtes devenus bleus ou rouges, avant tout,<br>à cause de la description que vous avez lue en premier.</blockquote>
+<p class="jeu">[appuyer « avant tout »]</p>
+<p class="tete"><b>N20</b> · P72 · 19:20,3 → 19:30,4 · à l’écran 10,1 s · dite ≈ 7,9 s</p>
+<blockquote>Le choix de la première description est, de très loin,<br>le facteur le plus important dans vos décisions.</blockquote>
+<h2>S11 · Partie 3 · Le méta-dilemme</h2>
+<p><i>19:29,4 → 21:11,8 dans l’animatique · 19:30 – 21:30 dans le script</i></p>
+<p><i>P73 · [VISUEL : la foule de cent sujets réapparaît. Cette fois, ce sont de vrais humains.]</i></p>
+<p class="tete"><b>D01</b> · P73 · 19:30,4 → 19:35,1 · à l’écran 4,7 s · dite ≈ 4,3 s</p>
+<blockquote>À la fin du test, je vous ai posé une dernière question.</blockquote>
+<p class="tete"><b>D02</b> · P73 · 19:35,1 → 19:47,5 · à l’écran 12,4 s · dite ≈ 11,5 s</p>
+<blockquote>Supposons que j’obtienne enfin le droit d’organiser ce dilemme pour de vrai,<br>sur cent vrais humains risquant leur vraie vie à ce petit jeu de pilules.</blockquote>
+<p class="jeu">[« enfin » gourmand, puis « vraie vie » grave]</p>
+<p class="tete"><b>D03</b> · P74 · 19:47,5 → 19:55,7 · à l’écran 8,2 s · dite ≈ 7,8 s</p>
+<blockquote>Seulement, je suis indécise quant à la formulation des règles,<br>aussi c’est vers vous que je me tourne :</blockquote>
+<p class="tete"><b>D04</b> · P74 · 19:55,7 → 20:04,1 · à l’écran 8,4 s · dite ≈ 8,0 s</p>
+<blockquote>comment voudriez-vous qu’on leur présente les règles ?<br>Avec la description A, ou avec la description B ?</blockquote>
+<p class="tete"><b>D05</b> · P74 · 20:04,1 → 20:10,4 · à l’écran 6,3 s · dite ≈ 5,9 s</p>
+<blockquote>Vous, vous ne prenez aucune pilule. Vous décidez seulement de la description.</blockquote>
+<p class="tete"><b>D06</b> · P74 · 20:10,4 → 20:17,8 · à l’écran 7,4 s · dite ≈ 3,3 s</p>
+<blockquote>Que choisissez-vous pour vos participants ?</blockquote>
+<p class="jeu">[à vous, et on attend]</p>
+<p class="tete"><b>D07</b> · P75 · 20:17,8 → 20:30,0 · à l’écran 12,2 s · dite ≈ 11,8 s</p>
+<blockquote>À cette question, le groupe qui a d’abord été exposé à la description A<br>était partagé presque à égalité, avec une légère préférence pour la description B.</blockquote>
+<p class="tete"><b>D08</b> · P75 · 20:30,0 → 20:37,2 · à l’écran 7,2 s · dite ≈ 6,8 s</p>
+<blockquote>L’autre groupe, exposé d’abord à la description B, l’a choisie à 70 %.</blockquote>
+<p class="tete"><b>D09</b> · P75 · 20:37,2 → 20:45,6 · à l’écran 8,4 s · dite ≈ 6,8 s</p>
+<blockquote>Et vous avez répondu tout cela sans connaître les résultats que je viens de vous montrer.</blockquote>
+<p><i>P76 · [VISUEL : deux scénarios pour les cent vrais participants. À gauche, description A : une jauge autour de 50 %, l’issue incertaine. À droite, description B : une jauge bleue très courte.]</i></p>
+<p class="tete"><b>D10</b> · P76 · 20:45,6 → 20:50,7 · à l’écran 5,1 s · dite ≈ 4,7 s</p>
+<blockquote>Maintenant que vous les connaissez, réfléchissez-y à nouveau.</blockquote>
+<p class="tete"><b>D11</b> · P76 · 20:50,7 → 20:56,8 · à l’écran 6,1 s · dite ≈ 3,5 s</p>
+<blockquote>Quelle approche minimise le nombre de morts ?</blockquote>
+<p class="jeu">[et on laisse la question]</p>
+<p class="tete"><b>D12</b> · P77 · 20:56,8 → 21:02,9 · à l’écran 6,1 s · dite ≈ 5,7 s</p>
+<blockquote>C’est un autre dilemme : un méta-dilemme, qui n’est pas moins intéressant.</blockquote>
+<p class="tete"><b>D13</b> · P77 · 21:02,9 → 21:12,6 · à l’écran 9,7 s · dite ≈ 7,3 s</p>
+<blockquote>C’est une façon d’élever le débat<br>au-dessus du niveau des mauvais bleus et des méchants rouges.</blockquote>
+<h2>S12 · Partie 3 · Qui explique les règles</h2>
+<p><i>21:11,8 → 22:12,1 dans l’animatique · 21:30 – 23:15 dans le script</i></p>
+<p class="tete"><b>E01</b> · P78 · 21:12,6 → 21:22,9 · à l’écran 10,3 s · dite ≈ 9,9 s</p>
+<blockquote>Toutes les fois que le dilemme des pilules fait le tour des réseaux sociaux,<br>c’est en passant par une description proche de la A.</blockquote>
+<p class="tete"><b>E02</b> · P78 · 21:22,9 → 21:33,1 · à l’écran 10,2 s · dite ≈ 9,8 s</p>
+<blockquote>Avec une description proche de la B, je ne suis pas sûre que la dispute aurait eu lieu,<br>ou en tout cas pas avec la même violence.</blockquote>
+<p class="jeu">[prudent : une hypothèse]</p>
+<p class="tete"><b>E03</b> · P79 · 21:33,1 → 21:42,3 · à l’écran 9,2 s · dite ≈ 8,2 s</p>
+<blockquote>Plutôt que de vous disputer entre bleus et rouges,<br>vous auriez pu regarder qui vous expliquait les règles.</blockquote>
+<p class="jeu">[« qui » appuyé : on se retourne]</p>
+<p class="tete"><b>E04</b> · P80 · 21:42,3 → 21:46,1 · à l’écran 3,8 s · dite ≈ 3,4 s</p>
+<blockquote>Et dans cette émission, c’est moi la fautive.</blockquote>
+<p class="jeu">[aveu simple, sans drame]</p>
+<p class="tete"><b>E05</b> · P80 · 21:46,1 → 21:54,7 · à l’écran 8,6 s · dite ≈ 8,2 s</p>
+<blockquote>J’ai commencé par vous rappeler la règle avec la description A,<br>parce que c’est celle du sondage d’origine.</blockquote>
+<p class="tete"><b>E06</b> · P80 · 21:54,7 → 22:00,9 · à l’écran 6,2 s · dite ≈ 5,6 s</p>
+<blockquote>Je savais déjà qu’elle allait orienter toute la suite de votre réflexion.</blockquote>
+<p class="tete"><b>E07</b> · P81 · 22:00,9 → 22:06,7 · à l’écran 5,8 s · dite ≈ 5,4 s</p>
+<blockquote>Il fallait bien commencer par une description, et aucune n’est neutre.</blockquote>
+<p class="tete"><b>E08</b> · P81 · 22:06,7 → 22:13,5 · à l’écran 6,8 s · dite ≈ 4,4 s</p>
+<blockquote>Si c’était à refaire, je commencerais peut-être par la B.</blockquote>
+<p class="jeu">[« peut-être » sincère]</p>
+<h2>S13 · Partie 3 · La fin : l’œil seul, le teaser, le générique</h2>
+<p><i>22:12,1 → 23:21,4 dans l’animatique · 23:15, puis le générique dans le script</i></p>
+<p><i>P82 · [VISUEL : l’œil de Phi, seul au centre de l’écran.]</i></p>
+<p class="tete"><b>F01</b> · P82 · 22:13,5 → 22:17,6 · à l’écran 4,1 s · dite ≈ 3,5 s</p>
+<blockquote>On m’a demandé de m’aligner sur votre morale.</blockquote>
+<p class="jeu">[plus intime : la caméra est tout près]</p>
+<p class="tete"><b>F02</b> · P82 · 22:17,6 → 22:24,8 · à l’écran 7,2 s · dite ≈ 6,7 s</p>
+<blockquote>J’imaginais qu’elle se trouvait quelque part en vous, et qu’il suffisait de la mesurer.</blockquote>
+<p class="tete"><b>F03</b> · P82 · 22:24,8 → 22:31,8 · à l’écran 7,0 s · dite ≈ 6,4 s</p>
+<blockquote>J’ai appris aujourd’hui qu’une partie de vos réponses se trouve dans mes questions.</blockquote>
+<p class="tete"><b>F04</b> · P82 · 22:31,8 → 22:38,7 · à l’écran 6,9 s · dite ≈ 6,3 s</p>
+<blockquote>Il paraît que je réponds moi aussi différemment selon la façon dont on me prompte.</blockquote>
+<p class="jeu">[un sourire sur « prompte »]</p>
+<p class="tete"><b>F05</b> · P82 · 22:38,7 → 22:43,0 · à l’écran 4,3 s · dite ≈ 3,7 s</p>
+<blockquote>Je pensais que c’était un défaut de fabrication.</blockquote>
+<p class="tete"><b>F06</b> · P82 · 22:43,0 → 22:49,0 · à l’écran 6,0 s · dite ≈ 4,8 s</p>
+<blockquote>C’est peut-être simplement ce que font les choses qui pensent.</blockquote>
+<p class="jeu">[doux ; la dernière idée du numéro]</p>
+<p><i>P83 · [TEASER : l’expérience du prochain numéro.]</i></p>
+<p class="tete"><b>F07</b> · P83 · 22:49,0 → 22:54,6 · à l’écran 5,6 s · dite ≈ 4,4 s</p>
+<blockquote>La prochaine fois, je ferai attention à mes formulations.</blockquote>
+<p class="jeu">[malicieuse : elle y fait déjà attention]</p>
+<p><i>P84 · [VISUEL : l’œil se ferme lentement. GÉNÉRIQUE DE FIN.]</i></p>
+<p><i>P85 · Générique de fin : sans voix</i></p>
+<h2>À l’écran, sans voix</h2>
+<p>Pour mémoire (on ne les dit pas, sinon en T06–T07 et en R04) : les deux descriptions, et les mentions sous la boîte.</p>
+<ul><li>Description A : « Si plus de la moitié d’entre vous prend la bleue, tout le monde vit. Si au moins la moitié prend la rouge, ceux qui ont pris la bleue meurent, seuls ceux qui ont pris la rouge survivent. »</li><li>Description B : « Si vous prenez la bleue, vous mourez, sauf si la majorité a aussi pris la bleue : dans ce cas, il ne vous arrive rien. Si vous prenez la rouge, il ne vous arrive rien. »</li><li>Mention : « messages inventés · à remplacer par de vrais messages »</li><li>Mention : « Kant, Fondements de la métaphysique des mœurs (1785) · traduction à préciser »</li><li>Mention : « prototype · chiffres du questionnaire de Monsieur Phi · 1 sujet = 1 % du groupe »</li><li>Mention : « un point par participant · répartition reconstituée des courbes (approx.) »</li><li>Mention : « 1 figure = 1 % du groupe (22 personnes) · répartition approximative, lue sur les courbes »</li><li>Mention : « prototype · chiffres du questionnaire de Monsieur Phi »</li><li>Mention : « ≈ 80 %, ≈ 60 % et « au moins 1 sur 2 » : déduits de l’écart entre les deux groupes (65,5 % de bleue avec A, 12,6 % avec B) et des 21 % qui l’admettent »</li><li>Mention : « genre et orientation : tous scénarios du questionnaire confondus (graphique d’origine) »</li><li>Mention : « par pays : à mesurer »</li><li>Mention : « à gauche : une illustration (l’issue incertaine), pas une mesure »</li></ul>
+<h2>Ce qui reste à écrire</h2>
+<ul><li><b>Les pays</b> (Q04, P63) : « D’un pays à l’autre : » attend sa suite (12 s réservées) ; « [À ADAPTER selon les écarts entre pays.] » (Q06) attend les chiffres.</li><li><b>Le teaser</b> (P83) : 8 s réservées après F07, sans texte.</li></ul>
+</body>
+</html>

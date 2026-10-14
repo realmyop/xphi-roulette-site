@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Xphi — les deux pilules, le film (prototype)</title>
+<meta name="description" content="Prototype de film : Phi présente Xphi, le test des deux pilules sur les réseaux d'Arte, le N°48, et les résultats (chiffres du questionnaire de Monsieur Phi ; par pays, inventés), dans la direction artistique de Thibaut.">
+<link rel="icon" href="../identite/favicon.svg" type="image/svg+xml">
+<style>
+/* Polices hébergées dans le dépôt (SIL OFL), sans aucun appel externe : celles de la DA (mockups/pilules/fonts/). */
+@font-face { font-family: "DotGothic16"; src: url("../pilules/fonts/dotgothic16-latin.woff2") format("woff2"); font-display: block; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../pilules/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: block; }
+@font-face { font-family: "IBM Plex Mono"; src: url("../pilules/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: block; }
+:root { --nuit: #0c0b0d; --craie: #f1e9dc; --gris: #8f877b; --filet: #2b2826; --labo: #8fc0d6; --laiton: #d7a548; color-scheme: dark; }
+html, body { height: 100%; margin: 0; background: var(--nuit); overflow: hidden; }
+/* la toile 1920×1080, en letterbox sur le fond de nuit */
+#cadre { position: fixed; inset: 0; display: grid; place-items: center; }
+#film { display: block; width: min(100vw, calc(100vh * 16 / 9)); height: auto; aspect-ratio: 16 / 9; background: #000; cursor: pointer; }
+/* la barre de temps : discrète, elle s'efface pendant la lecture ; C la cache */
+#barre { position: fixed; left: 0; right: 0; bottom: 0; padding: 6px 16px calc(8px + env(safe-area-inset-bottom, 0px));
+  font: 12px/1.2 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .04em; color: var(--gris);
+  background: linear-gradient(transparent, rgba(12, 11, 13, .85) 40%); transition: opacity .4s; font-variant-numeric: tabular-nums; }
+#barre.calme, #barre.cachee { opacity: 0; }
+#barre.cachee { pointer-events: none; }
+#piste { position: relative; height: 12px; cursor: pointer; }
+#segments { position: absolute; left: 0; right: 0; top: 5px; height: 2px; }
+#segments .seg { position: absolute; top: 0; height: 2px; background: #4a4540; box-shadow: inset -2px 0 0 var(--nuit); }
+#segments .seg.absent { background: repeating-linear-gradient(90deg, #4a4540 0 3px, transparent 3px 6px); }
+#segments .boucle { position: absolute; top: -3px; height: 8px; border: 1px solid var(--laiton); border-radius: 2px; opacity: .6; }
+#tete { position: absolute; top: 1px; width: 2px; height: 10px; margin-left: -1px; background: var(--craie); }
+#infos { display: flex; gap: 14px; align-items: baseline; margin-top: 2px; white-space: nowrap; overflow: hidden; }
+#temps { color: var(--craie); }
+#aide { margin-left: auto; opacity: .7; }
+html.rendu #barre { display: none; }
+</style>
+</head>
+<body>
+<div id="cadre"><canvas id="film" width="1920" height="1080" role="img" aria-label="Les deux pilules, le film : Phi, une machine, présente l’émission Xphi, le test des deux pilules passé sur les réseaux d’Arte, l’histoire du participant N°48, et les résultats (ceux du questionnaire de Monsieur Phi ; les chiffres par pays sont inventés)."></canvas></div>
+<div id="barre">
+  <div id="piste"><div id="segments"></div><div id="tete"></div></div>
+  <div id="infos"><span id="temps">0:00,0 / 3:21,5</span><span id="etiquette"></span><span id="aide"></span></div>
+</div>
+<script type="module">
+// Le chargement, dans l'ordre : le socle (commun.js), la carte de l'Europe (europe.js, facultative : un script qui
+// pose globalThis.EUROPE), les textes, les cinq lots (plans/<lot>.js), puis le film. Un lot qui ne se charge pas (absent,
+// erreur de syntaxe) n'arrête rien : le film montre son ébauche et le dit dans la console.
+const LOTS = ['nuit', 'regles', 'isoloir', 'europe', 'issue'];
+await import('./commun.js');
+let europe = null;
+try { await import('./europe.js'); europe = globalThis.EUROPE || null; }
+catch (e) { console.info('[film] europe.js absent ou illisible : la carte attendra.', e && e.message); }
+await import('./texte.js');
+const lots = {};
+for (const id of LOTS) {
+  try { lots[id] = await import(`./plans/${id}.js`); }
+  catch (e) { lots[id] = { erreur: e }; }
+}
+const { demarre } = await import('./film.js');
+await demarre({ lots, europe });
+</script>
+</body>
+</html>

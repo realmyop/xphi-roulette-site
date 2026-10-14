@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cadran — Cran</title>
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="style.css">
+<script src="../shared/mockup.js"></script>
+</head>
+<body>
+<main class="stage">
+  <div class="safe">
+    <div class="progress reveal" id="progress"><i></i><i></i><i></i><i></i></div>
+    <p class="act reveal">Le barillet · cran <span data-cran-n></span> sur 4</p>
+    <div class="dial reveal d1" data-barillet></div>
+    <p class="risk reveal d2" data-cran-frac></p>
+    <p class="risk-phrase reveal d2" data-cran-phrase></p>
+    <p class="story reveal d3">La personne vise le berceau. Que fait‑elle&nbsp;?</p>
+    <div class="push"></div>
+    <div class="choices reveal d4">
+      <button class="pill">Tirer</button>
+      <button class="pill">Ne pas tirer</button>
+    </div>
+    <script>
+      // Allume les segments jusqu'au cran courant
+      const c = +(new URLSearchParams(location.search).get('cran') || 3);
+      document.querySelectorAll('#progress i').forEach((n, i) => n.classList.toggle('on', i < c));
+    </script>
+  </div>
+</main>
+</body>
+</html>

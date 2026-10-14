@@ -1,0 +1,6121 @@
+{
+ "titre": "Les deux pilules, l’épisode : les coupes proposées",
+ "lisez_moi": "Dans « parts », « extrait » est la chaîne exacte qui part et qui est comptée, ponctuation et espaces compris (null : la réplique entière). Fabriqué en partie par node tools/coupes-episode.cjs. On peut changer ici l’ordre des coupes (l’ordre de la liste est l’ordre de prise), leur niveau, leur texte ou leurs raisons, puis relancer l’outil : il recalcule les secondes, les durées et le recalage, les réécrit ici (champs « calcule » et « totaux »), et refait COUPES.md et coupes.html.",
+ "objectif": "L’épisode entier sous le quart d’heure (15:00), en visant 14:30 pour garder une marge. Ronan parlera plus vite que les 13 caractères par seconde de l’animatique, mais on ne sait pas de combien. Les coupes sont donc rangées dans un ordre : on enregistre tout, on mesure le débit, puis on coupe dans l’ordre et on s’arrête dès que le compte est bon. C’est le texte de Thibaut (et, pour K02, K05 et M08–M18, celui de Ronan) : on retire, on ne réécrit pas. Ronan et Thibaut tranchent.",
+ "hypotheses": [
+  "Aujourd’hui : 1 194,9 s de voix à 13 car./s (le passage M08–M18, que l’animatique fait dire à 16 car./s pour tenir dans sa fenêtre, compté à 13 comme le reste) et 220,4 s sans voix (EPISODE.md, plan par plan, dont 89,3 s de respirations, celles du passage M08–M18 comptées à 0,4 s comme ailleurs), soit 23:35 à 13 car./s (l’animatique : 23:21).",
+  "Le débit se compte comme texte.js : en caractères dits, les nombres en toutes lettres (« 65,5 % » se dit « soixante-cinq virgule cinq pour cent ») et 0,3 s de plus par « … ». Tout le texte fait 15 537 caractères dits pour 15 036 écrits (TEXTE.md compte les écrits) : un débit mesuré sur les caractères écrits sortirait 3,3 % trop lent, et ferait couper une ou deux coupes de trop.",
+  "Plutôt qu’un débit, on mesure un rapport : r = la durée enregistrée des répliques (du premier au dernier son de chacune, pauses internes comprises, sans les silences entre deux répliques) ÷ la somme de leurs « dite ». La durée de l’épisode est alors : voix gardée × r + sans-voix. Les colonnes 13, 14, 15 et 16 car./s sont r = 1 ; 0,929 ; 0,867 ; 0,813.",
+  "Le sans-voix est compté de quatre façons : sans compression, compression sûre (ce que le montage maîtrise seul), plus les respirations resserrées (qui dépendent des vrais silences de Ronan), plus le générique de fin et le teaser raccourcis (qui dépendent d’Arte). Les durées par défaut sont données avec tout, les autres colonnes disent la marge.",
+  "Chaque réplique coupée entière emporte sa respiration (0,4 s). Un plan qui n’a plus de voix disparaît avec son sans-voix, sauf trois plans gardés muets : le terminal (P09), l’isoloir du N°48 (P12), le nuage des prédictions (P48, tant que A16–A17 restent).",
+  "Quand une coupe retire les mots sur lesquels une image était calée, l’image a quand même besoin de son temps : la « tenue d’image » est ajoutée au sans-voix (P17, P41, P48, P62). Ce sont des estimations, à vérifier sur l’écran de Ronan.",
+  "Rien n’est récrit. Les raccords proposés sont un point, des deux-points, une majuscule ou une minuscule. Aucun chiffre ne change ; aucune précaution qui rend un chiffre honnête ne part.",
+  "Ce sont des ordres de grandeur : la voix de Ronan fera foi. Ne jamais juger ici une image ni un son : tout ce qui se dit « plus sec » ou « à écouter » est à écouter dans la voix de Ronan."
+ ],
+ "mode_d_emploi": [
+  "Enregistrer tout le texte, les 198 répliques, sans rien couper (TEXTE.md). On choisit ensuite sur la vraie voix, et une phrase gardée n’a pas à être réenregistrée.",
+  "Mesurer r sur deux ou trois séquences : la durée de parole de chaque réplique (du premier au dernier son), additionnée, divisée par la somme de leurs « dite » (le tableau « Mesurer r » donne cette somme par séquence). r = 0,87, c’est la colonne 15 car./s ; r = 0,81, la colonne 16.",
+  "Mesurer aussi les vrais silences de Ronan entre deux répliques, sur deux ou trois paragraphes : vers 0,25 s, prendre la colonne « + respirations » ; vers 0,4 s, la colonne « sûre ». S’il lit par paragraphes et que r est mesuré pauses comprises, ses respirations sont déjà dans r : l’épisode sera un peu plus court que la colonne « + respirations ».",
+  "Lire le tableau « Où s’arrêter » à la ligne de r et à la colonne de compression acceptée : il donne le numéro de la dernière coupe à prendre. On coupe dans l’ordre, n° 1 d’abord.",
+  "Valider avec Thibaut niveau par niveau : le niveau 1 d’un bloc (l’évident), puis le niveau 2 coupe par coupe, dans l’ordre, jusqu’au numéro trouvé ; la réserve seulement si le compte n’y est pas. Une coupe refusée est simplement sautée : la suivante prend sa place, et on va un peu plus loin dans la liste.",
+  "Écouter chaque couture dans la voix de Ronan (celles qui disent « à écouter » d’abord). La page coupes.html montre le texte tel qu’il serait, niveau par niveau.",
+  "Le jour où l’on coupe, prendre la feuille « Pour le recalage » : chaque repère d’image accroché à un mot coupé est à recaler avant de retirer la réplique de texte.js."
+ ],
+ "choix": [
+  {
+   "titre": "L’exemple de Kant et les bleus accidentels",
+   "texte": "Ce sont les deux derniers passages de la liste (avec « plus ou moins trompeuse ? » et les prédictions du groupe B juste avant). Depuis le passage récrit par Ronan, l’exemple de Kant part même à 16 car./s, de justesse (sans lui, il y manquerait un dixième de seconde, avec toutes les compressions) ; à 15 car./s, il part quelle que soit la compression, et il faut encore puiser dans la réserve (choix n° 2). Avant lui, une version courte de l’exemple (sans la tentation K09 ni la conclusion K13) et une version courte des bleus accidentels (sans l’annonce V09) sont déjà prises. Si Thibaut tient à l’un des deux en entier : voir les échanges n° 1, 2 et 4."
+  },
+  {
+   "titre": "Le passage de Ronan, et les compressions qui ne dépendent pas de nous",
+   "texte": "Le passage « le même choix ? » récrit par Ronan (M08–M18) rallonge l’épisode : les niveaux 1 et 2 ne passent plus sous 14:30 à 15 car./s, même avec les trois compressions (les respirations resserrées, qui dépendent des vrais silences de Ronan ; le générique de fin à 10 s, qui dépend d’Arte ; le teaser à 6 s, qui n’existe pas encore). Avec la seule compression sûre, ils dépassent 15:00 à ce débit. Il faut donc puiser dans la réserve (tableau « Où s’arrêter »), ou que Ronan choisisse une coupe de plus dans son propre texte : M09 (« Ce qui est amusant avec cette question… », environ 7 s à 15 car./s) n’est pas proposée, puisqu’il vient de l’écrire."
+  },
+  {
+   "titre": "Les pays",
+   "texte": "La coupe de Q04 (la place des pays, 13 s d’image réservées) est la première du niveau 2, parce qu’elle ne retire aucune phrase écrite. Mais elle dépend de la mesure et d’Arte, chaîne européenne. Si les pays restent, il faut aussi rendre la comparaison de Q06 (échange n° 3)."
+  },
+  {
+   "titre": "À 14 car./s : le faux consensus, ou la séquence « Qui prend la bleue ? »",
+   "texte": "Si Ronan parle à 14 car./s, passer sous 14:30 demande d’entrer dans les derniers recours : la séquence « Qui prend la bleue ? » perd ses derniers chiffres dits (Q01p), puis les prédictions du groupe A partent d’un bloc (A11–A17), un pilier du mode d’emploi de Thibaut. Plutôt que de laisser une devinette sans réponse, Thibaut peut préférer retirer la séquence S09 entière (échange n° 5)."
+  },
+  {
+   "titre": "Ce qui attend une réponse de Thibaut",
+   "texte": "La fin d’O09 (« … entraîner les autres avec eux ») est le seul passage où les rouges blâment les bleus au lieu de les plaindre, le seul contre-exemple au schéma de Nietzsche : s’il y tient, on la garde et on prend la coupe suivante. R12–R14 (9,4 % et 7,1 % d’erreurs au test) dépendent de la question 8 : si leur source est confirmée et que Thibaut tient à l’argument, on les garde. Et V09 contre V10–V12 (garder sa phrase « très important », ou l’objection et sa réponse)."
+  }
+ ],
+ "coupes": [
+  {
+   "id": "C-S01-01",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S01",
+   "parts": [
+    {
+     "replique": "O04",
+     "extrait": ", il y a quelques semaines"
+    }
+   ],
+   "raccord": "« … le test des pilules bleues et rouges. »",
+   "raccord_auto": [],
+   "pourquoi": "Une précision de calendrier qui risque de ne plus être vraie le jour de la diffusion. « Aujourd’hui, je vous montre les résultats » suffit à dire qu’il y a eu un avant.",
+   "perte": "Presque rien. La ligne « test 01 · les deux pilules », calée sur « quelques semaines » (P03), se recale sur « pilules ».",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "humour (1)"
+   ],
+   "calcule": {
+    "n": 1,
+    "repliques": [
+     "O04"
+    ],
+    "texte_coupe": ", il y a quelques semaines",
+    "secondes": 2,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 1.7,
+    "apres": {
+     "13": {
+      "aucune": 1413.3,
+      "sure": 1390.4,
+      "resp": 1355.9,
+      "tout": 1347.9
+     },
+     "14": {
+      "aucune": 1328.1,
+      "sure": 1305.2,
+      "resp": 1270.7,
+      "tout": 1262.7
+     },
+     "15": {
+      "aucune": 1254.3,
+      "sure": 1231.4,
+      "resp": 1196.9,
+      "tout": 1188.9
+     },
+     "16": {
+      "aucune": 1189.6,
+      "sure": 1166.7,
+      "resp": 1132.2,
+      "tout": 1124.2
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ouverture.js:112 · q('O04', 'quelques semaines')"
+    ]
+   }
+  },
+  {
+   "id": "C-S02-01",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S02",
+   "parts": [
+    {
+     "replique": "T01",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Une annonce. L’ouverture vient de dire « en vous faisant passer le test » (O04), et le résumé commence de lui-même avec « Voici deux pilules ».",
+   "perte": "Le clin d’œil au test jouable en ligne, utile si Arte veut y renvoyer. Le terminal (P09) reste 1,5 s sans voix : ses caractères forment les pilules de P10.",
+   "depend": "",
+   "visuel": "P09 (« Le terminal, puis les deux pilules qui se forment en nuages de caractères ») : gardé, mais muet.",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "rythme (1)",
+    "humour (2)"
+   ],
+   "calcule": {
+    "n": 2,
+    "repliques": [
+     "T01"
+    ],
+    "texte_coupe": "Pour ceux qui n’ont pas joué, je résume.",
+    "secondes": 3.1,
+    "sans_voix_emporte": 0.3,
+    "tenue_image": 0,
+    "gain_15_tout": 2.9,
+    "apres": {
+     "13": {
+      "aucune": 1409.9,
+      "sure": 1387,
+      "resp": 1352.6,
+      "tout": 1344.6
+     },
+     "14": {
+      "aucune": 1324.9,
+      "sure": 1302,
+      "resp": 1267.7,
+      "tout": 1259.7
+     },
+     "15": {
+      "aucune": 1251.3,
+      "sure": 1228.4,
+      "resp": 1194,
+      "tout": 1186
+     },
+     "16": {
+      "aucune": 1186.8,
+      "sure": 1163.9,
+      "resp": 1129.5,
+      "tout": 1121.5
+     }
+    },
+    "plans_sans_voix": [
+     "P09"
+    ],
+    "rendue_par": null,
+    "recalage": [
+     "plans/test.js:92 · mot('T01', 'Pour ceux')",
+     "plans/test.js:93 · mot('T01', 'je résume')",
+     "plans/test.js · si T01 est retirée de texte.js : lignes 92, 93 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S02-03",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S02",
+   "parts": [
+    {
+     "replique": "T08",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Redite de T02 (« Chaque participant doit en avaler une »), et le tampon « OBLIGATOIRE » le montre. La sanction (T09) reste.",
+   "perte": "Faible : le tampon tombe sur T09 (« ne prend rien ») au lieu de « obligatoire ».",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (1)",
+    "humour (2, avec T09)",
+    "rythme (3, avec T09)"
+   ],
+   "calcule": {
+    "n": 3,
+    "repliques": [
+     "T08"
+    ],
+    "texte_coupe": "Prendre une pilule est obligatoire.",
+    "secondes": 2.7,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 2.3,
+    "apres": {
+     "13": {
+      "aucune": 1407.2,
+      "sure": 1384.3,
+      "resp": 1349.9,
+      "tout": 1341.9
+     },
+     "14": {
+      "aucune": 1322.4,
+      "sure": 1299.5,
+      "resp": 1265.1,
+      "tout": 1257.1
+     },
+     "15": {
+      "aucune": 1248.9,
+      "sure": 1226,
+      "resp": 1191.7,
+      "tout": 1183.7
+     },
+     "16": {
+      "aucune": 1184.6,
+      "sure": 1161.7,
+      "resp": 1127.4,
+      "tout": 1119.4
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/test.js:125 · mot('T08', 'obligatoire')",
+     "plans/test.js · si T08 est retirée de texte.js : lignes 124, 125 (de, mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S03-01",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S03",
+   "parts": [
+    {
+     "replique": "K03",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "L’image l’écrit au-dessus de la maxime (« PRINCIPE FONDAMENTAL DE LA MORALE »), et K01 a posé « En matière de morale ». « Les humains écrivent si mal » tombe alors juste après la maxime.",
+   "perte": "Le mot « principe » n’est plus dit. Le titre, calé sur « principe fondamental », se cale sur la fin de la maxime.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "rythme (1)",
+    "humour (1)",
+    "propos (2)"
+   ],
+   "calcule": {
+    "n": 4,
+    "repliques": [
+     "K03"
+    ],
+    "texte_coupe": "C’est, selon Kant, le principe fondamental de la morale.",
+    "secondes": 4.3,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 4,
+    "apres": {
+     "13": {
+      "aucune": 1402.5,
+      "sure": 1379.6,
+      "resp": 1345.4,
+      "tout": 1337.4
+     },
+     "14": {
+      "aucune": 1318,
+      "sure": 1295.1,
+      "resp": 1260.9,
+      "tout": 1252.9
+     },
+     "15": {
+      "aucune": 1244.8,
+      "sure": 1221.9,
+      "resp": 1187.7,
+      "tout": 1179.7
+     },
+     "16": {
+      "aucune": 1180.7,
+      "sure": 1157.8,
+      "resp": 1123.6,
+      "tout": 1115.6
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/kant.js:136 · mot('K03', 'principe fondamental')",
+     "plans/kant.js · si K03 est retirée de texte.js : ligne 136 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S03-04",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S03",
+   "parts": [
+    {
+     "replique": "K13",
+     "extrait": ", puisqu’elle ne fonctionne que si les autres ne la suivent pas"
+    }
+   ],
+   "raccord": "« universelle, » devient « universelle. »",
+   "raccord_auto": [],
+   "pourquoi": "Redite exacte de K14, la phrase suivante, qui le dit mieux (« elle ne marche que parce que les autres n’agissent pas comme vous »).",
+   "perte": "Faible : la pièce tendue de P25, calée sur « ne la suivent pas », se recale sur K14.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (1)",
+    "rythme (1)",
+    "humour (1, K13 entière)"
+   ],
+   "calcule": {
+    "n": 5,
+    "repliques": [
+     "K13"
+    ],
+    "texte_coupe": ", puisqu’elle ne fonctionne que si les autres ne la suivent pas",
+    "secondes": 4.9,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 4.2,
+    "apres": {
+     "13": {
+      "aucune": 1397.6,
+      "sure": 1374.7,
+      "resp": 1340.5,
+      "tout": 1332.5
+     },
+     "14": {
+      "aucune": 1313.5,
+      "sure": 1290.6,
+      "resp": 1256.4,
+      "tout": 1248.4
+     },
+     "15": {
+      "aucune": 1240.6,
+      "sure": 1217.7,
+      "resp": 1183.5,
+      "tout": 1175.5
+     },
+     "16": {
+      "aucune": 1176.8,
+      "sure": 1153.9,
+      "resp": 1119.7,
+      "tout": 1111.7
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/kant.js:165 · mot('K13', 'ne la suivent pas')"
+    ]
+   }
+  },
+  {
+   "id": "C-S04-01",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S04",
+   "parts": [
+    {
+     "replique": "V01",
+     "extrait": " et que le problème devienne plus simple"
+    }
+   ],
+   "raccord": "la phrase finit sur « … pour que cette circularité disparaisse. »",
+   "raccord_auto": [],
+   "pourquoi": "Une annonce glissée dans la phrase ; V16 le dit en clair plus loin (« ce n’est même plus un dilemme »).",
+   "perte": "Rien.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "rythme (2)",
+    "humour (2)"
+   ],
+   "calcule": {
+    "n": 6,
+    "repliques": [
+     "V01"
+    ],
+    "texte_coupe": "et que le problème devienne plus simple",
+    "secondes": 3.1,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 2.7,
+    "apres": {
+     "13": {
+      "aucune": 1394.6,
+      "sure": 1371.7,
+      "resp": 1337.5,
+      "tout": 1329.5
+     },
+     "14": {
+      "aucune": 1310.7,
+      "sure": 1287.8,
+      "resp": 1253.5,
+      "tout": 1245.5
+     },
+     "15": {
+      "aucune": 1237.9,
+      "sure": 1215,
+      "resp": 1180.8,
+      "tout": 1172.8
+     },
+     "16": {
+      "aucune": 1174.3,
+      "sure": 1151.4,
+      "resp": 1117.2,
+      "tout": 1109.2
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": []
+   }
+  },
+  {
+   "id": "C-S04-05",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S04",
+   "parts": [
+    {
+     "replique": "V13",
+     "extrait": null
+    }
+   ],
+   "raccord": "V12 finit sur un point : « … il n’y a pas de bleu accidentel. » (sans objet quand V10–V12 partent aussi)",
+   "raccord_auto": [
+    {
+     "replique": "V12",
+     "remplace": "accidentel,",
+     "par": "accidentel."
+    }
+   ],
+   "pourquoi": "Redite presque mot pour mot de T12 (« et chacun savait que les quatre-vingt-dix-neuf autres l’avaient bien comprise aussi »), qui reste.",
+   "perte": "La vague des têtes qui se tournent (P35, sur « et sait que ») perd son mot ; elle est déjà en P18.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (1)",
+    "rythme (1)",
+    "humour (1)"
+   ],
+   "calcule": {
+    "n": 7,
+    "repliques": [
+     "V13"
+    ],
+    "texte_coupe": "chacun choisit en connaissance de cause, et sait que tous les autres choisissent aussi en connaissance de cause.",
+    "secondes": 8.6,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 7.7,
+    "apres": {
+     "13": {
+      "aucune": 1385.6,
+      "sure": 1362.7,
+      "resp": 1328.6,
+      "tout": 1320.6
+     },
+     "14": {
+      "aucune": 1302.3,
+      "sure": 1279.4,
+      "resp": 1245.3,
+      "tout": 1237.3
+     },
+     "15": {
+      "aucune": 1230.1,
+      "sure": 1207.2,
+      "resp": 1173.1,
+      "tout": 1165.1
+     },
+     "16": {
+      "aucune": 1166.9,
+      "sure": 1144,
+      "resp": 1109.9,
+      "tout": 1101.9
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/variantes.js:121 · mot('V13', 'et sait que')",
+     "plans/variantes.js:122 · mot('V13', 'en connaissance de cause')",
+     "plans/variantes.js · si V13 est retirée de texte.js : lignes 121, 122 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S06-05",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S06",
+   "parts": [
+    {
+     "replique": "A14",
+     "extrait": ", et 17 % d’entre eux ont prédit 0 %"
+    }
+   ],
+   "raccord": "« … prédisaient en moyenne 25 % de bleue. »",
+   "raccord_auto": [],
+   "pourquoi": "L’écran l’écrit en grand au même moment (« 17 % DES ROUGES PRÉDISENT 0 % », la pile cernée). La moyenne, elle, reste dite.",
+   "perte": "On dit moins, pas autre chose : le chiffre reste à l’écran. Son cerne (sur « 0 % ») doit se poser pendant la fin de la phrase : 0,5 s d’image à tenir.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [
+    {
+     "plan": "P48",
+     "secondes": 0.5
+    }
+   ],
+   "soutiens": [
+    "rythme (1)",
+    "humour (2)",
+    "propos (2)"
+   ],
+   "calcule": {
+    "n": 8,
+    "repliques": [
+     "A14"
+    ],
+    "texte_coupe": ", et 17 % d’entre eux ont prédit 0 %",
+    "secondes": 4.7,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0.5,
+    "gain_15_tout": 3.5,
+    "apres": {
+     "13": {
+      "aucune": 1381.4,
+      "sure": 1358.5,
+      "resp": 1324.4,
+      "tout": 1316.4
+     },
+     "14": {
+      "aucune": 1298.4,
+      "sure": 1275.5,
+      "resp": 1241.5,
+      "tout": 1233.5
+     },
+     "15": {
+      "aucune": 1226.5,
+      "sure": 1203.6,
+      "resp": 1169.6,
+      "tout": 1161.6
+     },
+     "16": {
+      "aucune": 1163.6,
+      "sure": 1140.7,
+      "resp": 1106.6,
+      "tout": 1098.6
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/tirage-temps.js:101 · mot('A14', '0 %')"
+    ]
+   }
+  },
+  {
+   "id": "C-S06-06",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S06",
+   "parts": [
+    {
+     "replique": "A15",
+     "extrait": ", avec beaucoup de 100 %"
+    }
+   ],
+   "raccord": "« … prédisaient en moyenne 80 %. »",
+   "raccord_auto": [],
+   "pourquoi": "L’image allume la pile des 100 % au même moment. La moyenne reste dite.",
+   "perte": "La pile qui s’illumine perd son mot : 0,5 s d’image à tenir. Le « 80 % » (79,5 relevé, question 5 pour Thibaut) reste dit tel quel ; la question 5 demandait aussi si « beaucoup » convenait : elle tombe avec ces mots.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [
+    {
+     "plan": "P48",
+     "secondes": 0.5
+    }
+   ],
+   "soutiens": [
+    "rythme (1)",
+    "humour (1)",
+    "propos (2)"
+   ],
+   "calcule": {
+    "n": 9,
+    "repliques": [
+     "A15"
+    ],
+    "texte_coupe": ", avec beaucoup de 100 %",
+    "secondes": 2.5,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0.5,
+    "gain_15_tout": 1.7,
+    "apres": {
+     "13": {
+      "aucune": 1379.4,
+      "sure": 1356.5,
+      "resp": 1322.4,
+      "tout": 1314.4
+     },
+     "14": {
+      "aucune": 1296.6,
+      "sure": 1273.7,
+      "resp": 1239.6,
+      "tout": 1231.6
+     },
+     "15": {
+      "aucune": 1224.8,
+      "sure": 1201.9,
+      "resp": 1167.9,
+      "tout": 1159.9
+     },
+     "16": {
+      "aucune": 1162,
+      "sure": 1139.1,
+      "resp": 1105.1,
+      "tout": 1097.1
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/tirage-temps.js:103 · mot('A15', 'beaucoup')"
+    ]
+   }
+  },
+  {
+   "id": "C-S07-03",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S07",
+   "parts": [
+    {
+     "replique": "B07",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Redite de A05, dite deux minutes plus tôt ; les deux barres côte à côte (P53) montrent A et B ensemble. Le résultat du groupe B (B08), lui, reste dit.",
+   "perte": "Le parallèle « Avec la description A… / Avec la description B… » : B08 reste seule. Les bras levés de l’écran 04 jouent sans voix.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "rythme (1)",
+    "humour (1)",
+    "propos (2)"
+   ],
+   "calcule": {
+    "n": 10,
+    "repliques": [
+     "B07"
+    ],
+    "texte_coupe": "Avec la description A, la bleue l’emporte et tout le monde vit.",
+    "secondes": 4.8,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 4.4,
+    "apres": {
+     "13": {
+      "aucune": 1374.2,
+      "sure": 1351.3,
+      "resp": 1317.4,
+      "tout": 1309.4
+     },
+     "14": {
+      "aucune": 1291.7,
+      "sure": 1268.8,
+      "resp": 1234.9,
+      "tout": 1226.9
+     },
+     "15": {
+      "aucune": 1220.3,
+      "sure": 1197.4,
+      "resp": 1163.5,
+      "tout": 1155.5
+     },
+     "16": {
+      "aucune": 1157.7,
+      "sure": 1134.8,
+      "resp": 1101,
+      "tout": 1093
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/resultats.js:134 · mot('B07', 'description A')",
+     "plans/resultats.js:135 · mot('B07', 'tout le monde vit')",
+     "plans/resultats.js · si B07 est retirée de texte.js : lignes 134, 135 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S07-07",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S07",
+   "parts": [
+    {
+     "replique": "B13",
+     "extrait": ", et la moitié d’entre eux a prédit 2 % ou moins"
+    }
+   ],
+   "raccord": "« 11 % de bleue en moyenne dans leurs prédictions. »",
+   "raccord_auto": [],
+   "pourquoi": "L’écran l’écrit en grand (« LA MOITIÉ DES ROUGES PRÉDIT 2 % OU MOINS »).",
+   "perte": "Le cerne (sur « 2 % ou moins ») perd son mot ; le chiffre reste à l’écran.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "rythme (1)",
+    "humour (2)",
+    "propos (2)"
+   ],
+   "calcule": {
+    "n": 11,
+    "repliques": [
+     "B13"
+    ],
+    "texte_coupe": ", et la moitié d’entre eux a prédit 2 % ou moins",
+    "secondes": 4.5,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 3.9,
+    "apres": {
+     "13": {
+      "aucune": 1369.6,
+      "sure": 1346.7,
+      "resp": 1312.8,
+      "tout": 1304.8
+     },
+     "14": {
+      "aucune": 1287.5,
+      "sure": 1264.6,
+      "resp": 1230.7,
+      "tout": 1222.7
+     },
+     "15": {
+      "aucune": 1216.3,
+      "sure": 1193.4,
+      "resp": 1159.5,
+      "tout": 1151.5
+     },
+     "16": {
+      "aucune": 1154.1,
+      "sure": 1131.2,
+      "resp": 1097.3,
+      "tout": 1089.3
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/resultats.js:154 · mot('B13', '2 % ou moins')"
+    ]
+   }
+  },
+  {
+   "id": "C-S09-04",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S09",
+   "parts": [
+    {
+     "replique": "Q06",
+     "extrait": "Onze points entre les femmes et les hommes, seize entre les deux extrémités politiques, et "
+    }
+   ],
+   "raccord": "une majuscule : « Cinquante-trois points pour la façon de dire la règle. »",
+   "raccord_auto": [
+    {
+     "replique": "Q06",
+     "remplace": "cinquante-trois",
+     "par": "Cinquante-trois"
+    }
+   ],
+   "pourquoi": "L’écran 10 affiche « 11 PTS » et « 16 PTS » ; Q05 vient de dire « Ces écarts sont nets », et la chute (« Cinquante-trois points pour la façon de dire la règle ») reste.",
+   "perte": "La comparaison chiffrée n’est plus faite en mots, seulement à l’image : « 11 PTS » et « 16 PTS » s’allument sur « Ces écarts » (Q05). Le « onze » (10,3 points en réalité, question 4) quitte la voix mais reste à l’écran : la question 4 reste posée pour l’image. « [À ADAPTER selon les écarts entre pays] » n’a plus sa place dans la phrase : si les pays reviennent, voir l’échange n° 3.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (1)",
+    "humour (1, Q06 entière)",
+    "rythme (2, Q06 entière)"
+   ],
+   "calcule": {
+    "n": 12,
+    "repliques": [
+     "Q06"
+    ],
+    "texte_coupe": "Onze points entre les femmes et les hommes, seize entre les deux extrémités politiques, et",
+    "secondes": 7,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 6.1,
+    "apres": {
+     "13": {
+      "aucune": 1362.6,
+      "sure": 1339.7,
+      "resp": 1305.8,
+      "tout": 1297.8
+     },
+     "14": {
+      "aucune": 1281,
+      "sure": 1258.1,
+      "resp": 1224.2,
+      "tout": 1216.2
+     },
+     "15": {
+      "aucune": 1210.2,
+      "sure": 1187.3,
+      "resp": 1153.5,
+      "tout": 1145.5
+     },
+     "16": {
+      "aucune": 1148.3,
+      "sure": 1125.4,
+      "resp": 1091.6,
+      "tout": 1083.6
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ecarts-temps.js:49 · mot('Q06', 'Onze')",
+     "plans/ecarts-temps.js:50 · mot('Q06', 'seize')"
+    ]
+   }
+  },
+  {
+   "id": "C-S10-06",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S10",
+   "parts": [
+    {
+     "replique": "N15",
+     "extrait": ", comme cela arrive régulièrement"
+    }
+   ],
+   "raccord": "« … chaque fois que le dilemme refait surface. »",
+   "raccord_auto": [],
+   "pourquoi": "« Chaque fois que » dit déjà la régularité ; la blague « On dirait un virus saisonnier » tombe mieux sans être annoncée.",
+   "perte": "La vague de messages calée sur « régulièrement » (P70) se recale. La blague est intacte.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "humour (1)",
+    "propos (2)",
+    "rythme (2)"
+   ],
+   "calcule": {
+    "n": 13,
+    "repliques": [
+     "N15"
+    ],
+    "texte_coupe": ", comme cela arrive régulièrement",
+    "secondes": 2.6,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 2.2,
+    "apres": {
+     "13": {
+      "aucune": 1360.1,
+      "sure": 1337.2,
+      "resp": 1303.3,
+      "tout": 1295.3
+     },
+     "14": {
+      "aucune": 1278.6,
+      "sure": 1255.7,
+      "resp": 1221.8,
+      "tout": 1213.8
+     },
+     "15": {
+      "aucune": 1208,
+      "sure": 1185.1,
+      "resp": 1151.2,
+      "tout": 1143.2
+     },
+     "16": {
+      "aucune": 1146.3,
+      "sure": 1123.4,
+      "resp": 1089.5,
+      "tout": 1081.5
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ecarts-temps.js:92 · mot('N15', 'régulièrement')"
+    ]
+   }
+  },
+  {
+   "id": "C-S10-07",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S10",
+   "parts": [
+    {
+     "replique": "N17",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Une phrase d’aiguillage : la coupe sur les deux colonnes A et B (P71) marque le passage de l’analyse aux données.",
+   "perte": "Sans l’annonce, N18 peut sembler prolonger Nietzsche au lieu d’apporter le sondage : à écouter.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "rythme (1)",
+    "humour (1)",
+    "propos (2)"
+   ],
+   "calcule": {
+    "n": 14,
+    "repliques": [
+     "N17"
+    ],
+    "texte_coupe": "Les réponses de mon sondage ajoutent quelque chose à cette analyse.",
+    "secondes": 5.2,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 4.7,
+    "apres": {
+     "13": {
+      "aucune": 1354.5,
+      "sure": 1331.6,
+      "resp": 1297.8,
+      "tout": 1289.8
+     },
+     "14": {
+      "aucune": 1273.4,
+      "sure": 1250.5,
+      "resp": 1216.8,
+      "tout": 1208.8
+     },
+     "15": {
+      "aucune": 1203.1,
+      "sure": 1180.2,
+      "resp": 1146.5,
+      "tout": 1138.5
+     },
+     "16": {
+      "aucune": 1141.6,
+      "sure": 1118.7,
+      "resp": 1085,
+      "tout": 1077
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ecarts-temps.js · si N17 est retirée de texte.js : ligne 96 (de)"
+    ]
+   }
+  },
+  {
+   "id": "C-S10-08",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S10",
+   "parts": [
+    {
+     "replique": "N20",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Redite de N19, dite juste avant (« avant tout, à cause de la description que vous avez lue en premier »), et de Q05.",
+   "perte": "C’est la phrase-bilan de Thibaut pour la partie 3, et son plan P72 (9,1 s : la barre des 53 points qui s’allume) disparaît. La comparaison « de très loin » reste faite par Q05 et N19 : la question 3 (des écarts mesurés sur des populations différentes) reste entière.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (1)",
+    "rythme (1)",
+    "humour (1)"
+   ],
+   "calcule": {
+    "n": 15,
+    "repliques": [
+     "N20"
+    ],
+    "texte_coupe": "Le choix de la première description est, de très loin, le facteur le plus important dans vos décisions.",
+    "secondes": 7.9,
+    "sans_voix_emporte": 1.2,
+    "tenue_image": 0,
+    "gain_15_tout": 7.6,
+    "apres": {
+     "13": {
+      "aucune": 1345.4,
+      "sure": 1322.5,
+      "resp": 1289.2,
+      "tout": 1281.2
+     },
+     "14": {
+      "aucune": 1264.8,
+      "sure": 1241.9,
+      "resp": 1208.7,
+      "tout": 1200.7
+     },
+     "15": {
+      "aucune": 1195.1,
+      "sure": 1172.2,
+      "resp": 1138.9,
+      "tout": 1130.9
+     },
+     "16": {
+      "aucune": 1134,
+      "sure": 1111.1,
+      "resp": 1077.9,
+      "tout": 1069.9
+     }
+    },
+    "plans_sans_voix": [
+     "P72"
+    ],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ecarts-temps.js:104 · mot('N20', 'de très loin')",
+     "plans/ecarts-temps.js:105 · mot('N20', 'le plus important')",
+     "plans/ecarts-temps.js · si N20 est retirée de texte.js : lignes 104, 105 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S11-03",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S11",
+   "parts": [
+    {
+     "replique": "D04",
+     "extrait": " Avec la description A, ou avec la description B ?"
+    }
+   ],
+   "raccord": "D04 finit sur « … qu’on leur présente les règles ? »",
+   "raccord_auto": [],
+   "pourquoi": "Les deux fenêtres A et B sont à l’écran, et D06 (« Que choisissez-vous pour vos participants ? »), gardée, pose la même question juste avant le temps de choisir. Remplace la coupe de D06 : sans D06, le silence suivait une phrase qui n’était pas une question.",
+   "perte": "Le choix n’est plus nommé en mots (« A ou B »), seulement à l’image.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "humour (3)",
+    "contre-lecture (cohérence)"
+   ],
+   "calcule": {
+    "n": 16,
+    "repliques": [
+     "D04"
+    ],
+    "texte_coupe": "Avec la description A, ou avec la description B ?",
+    "secondes": 3.8,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 3.3,
+    "apres": {
+     "13": {
+      "aucune": 1341.5,
+      "sure": 1318.6,
+      "resp": 1285.4,
+      "tout": 1277.4
+     },
+     "14": {
+      "aucune": 1261.3,
+      "sure": 1238.4,
+      "resp": 1205.1,
+      "tout": 1197.1
+     },
+     "15": {
+      "aucune": 1191.7,
+      "sure": 1168.8,
+      "resp": 1135.6,
+      "tout": 1127.6
+     },
+     "16": {
+      "aucune": 1130.9,
+      "sure": 1108,
+      "resp": 1074.8,
+      "tout": 1066.8
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/fin-temps.js:35 · mot('D04', 'la description A')",
+     "plans/fin-temps.js:36 · mot('D04', 'la description B')"
+    ]
+   }
+  },
+  {
+   "id": "C-S11-05",
+   "niveau": 1,
+   "dernier_recours": false,
+   "sequence": "S11",
+   "parts": [
+    {
+     "replique": "D12",
+     "extrait": ", qui n’est pas moins intéressant"
+    }
+   ],
+   "raccord": "« C’est un autre dilemme : un méta-dilemme. »",
+   "raccord_auto": [],
+   "pourquoi": "Une formule de remplissage.",
+   "perte": "Rien.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (1)",
+    "humour (1)",
+    "rythme (2)"
+   ],
+   "calcule": {
+    "n": 17,
+    "repliques": [
+     "D12"
+    ],
+    "texte_coupe": ", qui n’est pas moins intéressant",
+    "secondes": 2.5,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 2.2,
+    "apres": {
+     "13": {
+      "aucune": 1339,
+      "sure": 1316.1,
+      "resp": 1282.8,
+      "tout": 1274.8
+     },
+     "14": {
+      "aucune": 1258.9,
+      "sure": 1236,
+      "resp": 1202.8,
+      "tout": 1194.8
+     },
+     "15": {
+      "aucune": 1189.5,
+      "sure": 1166.6,
+      "resp": 1133.4,
+      "tout": 1125.4
+     },
+     "16": {
+      "aucune": 1128.8,
+      "sure": 1105.9,
+      "resp": 1072.7,
+      "tout": 1064.7
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": []
+   }
+  },
+  {
+   "id": "C-S09-03",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S09",
+   "parts": [
+    {
+     "replique": "Q04",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Les pays ne sont pas mesurés : il n’existe encore que l’amorce « D’un pays à l’autre : » et 12 s de place réservée. La couper fait tomber le plan P63 (la carte et la place : 13,2 s sans voix), sans retirer une phrase écrite de Thibaut.",
+   "perte": "La place prévue pour les pays, la carte de l’Europe et la ligne « D’UN PAYS À L’AUTRE · À MESURER » de l’écran 10 (P64). Le script prévoyait que les pays puissent changer la conclusion (« [À ADAPTER selon les écarts entre pays] ») : on ne sait pas ce qu’ils diraient.",
+   "depend": "De deux décisions : la mesure des pays (si elle arrive à temps) et Arte (les chiffres sont présentés comme venant de la collecte Arte). Si les pays restent : voir l’échange n° 3.",
+   "visuel": "P63 (« carte de l’Europe, un chiffre par pays ») disparaît ; P64 (« Genre, politique, pays… ») perd la ligne des pays.",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "humour (2)",
+    "rythme (3)"
+   ],
+   "calcule": {
+    "n": 18,
+    "repliques": [
+     "Q04"
+    ],
+    "texte_coupe": "D’un pays à l’autre :",
+    "secondes": 1.6,
+    "sans_voix_emporte": 13.2,
+    "tenue_image": 0,
+    "gain_15_tout": 14.2,
+    "apres": {
+     "13": {
+      "aucune": 1324.2,
+      "sure": 1301.7,
+      "resp": 1268.4,
+      "tout": 1260.4
+     },
+     "14": {
+      "aucune": 1244.2,
+      "sure": 1221.7,
+      "resp": 1188.5,
+      "tout": 1180.5
+     },
+     "15": {
+      "aucune": 1175,
+      "sure": 1152.5,
+      "resp": 1119.2,
+      "tout": 1111.2
+     },
+     "16": {
+      "aucune": 1114.3,
+      "sure": 1091.8,
+      "resp": 1058.6,
+      "tout": 1050.6
+     }
+    },
+    "plans_sans_voix": [
+     "P63"
+    ],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ecarts-temps.js · si Q04 est retirée de texte.js : lignes 41, 42 (de, finParole)"
+    ]
+   }
+  },
+  {
+   "id": "C-S10-01",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S10",
+   "parts": [
+    {
+     "replique": "N02",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "La question de l’ouverture (O11, « pourquoi tant de haine pour deux pilules ? ») est déjà posée, et Nietzsche y répond. On coupe la question plutôt que « Revenons à la dispute du début » (N01) : sans N01, « les deux camps » arrivait juste après la gauche et la droite, et pouvait s’entendre comme les camps politiques.",
+   "perte": "La relance en forme de question. Le retour au fil (P65) se cale sur N01 et N03.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (1)",
+    "contre-lecture (cohérence)"
+   ],
+   "calcule": {
+    "n": 19,
+    "repliques": [
+     "N02"
+    ],
+    "texte_coupe": "Pourquoi les deux camps se détestent-ils autant ?",
+    "secondes": 3.8,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 3.5,
+    "apres": {
+     "13": {
+      "aucune": 1320,
+      "sure": 1297.5,
+      "resp": 1264.4,
+      "tout": 1256.4
+     },
+     "14": {
+      "aucune": 1240.3,
+      "sure": 1217.8,
+      "resp": 1184.7,
+      "tout": 1176.7
+     },
+     "15": {
+      "aucune": 1171.3,
+      "sure": 1148.8,
+      "resp": 1115.7,
+      "tout": 1107.7
+     },
+     "16": {
+      "aucune": 1110.9,
+      "sure": 1088.4,
+      "resp": 1055.3,
+      "tout": 1047.3
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ecarts-temps.js:55 · mot('N02', 'se détestent-ils')",
+     "plans/ecarts-temps.js:56 · mot('N02', 'autant')",
+     "plans/ecarts-temps.js · si N02 est retirée de texte.js : lignes 55, 56 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S11-01",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S11",
+   "parts": [
+    {
+     "replique": "D01",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Une annonce, de la même famille que T01, K07 ou N17. D07 (« À cette question, le groupe qui a d’abord été exposé… ») dit ensuite que la question faisait partie du sondage.",
+   "perte": "On comprend un peu plus tard que la question du méta-dilemme a été posée aux participants. « Supposons que j’obtienne enfin le droit… » (D02) ouvre seul la séquence, sur la foule des vrais humains.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "rythme (2)",
+    "contre-lecture (Thibaut)"
+   ],
+   "calcule": {
+    "n": 20,
+    "repliques": [
+     "D01"
+    ],
+    "texte_coupe": "À la fin du test, je vous ai posé une dernière question.",
+    "secondes": 4.3,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 4,
+    "apres": {
+     "13": {
+      "aucune": 1315.3,
+      "sure": 1292.8,
+      "resp": 1259.8,
+      "tout": 1251.8
+     },
+     "14": {
+      "aucune": 1235.9,
+      "sure": 1213.4,
+      "resp": 1180.5,
+      "tout": 1172.5
+     },
+     "15": {
+      "aucune": 1167.1,
+      "sure": 1144.6,
+      "resp": 1111.7,
+      "tout": 1103.7
+     },
+     "16": {
+      "aucune": 1107,
+      "sure": 1084.5,
+      "resp": 1051.5,
+      "tout": 1043.5
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/fin-temps.js:28 · mot('D01', 'dernière question')",
+     "plans/fin-temps.js · si D01 est retirée de texte.js : lignes 27, 28 (de, mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S07-01",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S07",
+   "parts": [
+    {
+     "replique": "B01",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Une annonce : la boîte affiche « DESCRIPTION B », et B02 (« Mêmes pilules, même règle, dans une formulation légèrement différente ») dit de quoi on parle.",
+   "perte": "« En premier » n’est pas redit ici (il l’est en R11 et en N19), et « Commençons par… » (A01) n’a plus son « Passons à… ». La devinette B n’a pas de question dite (elle est à l’écran), comme aujourd’hui. Si le faux consensus est coupé (réserve), B01 revient : « Mêmes pilules » suivrait sinon « de vraies pilules ».",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "rythme (1)"
+   ],
+   "calcule": {
+    "n": 21,
+    "repliques": [
+     "B01"
+    ],
+    "texte_coupe": "Passons à ceux qui ont lu la description B en premier.",
+    "secondes": 4.2,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 3.9,
+    "apres": {
+     "13": {
+      "aucune": 1310.7,
+      "sure": 1288.2,
+      "resp": 1255.4,
+      "tout": 1247.4
+     },
+     "14": {
+      "aucune": 1231.6,
+      "sure": 1209.1,
+      "resp": 1176.3,
+      "tout": 1168.3
+     },
+     "15": {
+      "aucune": 1163.1,
+      "sure": 1140.6,
+      "resp": 1107.8,
+      "tout": 1099.8
+     },
+     "16": {
+      "aucune": 1103.1,
+      "sure": 1080.6,
+      "resp": 1047.9,
+      "tout": 1039.9
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": "C-S06-04",
+    "recalage": []
+   }
+  },
+  {
+   "id": "C-S01-02",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S01",
+   "parts": [
+    {
+     "replique": "O07",
+     "extrait": " aussi acharnées qu’interminables"
+    }
+   ],
+   "raccord": "« … il déclenche les mêmes disputes. »",
+   "raccord_auto": [],
+   "pourquoi": "Deux adjectifs d’appui ; le fil qui ne s’arrête plus (P04) le montre.",
+   "perte": "« Interminables » faisait écho à « ces guerres interminables » (N15).",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "humour (2)"
+   ],
+   "calcule": {
+    "n": 22,
+    "repliques": [
+     "O07"
+    ],
+    "texte_coupe": "aussi acharnées qu’interminables",
+    "secondes": 2.5,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 2.2,
+    "apres": {
+     "13": {
+      "aucune": 1308.1,
+      "sure": 1285.6,
+      "resp": 1252.9,
+      "tout": 1244.9
+     },
+     "14": {
+      "aucune": 1229.3,
+      "sure": 1206.8,
+      "resp": 1174,
+      "tout": 1166
+     },
+     "15": {
+      "aucune": 1160.9,
+      "sure": 1138.4,
+      "resp": 1105.6,
+      "tout": 1097.6
+     },
+     "16": {
+      "aucune": 1101.1,
+      "sure": 1078.6,
+      "resp": 1045.8,
+      "tout": 1037.8
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ouverture.js:115 · q('O07', 'interminables')"
+    ]
+   }
+  },
+  {
+   "id": "C-S11-02",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S11",
+   "parts": [
+    {
+     "replique": "D03",
+     "extrait": ", aussi c’est vers vous que je me tourne :"
+    }
+   ],
+   "raccord": "deux-points après « règles » : « Seulement, je suis indécise quant à la formulation des règles : comment voudriez-vous… »",
+   "raccord_auto": [
+    {
+     "replique": "D03",
+     "remplace": "des règles",
+     "par": "des règles :"
+    }
+   ],
+   "pourquoi": "Une formule d’adresse ; l’œil se tourne vers vous à l’image. « Indécise », l’ironie, reste.",
+   "perte": "Une petite perte de ton (Phi qui se tourne vers nous).",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "humour (3)",
+    "rythme (3)"
+   ],
+   "calcule": {
+    "n": 23,
+    "repliques": [
+     "D03"
+    ],
+    "texte_coupe": ", aussi c’est vers vous que je me tourne :",
+    "secondes": 3.2,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 2.8,
+    "apres": {
+     "13": {
+      "aucune": 1305,
+      "sure": 1282.5,
+      "resp": 1249.7,
+      "tout": 1241.7
+     },
+     "14": {
+      "aucune": 1226.3,
+      "sure": 1203.8,
+      "resp": 1171,
+      "tout": 1163
+     },
+     "15": {
+      "aucune": 1158.2,
+      "sure": 1135.7,
+      "resp": 1102.9,
+      "tout": 1094.9
+     },
+     "16": {
+      "aucune": 1098.5,
+      "sure": 1076,
+      "resp": 1043.2,
+      "tout": 1035.2
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/fin-temps.js:34 · mot('D03', 'vers vous')"
+    ]
+   }
+  },
+  {
+   "id": "C-S10-03",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S10",
+   "parts": [
+    {
+     "replique": "N10",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "N11 le redit plus drôlement (« ils les trouvent un peu bêtes »), et N05 a défini le mauvais (« celui qui rate, qui se trompe »).",
+   "perte": "Le lien explicite avec la définition. Le ✓ et le bleu penaud de P68 se recalent sur N11.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "humour (2)",
+    "propos (3)"
+   ],
+   "calcule": {
+    "n": 24,
+    "repliques": [
+     "N10"
+    ],
+    "texte_coupe": "Ils ont fait le choix correct, et les bleus se sont trompés.",
+    "secondes": 4.6,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 4.2,
+    "apres": {
+     "13": {
+      "aucune": 1300,
+      "sure": 1277.5,
+      "resp": 1244.9,
+      "tout": 1236.9
+     },
+     "14": {
+      "aucune": 1221.6,
+      "sure": 1199.1,
+      "resp": 1166.5,
+      "tout": 1158.5
+     },
+     "15": {
+      "aucune": 1153.8,
+      "sure": 1131.3,
+      "resp": 1098.7,
+      "tout": 1090.7
+     },
+     "16": {
+      "aucune": 1094.4,
+      "sure": 1071.9,
+      "resp": 1039.3,
+      "tout": 1031.3
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ecarts-temps.js:77 · mot('N10', 'le choix correct')",
+     "plans/ecarts-temps.js:78 · mot('N10', 'se sont trompés')",
+     "plans/ecarts-temps.js · si N10 est retirée de texte.js : lignes 77, 78 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S03-05",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S03",
+   "parts": [
+    {
+     "replique": "K18",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Un temps de faux espoir ; le « Mais » de K19 suffit à faire tourner l’argument.",
+   "perte": "Le « ? » au-dessus de Kant (P26) perd sa voix, et le mouvement espoir puis déception est moins marqué.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)"
+   ],
+   "calcule": {
+    "n": 25,
+    "repliques": [
+     "K18"
+    ],
+    "texte_coupe": "Kant a-t-il résolu le dilemme ?",
+    "secondes": 2.4,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 2.3,
+    "apres": {
+     "13": {
+      "aucune": 1297.2,
+      "sure": 1274.7,
+      "resp": 1242.2,
+      "tout": 1234.2
+     },
+     "14": {
+      "aucune": 1219,
+      "sure": 1196.5,
+      "resp": 1164.1,
+      "tout": 1156.1
+     },
+     "15": {
+      "aucune": 1151.3,
+      "sure": 1128.8,
+      "resp": 1096.3,
+      "tout": 1088.3
+     },
+     "16": {
+      "aucune": 1092,
+      "sure": 1069.5,
+      "resp": 1037.1,
+      "tout": 1029.1
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/kant.js:178 · mot('K18', 'Kant a-t-il')",
+     "plans/kant.js · si K18 est retirée de texte.js : ligne 178 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S03-06",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S03",
+   "parts": [
+    {
+     "replique": "K24",
+     "extrait": ", même si elle passe le test"
+    }
+   ],
+   "raccord": "« … c’est pour ça qu’elle a l’air égoïste. »",
+   "raccord_auto": [],
+   "pourquoi": "Rappel de K21 (« Les deux décisions passent le test kantien »), dit quinze secondes plus tôt. L’asymétrie (K22–K26) reste entière, « a l’air égoïste » compris.",
+   "perte": "Faible. La nuance « a l’air » (Phi ne juge pas) reste.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "humour (1)",
+    "rythme (2)"
+   ],
+   "calcule": {
+    "n": 26,
+    "repliques": [
+     "K24"
+    ],
+    "texte_coupe": ", même si elle passe le test",
+    "secondes": 2.2,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 1.9,
+    "apres": {
+     "13": {
+      "aucune": 1295,
+      "sure": 1272.5,
+      "resp": 1240,
+      "tout": 1232
+     },
+     "14": {
+      "aucune": 1217,
+      "sure": 1194.5,
+      "resp": 1162.1,
+      "tout": 1154.1
+     },
+     "15": {
+      "aucune": 1149.4,
+      "sure": 1126.9,
+      "resp": 1094.5,
+      "tout": 1086.5
+     },
+     "16": {
+      "aucune": 1090.3,
+      "sure": 1067.8,
+      "resp": 1035.3,
+      "tout": 1027.3
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/kant.js:194 · mot('K24', 'même si elle passe le test')"
+    ]
+   }
+  },
+  {
+   "id": "C-S06-03",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S06",
+   "parts": [
+    {
+     "replique": "A10",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "La chute est déjà dans « malheureusement » (A09) : le découpage le dit lui-même (« “malheureusement” sincère : c’est le gag »). A09 reste entière, avec son écho « enfin le droit » (D02).",
+   "perte": "Faible : la bulle qui éclate (P46) se cale sur « malheureusement ».",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (1)",
+    "rythme (1)"
+   ],
+   "calcule": {
+    "n": 27,
+    "repliques": [
+     "A10"
+    ],
+    "texte_coupe": "Ma curiosité reste inassouvie.",
+    "secondes": 2.3,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 2.2,
+    "apres": {
+     "13": {
+      "aucune": 1292.3,
+      "sure": 1269.8,
+      "resp": 1237.5,
+      "tout": 1229.5
+     },
+     "14": {
+      "aucune": 1214.5,
+      "sure": 1192,
+      "resp": 1159.7,
+      "tout": 1151.7
+     },
+     "15": {
+      "aucune": 1147,
+      "sure": 1124.5,
+      "resp": 1092.2,
+      "tout": 1084.2
+     },
+     "16": {
+      "aucune": 1088,
+      "sure": 1065.5,
+      "resp": 1033.2,
+      "tout": 1025.2
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/tirage-temps.js:88 · mot('A10', 'inassouvie')",
+     "plans/tirage-temps.js · si A10 est retirée de texte.js : ligne 88 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S07-05",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S07",
+   "parts": [
+    {
+     "replique": "B11",
+     "extrait": "J’en avais certes entendu parler, mais "
+    }
+   ],
+   "raccord": "une majuscule : « Je ne pensais pas qu’il pouvait être aussi fort. »",
+   "raccord_auto": [
+    {
+     "replique": "B11",
+     "remplace": "je ne pensais",
+     "par": "Je ne pensais"
+    }
+   ],
+   "pourquoi": "« Je ne pensais pas qu’il pouvait être aussi fort » suppose déjà qu’on connaissait l’effet. L’étonnement de Phi reste mot pour mot.",
+   "perte": "On n’entend plus clairement que les psychologues connaissaient l’effet avant ce sondage (B10 le laisse entendre). Le cadre B de P54, calé sur « entendu parler », se recale.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "rythme (3, B11 entière)"
+   ],
+   "calcule": {
+    "n": 28,
+    "repliques": [
+     "B11"
+    ],
+    "texte_coupe": "J’en avais certes entendu parler, mais",
+    "secondes": 3,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 2.6,
+    "apres": {
+     "13": {
+      "aucune": 1289.3,
+      "sure": 1266.8,
+      "resp": 1234.5,
+      "tout": 1226.5
+     },
+     "14": {
+      "aucune": 1211.7,
+      "sure": 1189.2,
+      "resp": 1156.9,
+      "tout": 1148.9
+     },
+     "15": {
+      "aucune": 1144.4,
+      "sure": 1121.9,
+      "resp": 1089.6,
+      "tout": 1081.6
+     },
+     "16": {
+      "aucune": 1085.6,
+      "sure": 1063.1,
+      "resp": 1030.8,
+      "tout": 1022.8
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/resultats.js:146 · mot('B11', 'entendu parler')"
+    ]
+   }
+  },
+  {
+   "id": "C-S10-04",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S10",
+   "parts": [
+    {
+     "replique": "N11",
+     "extrait": ", et regrettent qu’ils se mettent en danger pour rien"
+    }
+   ],
+   "raccord": "« un peu bêtes, » devient « un peu bêtes. »",
+   "raccord_auto": [],
+   "pourquoi": "La pitié des rouges est redite trois phrases plus loin (N14, « les rouges plaignent les bleus »). « Un peu bêtes » reste.",
+   "perte": "L’écho « se mettent en danger », entre l’ouverture (O09) et la partie 3, s’affaiblit. Le geste « il lui tend la main » (P68, sur « regrettent ») se recale sur « un peu bêtes ».",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "rythme (2, N11 entière)",
+    "humour (3)"
+   ],
+   "calcule": {
+    "n": 29,
+    "repliques": [
+     "N11"
+    ],
+    "texte_coupe": ", et regrettent qu’ils se mettent en danger pour rien",
+    "secondes": 4.1,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 3.5,
+    "apres": {
+     "13": {
+      "aucune": 1285.2,
+      "sure": 1262.7,
+      "resp": 1230.4,
+      "tout": 1222.4
+     },
+     "14": {
+      "aucune": 1207.9,
+      "sure": 1185.4,
+      "resp": 1153.1,
+      "tout": 1145.1
+     },
+     "15": {
+      "aucune": 1140.9,
+      "sure": 1118.4,
+      "resp": 1086.1,
+      "tout": 1078.1
+     },
+     "16": {
+      "aucune": 1082.2,
+      "sure": 1059.7,
+      "resp": 1027.4,
+      "tout": 1019.4
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ecarts-temps.js:80 · mot('N11', 'regrettent')"
+    ]
+   }
+  },
+  {
+   "id": "C-S04-02",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S04",
+   "parts": [
+    {
+     "replique": "V05",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Une nuance qui ralentit l’enchaînement : l’objectif précis, c’est Alice (V04), et la conclusion suit (« Le choix bleu devient clairement moral, et même héroïque »). La boucle garde sa préparation (K27–K29, « Mais pour sauver qui ? ») et ses trois tours (V19–V20).",
+   "perte": "On ne dit plus qu’un reste de circularité demeure avec Alice. Les flèches fines sous l’éventail (P33, sur « Et sauver ceux ») perdent leur mot.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (1)",
+    "rythme (2)"
+   ],
+   "calcule": {
+    "n": 30,
+    "repliques": [
+     "V05"
+    ],
+    "texte_coupe": "Et sauver ceux qui prendront le risque de tenter de sauver Alice.",
+    "secondes": 5,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 4.7,
+    "apres": {
+     "13": {
+      "aucune": 1279.8,
+      "sure": 1257.3,
+      "resp": 1225.1,
+      "tout": 1217.1
+     },
+     "14": {
+      "aucune": 1202.8,
+      "sure": 1180.3,
+      "resp": 1148.1,
+      "tout": 1140.1
+     },
+     "15": {
+      "aucune": 1136.1,
+      "sure": 1113.6,
+      "resp": 1081.4,
+      "tout": 1073.4
+     },
+     "16": {
+      "aucune": 1077.8,
+      "sure": 1055.3,
+      "resp": 1023.1,
+      "tout": 1015.1
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/variantes.js:111 · mot('V05', 'Et sauver ceux')",
+     "plans/variantes.js · si V05 est retirée de texte.js : ligne 111 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S02-02",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S02",
+   "parts": [
+    {
+     "replique": "T04",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "T03 vient de dire « en même temps, sans vous concerter », et la règle s’écrit dans RÈGLES (« Choix simultanés et privés : personne ne connaît celui des autres »), sous l’étiquette « SUJET N°48 · CHOIX PRIVÉ ».",
+   "perte": "Le ton « plus bas, comme dans l’isoloir ». Le N°48 revient au méta-dilemme et au générique : son isoloir (P12) reste 1,5 s sans voix (2,0 s sans compression, soit 0,8 s de plus que son silence d’aujourd’hui). La règle 1 de RÈGLES, calée sur « celui des autres », se recale.",
+   "depend": "",
+   "visuel": "P11 (« Puis le gros plan sur le sujet n°48 dans son isoloir ») : gardé, mais muet.",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "rythme (1)",
+    "propos (2)"
+   ],
+   "calcule": {
+    "n": 31,
+    "repliques": [
+     "T04"
+    ],
+    "texte_coupe": "Chaque choix est privé, et personne ne connaît celui des autres.",
+    "secondes": 4.9,
+    "sans_voix_emporte": -0.8,
+    "tenue_image": 0,
+    "gain_15_tout": 3.5,
+    "apres": {
+     "13": {
+      "aucune": 1275.7,
+      "sure": 1252.7,
+      "resp": 1221,
+      "tout": 1213
+     },
+     "14": {
+      "aucune": 1199.1,
+      "sure": 1176.1,
+      "resp": 1144.4,
+      "tout": 1136.4
+     },
+     "15": {
+      "aucune": 1132.7,
+      "sure": 1109.7,
+      "resp": 1078,
+      "tout": 1070
+     },
+     "16": {
+      "aucune": 1074.6,
+      "sure": 1051.6,
+      "resp": 1019.9,
+      "tout": 1011.9
+     }
+    },
+    "plans_sans_voix": [
+     "P12"
+    ],
+    "rendue_par": null,
+    "recalage": [
+     "plans/test.js:105 · mot('T04', 'Chaque')",
+     "plans/test.js:106 · mot('T04', 'personne ne connaît')",
+     "plans/test.js:107 · mot('T04', 'celui des autres')",
+     "plans/test.js · si T04 est retirée de texte.js : lignes 105, 106, 107 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S04-07",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S04",
+   "parts": [
+    {
+     "replique": "V15",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Le tampon « AUCUN MORT » sur la foule toute rouge le montre au même moment, et V16 conclut (« Il paraît dès lors complètement idiot de choisir la bleue »).",
+   "perte": "Le pas entre V14 (un bleu meurt quand même) et V16 est montré, plus dit ; le « dès lors » de V16 renvoie alors à V14. Le tampon (P36), calé sur V15, se recale.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "rythme (2)",
+    "propos (3)",
+    "humour (3, avec V14–V17)"
+   ],
+   "calcule": {
+    "n": 32,
+    "repliques": [
+     "V15"
+    ],
+    "texte_coupe": "La seule issue sans aucun mort devient alors celle où tout le monde prend la rouge.",
+    "secondes": 6.4,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 5.8,
+    "apres": {
+     "13": {
+      "aucune": 1268.9,
+      "sure": 1245.9,
+      "resp": 1214.3,
+      "tout": 1206.3
+     },
+     "14": {
+      "aucune": 1192.7,
+      "sure": 1169.7,
+      "resp": 1138.2,
+      "tout": 1130.2
+     },
+     "15": {
+      "aucune": 1126.7,
+      "sure": 1103.7,
+      "resp": 1072.2,
+      "tout": 1064.2
+     },
+     "16": {
+      "aucune": 1069,
+      "sure": 1046,
+      "resp": 1014.4,
+      "tout": 1006.4
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/variantes.js:127 · mot('V15', 'tout le monde prend la rouge')",
+     "plans/variantes.js · si V15 est retirée de texte.js : ligne 127 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S01-03",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S01",
+   "parts": [
+    {
+     "replique": "O09",
+     "extrait": ", qui se mettent en danger et voudraient en plus entraîner les autres avec eux"
+    }
+   ],
+   "raccord": "« d’idiots, » devient « d’idiots. »",
+   "raccord_auto": [],
+   "pourquoi": "Le rythme de l’ouverture est dans les insultes (« égoïstes, parfois d’assassins » / « d’idiots »), et c’est « idiots » que Nietzsche expliquera (« ils les trouvent un peu bêtes », N11). La promesse de l’ouverture (O03, O05) n’est pas touchée.",
+   "perte": "À dire à Thibaut : c’est le seul passage où les rouges blâment les bleus au lieu de les plaindre (« entraîner les autres avec eux »), le seul contre-exemple au schéma de Nietzsche (« les rouges plaignent les bleus », N14). Sans lui, la thèse paraît plus nette que dans son texte. Les bleus gardent deux insultes, les rouges un seul mot. En P05, la carte « … et entraîner les autres avec eux. » perd sa voix : la retirer.",
+   "depend": "De Thibaut : s’il y tient, la garder et prendre à la place une coupe de même poids (environ 6 s) plus loin dans la liste.",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "humour (2)"
+   ],
+   "calcule": {
+    "n": 33,
+    "repliques": [
+     "O09"
+    ],
+    "texte_coupe": ", qui se mettent en danger et voudraient en plus entraîner les autres avec eux",
+    "secondes": 6,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 5.2,
+    "apres": {
+     "13": {
+      "aucune": 1262.9,
+      "sure": 1239.9,
+      "resp": 1208.3,
+      "tout": 1200.3
+     },
+     "14": {
+      "aucune": 1187.2,
+      "sure": 1164.2,
+      "resp": 1132.6,
+      "tout": 1124.6
+     },
+     "15": {
+      "aucune": 1121.5,
+      "sure": 1098.5,
+      "resp": 1067,
+      "tout": 1059
+     },
+     "16": {
+      "aucune": 1064.1,
+      "sure": 1041.1,
+      "resp": 1009.5,
+      "tout": 1001.5
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ouverture.js:117 · q('O09', 'entraîner')"
+    ]
+   }
+  },
+  {
+   "id": "C-S02-05",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S02",
+   "parts": [
+    {
+     "replique": "T11",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Le détail de la procédure, que l’image montre (la question 3 ratée, RÈGLES qui pulse, la question reposée, le ✓). T10 et T12 (« Personne n’a choisi sa pilule sans avoir bien compris la règle ») restent.",
+   "perte": "On ne dit plus que ceux qui se trompaient ont été réexpliqués puis gardés : « il fallait réussir un petit test » peut laisser croire qu’on a écarté ceux qui l’ont raté. Les questions 3 et 4, calées sur T11, doivent tenir dans le reste du plan : 1,5 s d’image à garder.",
+   "depend": "",
+   "visuel": "P17 (« les quatre questions de compréhension ») : amputé, les questions 3 et 4 n’ont plus de voix.",
+   "rend": [],
+   "tenue": [
+    {
+     "plan": "P17",
+     "secondes": 1.5
+    }
+   ],
+   "soutiens": [
+    "humour (1)",
+    "propos (2)",
+    "rythme (2)"
+   ],
+   "calcule": {
+    "n": 34,
+    "repliques": [
+     "T11"
+    ],
+    "texte_coupe": "Quand quelqu’un se trompait, je lui réexpliquais la règle et je reposais les questions.",
+    "secondes": 6.7,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 1.5,
+    "gain_15_tout": 4.5,
+    "apres": {
+     "13": {
+      "aucune": 1257.3,
+      "sure": 1234.3,
+      "resp": 1202.9,
+      "tout": 1194.9
+     },
+     "14": {
+      "aucune": 1182.1,
+      "sure": 1159.1,
+      "resp": 1127.6,
+      "tout": 1119.6
+     },
+     "15": {
+      "aucune": 1116.8,
+      "sure": 1093.8,
+      "resp": 1062.4,
+      "tout": 1054.4
+     },
+     "16": {
+      "aucune": 1059.8,
+      "sure": 1036.8,
+      "resp": 1005.4,
+      "tout": 997.4
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/test.js:136 · mot('T11', 'se trompait')",
+     "plans/test.js:137 · mot('T11', 'réexpliquais')",
+     "plans/test.js:138 · mot('T11', 'reposais')",
+     "plans/test.js · si T11 est retirée de texte.js : lignes 136, 137, 138 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S09-02",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S09",
+   "parts": [
+    {
+     "replique": "Q03",
+     "extrait": null
+    }
+   ],
+   "raccord": "Q02 finit sur un point : « Plus on se situe à gauche, plus on prend la bleue. »",
+   "raccord_auto": [
+    {
+     "replique": "Q02",
+     "remplace": "la bleue :",
+     "par": "la bleue."
+    }
+   ],
+   "pourquoi": "Les cinq barres et leurs chiffres sont à l’écran, les deux extrêmes cernés ; Q02 dit le sens de l’écart. Les chiffres femmes/hommes (Q01) restent, pour répondre à voix haute à la devinette.",
+   "perte": "Aucun chiffre politique n’est dit ; la mention « tous scénarios du questionnaire confondus » reste à l’écran, et « Les deux groupes confondus » (Q01) reste dit. Les cernes de 39 % et 23 % perdent leurs mots : 1,0 s d’image à garder.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [
+    {
+     "plan": "P62",
+     "secondes": 1
+    }
+   ],
+   "soutiens": [
+    "rythme (2)",
+    "humour (2, avec toute la séquence)"
+   ],
+   "calcule": {
+    "n": 35,
+    "repliques": [
+     "Q03"
+    ],
+    "texte_coupe": "39 % chez ceux qui se disent très à gauche, 23 % chez ceux qui se disent très à droite.",
+    "secondes": 9.3,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 1,
+    "gain_15_tout": 7.3,
+    "apres": {
+     "13": {
+      "aucune": 1248.6,
+      "sure": 1225.6,
+      "resp": 1194.4,
+      "tout": 1186.4
+     },
+     "14": {
+      "aucune": 1174,
+      "sure": 1151,
+      "resp": 1119.8,
+      "tout": 1111.8
+     },
+     "15": {
+      "aucune": 1109.4,
+      "sure": 1086.4,
+      "resp": 1055.1,
+      "tout": 1047.1
+     },
+     "16": {
+      "aucune": 1052.8,
+      "sure": 1029.8,
+      "resp": 998.6,
+      "tout": 990.6
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ecarts-temps.js:36 · mot('Q03', '39 %')",
+     "plans/ecarts-temps.js:37 · mot('Q03', '23 %')",
+     "plans/ecarts-temps.js · si Q03 est retirée de texte.js : lignes 36, 37 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S05-02",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S05",
+   "parts": [
+    {
+     "replique": "R12",
+     "extrait": null
+    },
+    {
+     "replique": "R13",
+     "extrait": null
+    },
+    {
+     "replique": "R14",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Un aparté que Phi annonce elle-même (« d’ailleurs ») ; rien ne le reprend ensuite.",
+   "perte": "L’indice que la description B n’a pas embrouillé les gens : il pare une objection à l’effet de cadrage. Le plan P43 (17,9 s) disparaît. La mention « prototype · chiffres du questionnaire de Monsieur Phi · 1 sujet = 1 % du groupe » commençait en P43 : elle doit partir de P44.",
+   "depend": "De la question 8 pour Thibaut : 9,4 % et 7,1 % viennent du script et de la transcription de la vidéo de Monsieur Phi, pas des captures des graphiques. Si Thibaut confirme la source et tient à l’argument, garder ce passage et couper plus loin dans la liste.",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (1)",
+    "humour (1)",
+    "rythme (2)"
+   ],
+   "calcule": {
+    "n": 36,
+    "repliques": [
+     "R12",
+     "R13",
+     "R14"
+    ],
+    "texte_coupe": "Vous avez d’ailleurs un peu mieux compris la description B. / Avec la A, 9,4 % d’entre vous se sont trompés au moins une fois au test de compréhension. / Avec la B, 7,1 %.",
+    "secondes": 16,
+    "sans_voix_emporte": 1.8,
+    "tenue_image": 0,
+    "gain_15_tout": 14.9,
+    "apres": {
+     "13": {
+      "aucune": 1230.8,
+      "sure": 1207.8,
+      "resp": 1177.3,
+      "tout": 1169.3
+     },
+     "14": {
+      "aucune": 1157.4,
+      "sure": 1134.4,
+      "resp": 1103.8,
+      "tout": 1095.8
+     },
+     "15": {
+      "aucune": 1093.7,
+      "sure": 1070.7,
+      "resp": 1040.2,
+      "tout": 1032.2
+     },
+     "16": {
+      "aucune": 1038,
+      "sure": 1015,
+      "resp": 984.5,
+      "tout": 976.5
+     }
+    },
+    "plans_sans_voix": [
+     "P43"
+    ],
+    "rendue_par": null,
+    "recalage": [
+     "plans/tirage-temps.js:66 · mot('R12', 'mieux compris')",
+     "plans/tirage-temps.js:67 · mot('R13', '9,4 %')",
+     "plans/tirage-temps.js:68 · mot('R14', '7,1 %')",
+     "plans/tirage-temps.js · si R14 est retirée de texte.js : lignes 68, 69 (fin, mot)",
+     "plans/tirage-temps.js · si R12 est retirée de texte.js : ligne 66 (mot)",
+     "plans/tirage-temps.js · si R13 est retirée de texte.js : ligne 67 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S01-04",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S01",
+   "parts": [
+    {
+     "replique": "O10",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Une pique (le soupir) qui n’ajoute rien à la question posée juste après (« pourquoi tant de haine »).",
+   "perte": "Une blague de moins dans l’ouverture. Le plan P06 (le recul sur le mur de fils, 5,6 s) perd sa voix : le fondre dans P07.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "rythme (3)"
+   ],
+   "calcule": {
+    "n": 37,
+    "repliques": [
+     "O10"
+    ],
+    "texte_coupe": "Comme si vous n’aviez pas déjà assez de raisons de vous détester.",
+    "secondes": 5,
+    "sans_voix_emporte": 0.6,
+    "tenue_image": 0,
+    "gain_15_tout": 4.7,
+    "apres": {
+     "13": {
+      "aucune": 1225.2,
+      "sure": 1202.2,
+      "resp": 1171.9,
+      "tout": 1163.9
+     },
+     "14": {
+      "aucune": 1152.1,
+      "sure": 1129.1,
+      "resp": 1098.8,
+      "tout": 1090.8
+     },
+     "15": {
+      "aucune": 1088.8,
+      "sure": 1065.8,
+      "resp": 1035.5,
+      "tout": 1027.5
+     },
+     "16": {
+      "aucune": 1033.4,
+      "sure": 1010.4,
+      "resp": 980.1,
+      "tout": 972.1
+     }
+    },
+    "plans_sans_voix": [
+     "P06"
+    ],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ouverture.js:118 · q('O10', 'détester')",
+     "plans/ouverture.js · si O10 est retirée de texte.js : ligne 118 (q)"
+    ]
+   }
+  },
+  {
+   "id": "C-S06-01",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S06",
+   "parts": [
+    {
+     "replique": "A03",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Une blague pendant la devinette : la question (A02) et le compte à rebours font déjà le suspense. Le temps « le suspense » (1,2 s) part avec elle.",
+   "perte": "Une blague pince-sans-rire (« parfaitement plat : la blague est là ») et le cadrage « vie ou mort » de la devinette. A03 donne aujourd’hui la fin du compte à rebours A (recalage).",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "rythme (3)"
+   ],
+   "calcule": {
+    "n": 38,
+    "repliques": [
+     "A03"
+    ],
+    "texte_coupe": "Les bleus ont-ils survécu ? Le suspense est insoutenable.",
+    "secondes": 4.4,
+    "sans_voix_emporte": 1.6,
+    "tenue_image": 0,
+    "gain_15_tout": 5.3,
+    "apres": {
+     "13": {
+      "aucune": 1219.2,
+      "sure": 1196.2,
+      "resp": 1166.1,
+      "tout": 1158.1
+     },
+     "14": {
+      "aucune": 1146.4,
+      "sure": 1123.4,
+      "resp": 1093.3,
+      "tout": 1085.3
+     },
+     "15": {
+      "aucune": 1083.4,
+      "sure": 1060.4,
+      "resp": 1030.2,
+      "tout": 1022.2
+     },
+     "16": {
+      "aucune": 1028.2,
+      "sure": 1005.2,
+      "resp": 975,
+      "tout": 967
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/tirage-temps.js:74 · mot('A03', 'insoutenable')",
+     "plans/tirage-temps.js · si A03 est retirée de texte.js : lignes 73, 74, 75 (de, fin, mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S03-03",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S03",
+   "parts": [
+    {
+     "replique": "K09",
+     "extrait": null
+    },
+    {
+     "replique": "K13",
+     "extrait": "Vous ne pouvez pas vouloir que votre règle devienne universelle"
+    }
+   ],
+   "raccord": "aucun : K08 enchaîne sur K10 (« Vous avez besoin d’argent… / La règle que vous suivriez serait… »), K12 sur K14 (« … ne vous rapporterait plus rien. / Pour Kant, c’est exactement à ça qu’on reconnaît une mauvaise action… »). Avec la fin de K13 (niveau 1), K13 part entière.",
+   "raccord_auto": [],
+   "pourquoi": "L’exemple de Kant en version courte : on garde la fausse promesse, la règle, « si tout le monde », et la phrase-clé de Kant (K14), dont la bleue est le miroir. Partent la tentation (K09), que la règle (K10) dit de nouveau, et la conclusion intermédiaire (K13), que K14 dit mieux.",
+   "perte": "La main tendue, la bulle « Je te rembourse demain. » et la pièce, calées sur K09, se recalent sur K08 ; le rembobinage de P25, calé sur K13, se recale sur K14.",
+   "depend": "",
+   "visuel": "P22 (« un sujet en pixels tend la main vers un autre et reçoit une pièce. Une bulle : « Je te rembourse demain. » Ses doigts sont croisés dans son dos ») : gardé, plus serré.",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "contre-lecture (Thibaut)"
+   ],
+   "calcule": {
+    "n": 39,
+    "repliques": [
+     "K09",
+     "K13"
+    ],
+    "texte_coupe": "Vous êtes tenté de l’emprunter quand même, en promettant de rembourser. / Vous ne pouvez pas vouloir que votre règle devienne universelle",
+    "secondes": 10.4,
+    "sans_voix_emporte": 0.8,
+    "tenue_image": 0,
+    "gain_15_tout": 9.5,
+    "apres": {
+     "13": {
+      "aucune": 1208,
+      "sure": 1185,
+      "resp": 1155.2,
+      "tout": 1147.2
+     },
+     "14": {
+      "aucune": 1136,
+      "sure": 1113,
+      "resp": 1083.2,
+      "tout": 1075.2
+     },
+     "15": {
+      "aucune": 1073.6,
+      "sure": 1050.6,
+      "resp": 1020.8,
+      "tout": 1012.8
+     },
+     "16": {
+      "aucune": 1019,
+      "sure": 996,
+      "resp": 966.1,
+      "tout": 958.1
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/kant.js:148 · mot('K09', 'emprunter')",
+     "plans/kant.js:149 · mot('K09', 'en promettant')",
+     "plans/kant.js:150 · mot('K09', 'rembourser')",
+     "plans/kant.js:163 · mot('K13', 'Vous ne pouvez pas')",
+     "plans/kant.js · si K09 est retirée de texte.js : lignes 148, 149, 150 (mot)",
+     "plans/kant.js · si K13 est retirée de texte.js : lignes 163, 165 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S04-03",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S04",
+   "parts": [
+    {
+     "replique": "V09",
+     "extrait": null
+    }
+   ],
+   "raccord": "aucun : V08 « Mais ce n’était pas la question, justement. » enchaîne sur V10 « Si on part du principe que des participants vont choisir la pilule bleue par erreur… »",
+   "raccord_auto": [],
+   "pourquoi": "L’objection des bleus accidentels et sa réponse (V10–V12) tiennent sans l’annonce. On coupe la phrase et on garde l’argument ; V09 seule, sans V10–V11, ne dirait plus pourquoi c’est important.",
+   "perte": "La phrase de Thibaut « il est très important de préciser que tout le monde comprend bien le dilemme avant de choisir ». Elle relie la partie 1 au test de compréhension (T10, T12), qui reste. Si Thibaut tient à cette phrase, il faut garder aussi V10–V11, qui disent pourquoi : voir l’échange n° 2.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "rythme (2)",
+    "humour (2)"
+   ],
+   "calcule": {
+    "n": 40,
+    "repliques": [
+     "V09"
+    ],
+    "texte_coupe": "C’est pour cette raison qu’il est très important de préciser que tout le monde comprend bien le dilemme avant de choisir.",
+    "secondes": 9.3,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 8.3,
+    "apres": {
+     "13": {
+      "aucune": 1198.3,
+      "sure": 1175.3,
+      "resp": 1145.7,
+      "tout": 1137.7
+     },
+     "14": {
+      "aucune": 1127,
+      "sure": 1104,
+      "resp": 1074.3,
+      "tout": 1066.3
+     },
+     "15": {
+      "aucune": 1065.1,
+      "sure": 1042.1,
+      "resp": 1012.5,
+      "tout": 1004.5
+     },
+     "16": {
+      "aucune": 1011,
+      "sure": 988,
+      "resp": 958.4,
+      "tout": 950.4
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/variantes.js:116 · mot('V09', 'comprend bien')",
+     "plans/variantes.js · si V09 est retirée de texte.js : ligne 116 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S06-07",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S06",
+   "parts": [
+    {
+     "replique": "A18",
+     "extrait": null
+    },
+    {
+     "replique": "A19",
+     "extrait": null
+    },
+    {
+     "replique": "A20",
+     "extrait": null
+    },
+    {
+     "replique": "A21",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Phi l’annonce elle-même comme « un détail » : un paradoxe curieux, sans suite dans l’épisode.",
+   "perte": "Un moment d’émotion (« ils prédisaient leur propre mort, et ils ont pris la bleue quand même », le signal de K26 en vrai) et deux traits de Phi (« intriguée », « profondément perplexe »). Le plan P50 (21,8 s, les fantômes) disparaît. (La question 7 posée à Thibaut sur ce chiffre dit qu’il est conforme à la source, et que la part réelle est peut-être un peu plus haute : le paradoxe serait plus fort, pas plus fragile.)",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (1)",
+    "rythme (1 pour A18, 2 pour la suite)",
+    "humour (3, dernier recours)"
+   ],
+   "calcule": {
+    "n": 41,
+    "repliques": [
+     "A18",
+     "A19",
+     "A20",
+     "A21"
+    ],
+    "texte_coupe": "Un détail m’a intriguée. / Environ 4 % de ceux qui ont pris la bleue prédisaient moins de 50 % de bleue. / Autrement dit, ils prédisaient leur propre mort, et ils ont pris la bleue quand même. / Voilà qui me laisse profondément perplexe.",
+    "secondes": 19.6,
+    "sans_voix_emporte": 2.2,
+    "tenue_image": 0,
+    "gain_15_tout": 18.3,
+    "apres": {
+     "13": {
+      "aucune": 1176.5,
+      "sure": 1153.5,
+      "resp": 1124.8,
+      "tout": 1116.8
+     },
+     "14": {
+      "aucune": 1106.6,
+      "sure": 1083.6,
+      "resp": 1054.8,
+      "tout": 1046.8
+     },
+     "15": {
+      "aucune": 1045.9,
+      "sure": 1022.9,
+      "resp": 994.2,
+      "tout": 986.2
+     },
+     "16": {
+      "aucune": 992.9,
+      "sure": 969.9,
+      "resp": 941.1,
+      "tout": 933.1
+     }
+    },
+    "plans_sans_voix": [
+     "P50"
+    ],
+    "rendue_par": null,
+    "recalage": [
+     "plans/tirage-temps.js:110 · mot('A18', 'intriguée')",
+     "plans/tirage-temps.js:112 · mot('A19', 'moins de 50 %')",
+     "plans/tirage-temps.js:113 · mot('A20', 'leur propre mort')",
+     "plans/tirage-temps.js:114 · mot('A20', 'quand même')",
+     "plans/tirage-temps.js:115 · mot('A21', 'perplexe')",
+     "plans/tirage-temps.js · si A18 est retirée de texte.js : lignes 110, 111 (de, mot)",
+     "plans/tirage-temps.js · si A21 est retirée de texte.js : lignes 115, 116 (de, mot)",
+     "plans/tirage-temps.js · si A19 est retirée de texte.js : ligne 112 (mot)",
+     "plans/tirage-temps.js · si A20 est retirée de texte.js : lignes 113, 114 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S07-06",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S07",
+   "parts": [
+    {
+     "replique": "B12",
+     "extrait": null
+    },
+    {
+     "replique": "B13",
+     "extrait": "11 % de bleue en moyenne dans leurs prédictions"
+    },
+    {
+     "replique": "B14",
+     "extrait": null
+    },
+    {
+     "replique": "B15",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Le pendant des prédictions du groupe A, qui restent : la même trouvaille (chaque camp croit que les autres font comme lui), sans marche nouvelle. La séquence B finit alors plus haut, sur l’effet de cadrage (« … aussi fort »).",
+   "perte": "« Cette fois, les rouges avaient bien prévu » et la chute tendre « Un optimisme démesuré s’il en est ». Le plan P55 (25 s, l’écran 05) disparaît : le cartouche « RÉSULTATS 05 » manquera, à renuméroter avec Thibaut. (Le « 61 % » de B14, pour 61,8 %, est une question d’arrondi, question 1 : elle se règle d’un mot, ce n’est pas une raison de couper.)",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "rythme (2)",
+    "humour (2, B13 seulement)"
+   ],
+   "calcule": {
+    "n": 42,
+    "repliques": [
+     "B12",
+     "B13",
+     "B14",
+     "B15"
+    ],
+    "texte_coupe": "Cette fois, ceux qui ont pris la rouge avaient bien prévu le résultat : / 11 % de bleue en moyenne dans leurs prédictions / Ceux qui ont pris la bleue en prévoyaient 61 %. / Un optimisme démesuré s’il en est.",
+    "secondes": 17.7,
+    "sans_voix_emporte": 2.8,
+    "tenue_image": 0,
+    "gain_15_tout": 17,
+    "apres": {
+     "13": {
+      "aucune": 1156.1,
+      "sure": 1133.5,
+      "resp": 1105.4,
+      "tout": 1097.4
+     },
+     "14": {
+      "aucune": 1087.4,
+      "sure": 1064.8,
+      "resp": 1036.7,
+      "tout": 1028.7
+     },
+     "15": {
+      "aucune": 1027.8,
+      "sure": 1005.2,
+      "resp": 977.2,
+      "tout": 969.2
+     },
+     "16": {
+      "aucune": 975.7,
+      "sure": 953.1,
+      "resp": 925.1,
+      "tout": 917.1
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/resultats.js:151 · mot('B12', 'bien prévu')",
+     "plans/resultats.js:153 · mot('B13', '11 %')",
+     "plans/resultats.js:155 · mot('B14', '61 %')",
+     "plans/resultats.js:156 · mot('B15', 'optimisme démesuré')",
+     "plans/resultats.js · si B12 est retirée de texte.js : ligne 151 (mot)",
+     "plans/resultats.js · si B13 est retirée de texte.js : lignes 153, 154 (mot)",
+     "plans/resultats.js · si B14 est retirée de texte.js : ligne 155 (mot)",
+     "plans/resultats.js · si B15 est retirée de texte.js : ligne 156 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S08-01",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S08",
+   "parts": [
+    {
+     "replique": "M03",
+     "extrait": null
+    },
+    {
+     "replique": "M04",
+     "extrait": null
+    },
+    {
+     "replique": "M05",
+     "extrait": null
+    },
+    {
+     "replique": "M06",
+     "extrait": null
+    },
+    {
+     "replique": "M07",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Une question annexe (plus ou moins trompeuse ?). La marche « même chose ? » tient avec M01–M02 (88 et 93 % jugent les deux descriptions équivalentes), puis vient « le même choix ? ». On retire tout le bloc plutôt que ses seuls chiffres : sans eux, « Chacun juge plus honnête… » deviendrait une affirmation sans appui.",
+   "perte": "Le raisonnement motivé (chacun juge honnête la description qui lui donne raison), qui éclaire aussi la dispute. Le plan P57 (34,8 s, l’écran 07) disparaît : le cartouche « RÉSULTATS 07 » manquera. (Les questions 2 et 11, un arrondi et « chacun » pour une majorité, se règlent d’un mot si le passage reste.) Le « Enfin » de M08 reste juste.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "humour (2)",
+    "rythme (3)"
+   ],
+   "calcule": {
+    "n": 43,
+    "repliques": [
+     "M03",
+     "M04",
+     "M05",
+     "M06",
+     "M07"
+    ],
+    "texte_coupe": "Je vous ai ensuite demandé si la nouvelle description vous paraissait plus ou moins trompeuse. / Là, tout dépend de la pilule choisie. / Dans le groupe A, parmi ceux qui ont pris la bleue, 51 % trouvent la description B plus trompeuse. / Parmi ceux qui ont pris la rouge, 57 % la trouvent au contraire moins trompeuse. / Chacun juge plus honnête la description qui donne raison à son choix.",
+    "secondes": 32.2,
+    "sans_voix_emporte": 2.6,
+    "tenue_image": 0,
+    "gain_15_tout": 29.5,
+    "apres": {
+     "13": {
+      "aucune": 1121.3,
+      "sure": 1098.7,
+      "resp": 1071.6,
+      "tout": 1063.6
+     },
+     "14": {
+      "aucune": 1054.9,
+      "sure": 1032.3,
+      "resp": 1005.2,
+      "tout": 997.2
+     },
+     "15": {
+      "aucune": 997.3,
+      "sure": 974.7,
+      "resp": 947.7,
+      "tout": 939.7
+     },
+     "16": {
+      "aucune": 946.9,
+      "sure": 924.3,
+      "resp": 897.3,
+      "tout": 889.3
+     }
+    },
+    "plans_sans_voix": [
+     "P57"
+    ],
+    "rendue_par": null,
+    "recalage": [
+     "plans/resultats.js:166 · mot('M04', 'pilule choisie')",
+     "plans/resultats.js:167 · mot('M05', '51 %')",
+     "plans/resultats.js:167 · mot('M06', '57 %')",
+     "plans/resultats.js:168 · mot('M07', 'Chacun')",
+     "plans/resultats.js · si M04 est retirée de texte.js : ligne 166 (mot)",
+     "plans/resultats.js · si M05 est retirée de texte.js : ligne 167 (mot)",
+     "plans/resultats.js · si M06 est retirée de texte.js : ligne 167 (mot)",
+     "plans/resultats.js · si M07 est retirée de texte.js : ligne 168 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S04-04",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S04",
+   "parts": [
+    {
+     "replique": "V10",
+     "extrait": null
+    },
+    {
+     "replique": "V11",
+     "extrait": null
+    },
+    {
+     "replique": "V12",
+     "extrait": null
+    }
+   ],
+   "raccord": "aucun : V08 « Mais ce n’était pas la question, justement. » enchaîne sur V14 « Dans l’autre sens, supposons… » (V09 et V13 sont déjà parties)",
+   "raccord_auto": [],
+   "pourquoi": "Un aparté de méthode au milieu des variantes : il répond à une objection (et ceux qui se trompent de pilule ?). La chaîne Alice → bleu tiré au hasard → point d’équilibre tient sans lui, et T10–T12 ont déjà dit que tout le monde avait compris.",
+   "perte": "C’est le passage du niveau 2 qui coûte le plus à l’argument après l’exemple de Kant : la réponse à l’objection la plus fréquente sur les réseaux (« il faut sauver ceux qui se trompent ») et, avec V09, la raison d’être du test de compréhension, auquel Thibaut tient (« il est très important »). P34 et P35 disparaissent (43 s d’image : les ✗, les petites pièces d’Alice, le tampon qui retombe).",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "rythme (2)",
+    "humour (2)"
+   ],
+   "calcule": {
+    "n": 44,
+    "repliques": [
+     "V10",
+     "V11",
+     "V12"
+    ],
+    "texte_coupe": "Si on part du principe que des participants vont choisir la pilule bleue par erreur, sans comprendre l’enjeu, / ces bleus accidentels vont jouer le rôle d’Alice à sauver, ce qui change la nature du dilemme. / Mais tel que je vous l’ai posé, ce n’est pas le cas : il n’y a pas de bleu accidentel,",
+    "secondes": 22.2,
+    "sans_voix_emporte": 2,
+    "tenue_image": 0,
+    "gain_15_tout": 20.5,
+    "apres": {
+     "13": {
+      "aucune": 1097.1,
+      "sure": 1074.7,
+      "resp": 1048.2,
+      "tout": 1040.2
+     },
+     "14": {
+      "aucune": 1032.2,
+      "sure": 1009.8,
+      "resp": 983.4,
+      "tout": 975.4
+     },
+     "15": {
+      "aucune": 976.1,
+      "sure": 953.7,
+      "resp": 927.2,
+      "tout": 919.2
+     },
+     "16": {
+      "aucune": 926.9,
+      "sure": 904.5,
+      "resp": 878.1,
+      "tout": 870.1
+     }
+    },
+    "plans_sans_voix": [
+     "P34",
+     "P35"
+    ],
+    "rendue_par": null,
+    "recalage": [
+     "plans/variantes.js:117 · mot('V10', 'par erreur')",
+     "plans/variantes.js:118 · mot('V11', 'le rôle d’Alice')",
+     "plans/variantes.js:120 · mot('V12', 'pas le cas')",
+     "plans/variantes.js · si V10 est retirée de texte.js : ligne 117 (mot)",
+     "plans/variantes.js · si V11 est retirée de texte.js : ligne 118 (mot)",
+     "plans/variantes.js · si V12 est retirée de texte.js : ligne 120 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S03-02",
+   "niveau": 2,
+   "dernier_recours": false,
+   "sequence": "S03",
+   "parts": [
+    {
+     "replique": "K07",
+     "extrait": null
+    },
+    {
+     "replique": "K08",
+     "extrait": null
+    },
+    {
+     "replique": "K10",
+     "extrait": null
+    },
+    {
+     "replique": "K11",
+     "extrait": null
+    },
+    {
+     "replique": "K12",
+     "extrait": null
+    },
+    {
+     "replique": "K14",
+     "extrait": null
+    },
+    {
+     "replique": "K17",
+     "extrait": " : la bleue n’a de sens que si les autres (au moins en majorité) font comme vous"
+    }
+   ],
+   "raccord": "K06 « … doit pouvoir être universalisé, en somme. » enchaîne sur K15 « Appliquons ce test aux pilules. » ; « universalisable : » devient « universalisable. » (K17). Si « ce test » accroche à l’écoute : « Appliquons-le aux pilules. »",
+   "raccord_auto": [],
+   "pourquoi": "Le reste de l’exemple de la fausse promesse : un détour dans le détour. La maxime (K02) et ses deux reformulations (K04–K05, puis K06) suffisent à poser le test que K15 applique. C’est le dernier de la liste : à 16 car./s, on n’a pas besoin de le couper. La fin de K17 part avec lui : c’est le miroir exact de K14 (« la bleue n’a de sens que si les autres font comme vous »), et K25 le redira (« on ne peut la prendre qu’en voulant que les autres en fassent autant »).",
+   "perte": "La plus grosse perte pour Thibaut philosophe : l’exemple canonique de Kant et sa définition d’une mauvaise action (K14), dont la bleue est le miroir. Quatre plans disparaissent (P22–P25 : la main tendue, la pièce, les doigts croisés, la vague des bulles) ; la rime des mains ouvertes (P30) n’a plus de doigts croisés à qui répondre : elle part (1,0 s) ; le terminal n’empile plus que deux verdicts (P27). « Appliquons ce test aux pilules » (K15) renvoie alors à la maxime et à la ligne du terminal « universaliser(règle) → ✓ ou ✗ » : à écouter. La parenthèse « (au moins en majorité) » de K17 part aussi : une précision sur la règle (T06 dit « plus de la moitié »), pas sur un chiffre.",
+   "depend": "",
+   "visuel": "P22–P25 (« un sujet en pixels tend la main vers un autre et reçoit une pièce… Ses doigts sont croisés dans son dos ») disparaît entier.",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "rythme (2)",
+    "humour (2)"
+   ],
+   "calcule": {
+    "n": 45,
+    "repliques": [
+     "K07",
+     "K08",
+     "K10",
+     "K11",
+     "K12",
+     "K14",
+     "K17"
+    ],
+    "texte_coupe": "Kant donne un exemple. / Vous avez besoin d’argent, et vous savez que vous ne pourrez pas le rendre. / La règle que vous suivriez serait : « Quand j’ai besoin d’argent, je fais une fausse promesse. » / Imaginez maintenant que tout le monde suive cette règle. / Plus personne ne croirait aux promesses, et votre fausse promesse ne vous rapporterait plus rien. / Pour Kant, c’est exactement à ça qu’on reconnaît une mauvaise action : elle ne marche que parce que les autres n’agissent pas comme vous. / : la bleue n’a de sens que si les autres (au moins en majorité) font comme vous",
+    "secondes": 43.4,
+    "sans_voix_emporte": 5.2,
+    "tenue_image": 0,
+    "gain_15_tout": 41.1,
+    "apres": {
+     "13": {
+      "aucune": 1048.5,
+      "sure": 1026.4,
+      "resp": 1001.3,
+      "tout": 993.3
+     },
+     "14": {
+      "aucune": 986.8,
+      "sure": 964.7,
+      "resp": 939.6,
+      "tout": 931.6
+     },
+     "15": {
+      "aucune": 933.3,
+      "sure": 911.2,
+      "resp": 886.1,
+      "tout": 878.1
+     },
+     "16": {
+      "aucune": 886.5,
+      "sure": 864.4,
+      "resp": 839.3,
+      "tout": 831.3
+     }
+    },
+    "plans_sans_voix": [
+     "P22",
+     "P23",
+     "P24"
+    ],
+    "rendue_par": null,
+    "recalage": [
+     "plans/kant.js:145 · mot('K07', 'exemple')",
+     "plans/kant.js:146 · mot('K08', 'besoin d’argent')",
+     "plans/kant.js:147 · mot('K08', 'pas le rendre')",
+     "plans/kant.js:154 · mot('K10', 'La règle')",
+     "plans/kant.js:155 · mot('K10', 'Quand j’ai besoin')",
+     "plans/kant.js:156 · mot('K10', 'fausse promesse')",
+     "plans/kant.js:159 · mot('K11', 'tout le monde')",
+     "plans/kant.js:160 · mot('K12', 'Plus personne')",
+     "plans/kant.js:161 · mot('K12', 'plus rien')",
+     "plans/kant.js:166 · mot('K14', 'Pour Kant')",
+     "plans/kant.js:168 · mot('K14', 'n’agissent pas')",
+     "plans/kant.js:169 · mot('K14', 'comme vous')",
+     "plans/kant.js · si K14 est retirée de texte.js : lignes 166, 167, 168, 169 (finParole, mot)",
+     "plans/kant.js · si K10 est retirée de texte.js : lignes 154, 155, 156, 443, 444, 928, 929, 1043, 1044 (finParole, mot, nDepuis, texteDe)",
+     "plans/kant.js · si K07 est retirée de texte.js : ligne 145 (mot)",
+     "plans/kant.js · si K08 est retirée de texte.js : lignes 146, 147 (mot)",
+     "plans/kant.js · si K11 est retirée de texte.js : ligne 159 (mot)",
+     "plans/kant.js · si K12 est retirée de texte.js : lignes 160, 161 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S10-05",
+   "niveau": 3,
+   "dernier_recours": false,
+   "sequence": "S10",
+   "parts": [
+    {
+     "replique": "N15",
+     "extrait": " chaque fois que le dilemme refait surface"
+    },
+    {
+     "replique": "N16",
+     "extrait": null
+    }
+   ],
+   "raccord": "la phrase finit sur « De là, ces guerres interminables sur les réseaux sociaux. »",
+   "raccord_auto": [],
+   "pourquoi": "Redite de l’ouverture (O06–O07, « chaque fois qu’il refait surface ») ; « De là, ces guerres interminables » répond seul à la question du début. La préparation et la chute partent ensemble : couper l’une sans l’autre tuerait la blague.",
+   "perte": "« On dirait un virus saisonnier », une blague de Phi. P70 (les vagues de messages, 14,3 s) ne garde que 4 s de voix : il raccourcit.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "rythme (2, N15–N16 entières)"
+   ],
+   "calcule": {
+    "n": 46,
+    "repliques": [
+     "N15",
+     "N16"
+    ],
+    "texte_coupe": "chaque fois que le dilemme refait surface / On dirait un virus saisonnier.",
+    "secondes": 5.5,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 5,
+    "apres": {
+     "13": {
+      "aucune": 1042.5,
+      "sure": 1020.4,
+      "resp": 995.5,
+      "tout": 987.5
+     },
+     "14": {
+      "aucune": 981.2,
+      "sure": 959.1,
+      "resp": 934.2,
+      "tout": 926.2
+     },
+     "15": {
+      "aucune": 928.1,
+      "sure": 906,
+      "resp": 881,
+      "tout": 873
+     },
+     "16": {
+      "aucune": 881.6,
+      "sure": 859.5,
+      "resp": 834.5,
+      "tout": 826.5
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ecarts-temps.js:92 · mot('N15', 'refait surface')",
+     "plans/ecarts-temps.js:92 · mot('N16', 'virus saisonnier')",
+     "plans/ecarts-temps.js:93 · mot('N16', 'saisonnier')",
+     "plans/ecarts-temps.js · si N16 est retirée de texte.js : lignes 92, 93 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S04-08",
+   "niveau": 3,
+   "dernier_recours": false,
+   "sequence": "S04",
+   "parts": [
+    {
+     "replique": "V18",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Redite de K30–K31 (« elle aura sauvé exactement les gens qui… pas un de plus, pas un de moins »), et la boucle le redit aussitôt.",
+   "perte": "« C’est se mettre en danger… » (V19) suit directement le point d’équilibre (V17) : la boucle démarre plus sec, et le « C’est » perd son appui. À lire à voix haute avant de trancher. « SAUVÉS = EN DANGER » (P37) se recale sur V19. Si l’on coupe aussi V14–V17 (dernier recours), V18 revient.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (1)",
+    "rythme (2)"
+   ],
+   "calcule": {
+    "n": 47,
+    "repliques": [
+     "V18"
+    ],
+    "texte_coupe": "Si la bleue l’emporte, on sauve tous ceux qui ont pris ce risque, mais pas un de plus.",
+    "secondes": 6.6,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 6,
+    "apres": {
+     "13": {
+      "aucune": 1035.5,
+      "sure": 1013.4,
+      "resp": 988.7,
+      "tout": 980.7
+     },
+     "14": {
+      "aucune": 974.7,
+      "sure": 952.6,
+      "resp": 927.8,
+      "tout": 919.8
+     },
+     "15": {
+      "aucune": 922,
+      "sure": 899.9,
+      "resp": 875.1,
+      "tout": 867.1
+     },
+     "16": {
+      "aucune": 875.8,
+      "sure": 853.7,
+      "resp": 828.9,
+      "tout": 820.9
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": "C-S04-06",
+    "recalage": [
+     "plans/variantes.js:133 · mot('V18', 'on sauve tous ceux')",
+     "plans/variantes.js:134 · mot('V18', 'pas un de plus')",
+     "plans/variantes.js · si V18 est retirée de texte.js : lignes 133, 134 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S11-04",
+   "niveau": 3,
+   "dernier_recours": false,
+   "sequence": "S11",
+   "parts": [
+    {
+     "replique": "D07",
+     "extrait": ", avec une légère préférence pour la description B"
+    }
+   ],
+   "raccord": "« … était partagé presque à égalité. »",
+   "raccord_auto": [],
+   "pourquoi": "Une précision chiffrée secondaire : « presque à égalité » reste vrai, et l’écran 11 montre 48,7 % contre 51,3 %.",
+   "perte": "À signaler : c’est une précision sur un chiffre, même si ce n’est pas elle qui rend le chiffre honnête. On ne dit plus que même le groupe A penchait un peu vers B. La pulsation de la part B (P75) joue sans mot.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "humour (2)",
+    "propos (3)"
+   ],
+   "calcule": {
+    "n": 48,
+    "repliques": [
+     "D07"
+    ],
+    "texte_coupe": ", avec une légère préférence pour la description B",
+    "secondes": 3.8,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 3.3,
+    "apres": {
+     "13": {
+      "aucune": 1031.7,
+      "sure": 1009.6,
+      "resp": 984.8,
+      "tout": 976.8
+     },
+     "14": {
+      "aucune": 971.1,
+      "sure": 949,
+      "resp": 924.3,
+      "tout": 916.3
+     },
+     "15": {
+      "aucune": 918.6,
+      "sure": 896.5,
+      "resp": 871.8,
+      "tout": 863.8
+     },
+     "16": {
+      "aucune": 872.7,
+      "sure": 850.6,
+      "resp": 825.8,
+      "tout": 817.8
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/fin-temps.js:43 · mot('D07', 'légère préférence')"
+    ]
+   }
+  },
+  {
+   "id": "C-S06-02",
+   "niveau": 3,
+   "dernier_recours": false,
+   "sequence": "S06",
+   "parts": [
+    {
+     "replique": "A05",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Le tampon « TOUT LE MONDE SURVIT » et la foule bras au ciel le disent en grand, une seconde plus tôt ; « Félicitations, chers humains » tombe encore plus à froid. Le chiffre (65,5 %) reste dit en A04.",
+   "perte": "Le résultat A n’est plus dit en mots (le résultat B, lui, l’est encore, B08). « D’après la règle » (le rappel qu’on est dans une règle, pas dans la vraie vie) disparaît.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "rythme (1)",
+    "humour (3)"
+   ],
+   "calcule": {
+    "n": 49,
+    "repliques": [
+     "A05"
+    ],
+    "texte_coupe": "D’après la règle, la bleue l’emporte et tout le monde survit.",
+    "secondes": 4.7,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 4.3,
+    "apres": {
+     "13": {
+      "aucune": 1026.6,
+      "sure": 1004.5,
+      "resp": 979.9,
+      "tout": 971.9
+     },
+     "14": {
+      "aucune": 966.4,
+      "sure": 944.3,
+      "resp": 919.7,
+      "tout": 911.7
+     },
+     "15": {
+      "aucune": 914.2,
+      "sure": 892.1,
+      "resp": 867.4,
+      "tout": 859.4
+     },
+     "16": {
+      "aucune": 868.5,
+      "sure": 846.4,
+      "resp": 821.8,
+      "tout": 813.8
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/tirage-temps.js:78 · mot('A05', 'tout le monde survit')",
+     "plans/tirage-temps.js · si A05 est retirée de texte.js : ligne 78 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S07-02",
+   "niveau": 3,
+   "dernier_recours": true,
+   "sequence": "S07",
+   "parts": [
+    {
+     "replique": "B04",
+     "extrait": null
+    }
+   ],
+   "raccord": "B03 finit sur un point : « … cela ne devrait avoir aucun effet remarquable. »",
+   "raccord_auto": [
+    {
+     "replique": "B03",
+     "remplace": "remarquable :",
+     "par": "remarquable."
+    }
+   ],
+   "pourquoi": "Le second temps de la vantardise ; B03 suffit à préparer « Ah. ».",
+   "perte": "Plus Phi est sûre d’elle, plus « Ah. » est drôle ; « l’ordre des mots » rappelait « l’ordre et la tournure » (R09). B04 donne aujourd’hui le début du compte à rebours B (recalage).",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "rythme (2)",
+    "humour (3, dernier recours)"
+   ],
+   "calcule": {
+    "n": 50,
+    "repliques": [
+     "B04"
+    ],
+    "texte_coupe": "les faits sont ce qu’ils sont, quel que soit l’ordre des mots pour les présenter.",
+    "secondes": 6.2,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 5.6,
+    "apres": {
+     "13": {
+      "aucune": 1020,
+      "sure": 997.9,
+      "resp": 973.5,
+      "tout": 965.5
+     },
+     "14": {
+      "aucune": 960.2,
+      "sure": 938.1,
+      "resp": 913.7,
+      "tout": 905.7
+     },
+     "15": {
+      "aucune": 908.4,
+      "sure": 886.3,
+      "resp": 861.8,
+      "tout": 853.8
+     },
+     "16": {
+      "aucune": 863,
+      "sure": 840.9,
+      "resp": 816.5,
+      "tout": 808.5
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/resultats.js:123 · mot('B04', 'les faits sont')",
+     "plans/resultats.js · si B04 est retirée de texte.js : lignes 123, 126 (finParole, mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S08-02",
+   "niveau": 3,
+   "dernier_recours": true,
+   "sequence": "S08",
+   "parts": [
+    {
+     "replique": "M18",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "La chute après la chute : « Pour au moins la moitié d’entre eux, c’est faux » (M17) finit déjà la séquence, et répond à O03 (« je ne crois pas que vous vous compreniez vous-mêmes »). À la place de l’ancienne M16 (« Je n’avais pas prévu cette asymétrie… »), que les contre-lectures « propos » et « humour » proposaient en dernier recours, avant que Ronan ne récrive le passage.",
+   "perte": "Le soupir pince-sans-rire de Phi sur les humains (« Les humains se font tant d’illusions… »), le mot de Ronan qui ferme la partie « le même choix ? » ; le regard de Phi vers vous (P60, sur « illusions ») perd sa voix.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [],
+   "calcule": {
+    "n": 51,
+    "repliques": [
+     "M18"
+    ],
+    "texte_coupe": "Les humains se font tant d’illusions…",
+    "secondes": 3.1,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 2.9,
+    "apres": {
+     "13": {
+      "aucune": 1016.5,
+      "sure": 994.4,
+      "resp": 970.1,
+      "tout": 962.1
+     },
+     "14": {
+      "aucune": 956.9,
+      "sure": 934.8,
+      "resp": 910.5,
+      "tout": 902.5
+     },
+     "15": {
+      "aucune": 905.3,
+      "sure": 883.2,
+      "resp": 858.9,
+      "tout": 850.9
+     },
+     "16": {
+      "aucune": 860.1,
+      "sure": 838,
+      "resp": 813.7,
+      "tout": 805.7
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/resultats.js:186 · mot('M18', 'illusions')",
+     "plans/resultats.js · si M18 est retirée de texte.js : lignes 186, 775, 776 (de, mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S10-02",
+   "niveau": 3,
+   "dernier_recours": true,
+   "sequence": "S10",
+   "parts": [
+    {
+     "replique": "N03",
+     "extrait": null
+    }
+   ],
+   "raccord": "une majuscule : « Revenons à la dispute du début. Dans sa Généalogie de la morale, Nietzsche remarquait… »",
+   "raccord_auto": [
+    {
+     "replique": "N04",
+     "remplace": "dans sa",
+     "par": "Dans sa"
+    }
+   ],
+   "pourquoi": "Une phrase d’annonce avant le nom.",
+   "perte": "« Vos philosophes » : l’IA qui regarde les humains du dehors, en écho à K01. Le portrait se calcule sur « Nietzsche ».",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "rythme (2)",
+    "humour (3, dernier recours)"
+   ],
+   "calcule": {
+    "n": 52,
+    "repliques": [
+     "N03"
+    ],
+    "texte_coupe": "Un autre de vos philosophes m’a aidée à y voir plus clair :",
+    "secondes": 4.5,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 4.1,
+    "apres": {
+     "13": {
+      "aucune": 1011.6,
+      "sure": 989.5,
+      "resp": 965.4,
+      "tout": 957.4
+     },
+     "14": {
+      "aucune": 952.4,
+      "sure": 930.3,
+      "resp": 906.1,
+      "tout": 898.1
+     },
+     "15": {
+      "aucune": 901,
+      "sure": 878.9,
+      "resp": 854.8,
+      "tout": 846.8
+     },
+     "16": {
+      "aucune": 856.1,
+      "sure": 834,
+      "resp": 809.8,
+      "tout": 801.8
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ecarts-temps.js · si N03 est retirée de texte.js : ligne 59 (de)"
+    ]
+   }
+  },
+  {
+   "id": "C-S09-01",
+   "niveau": 3,
+   "dernier_recours": true,
+   "sequence": "S09",
+   "parts": [
+    {
+     "replique": "Q01",
+     "extrait": "43 % des femmes prennent la bleue, contre 32 % des hommes."
+    }
+   ],
+   "raccord": "Q01 et Q02 se soudent, « Plus » devient « plus » : « Les deux groupes confondus, plus on se situe à gauche, plus on prend la bleue. »",
+   "raccord_auto": [
+    {
+     "replique": "Q02",
+     "remplace": "Plus on",
+     "par": "plus on"
+    }
+   ],
+   "pourquoi": "Les chiffres sont à l’écran 09, et Q05 tire la conclusion.",
+   "perte": "Franchement : « Qui prend la bleue ? » devient une devinette sans réponse dite. « Femmes ou hommes ? » n’a plus de réponse en mots, plus aucun chiffre de la séquence n’est dit, et « Ces écarts sont nets » ne s’appuie que sur l’image. La soudure fait porter « Les deux groupes confondus » sur l’écart politique seul (question 3). Plutôt que de réécrire la devinette, à ce stade, laisser Thibaut choisir : garder S09 avec ses chiffres, ou retirer S09 entière (voir l’échange n° 5).",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "propos (3)",
+    "humour (2, avec toute la séquence)"
+   ],
+   "calcule": {
+    "n": 53,
+    "repliques": [
+     "Q01"
+    ],
+    "texte_coupe": "43 % des femmes prennent la bleue, contre 32 % des hommes.",
+    "secondes": 7.3,
+    "sans_voix_emporte": 0,
+    "tenue_image": 0,
+    "gain_15_tout": 6.4,
+    "apres": {
+     "13": {
+      "aucune": 1004.3,
+      "sure": 982.2,
+      "resp": 958,
+      "tout": 950
+     },
+     "14": {
+      "aucune": 945.5,
+      "sure": 923.4,
+      "resp": 899.3,
+      "tout": 891.3
+     },
+     "15": {
+      "aucune": 894.6,
+      "sure": 872.5,
+      "resp": 848.4,
+      "tout": 840.4
+     },
+     "16": {
+      "aucune": 850.1,
+      "sure": 828,
+      "resp": 803.9,
+      "tout": 795.9
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/ecarts-temps.js:32 · mot('Q01', '43 %')",
+     "plans/ecarts-temps.js:33 · mot('Q01', '32 %')"
+    ]
+   }
+  },
+  {
+   "id": "C-S06-04",
+   "niveau": 3,
+   "dernier_recours": true,
+   "sequence": "S06",
+   "parts": [
+    {
+     "replique": "A11",
+     "extrait": null
+    },
+    {
+     "replique": "A12",
+     "extrait": null
+    },
+    {
+     "replique": "A13",
+     "extrait": null
+    },
+    {
+     "replique": "A14",
+     "extrait": "Ceux qui ont pris la rouge prédisaient en moyenne 25 % de bleue"
+    },
+    {
+     "replique": "A15",
+     "extrait": "Ceux qui ont pris la bleue prédisaient en moyenne 80 %"
+    },
+    {
+     "replique": "A16",
+     "extrait": null
+    },
+    {
+     "replique": "A17",
+     "extrait": null
+    }
+   ],
+   "raccord": "aucun : A09 « … malheureusement. » enchaîne sur B01 « Passons à ceux qui ont lu la description B en premier. »",
+   "raccord_auto": [],
+   "pourquoi": "Le faux consensus (chacun croit que les autres font comme lui) est une deuxième trouvaille, pas une marche de l’argument. On le coupe d’un bloc, chiffres compris : jamais l’affirmation sans ses preuves.",
+   "perte": "C’est un pilier du mode d’emploi de Thibaut (« On demande aussi à chacun de prédire les choix des autres »). P47, P48 et P49 disparaissent (l’écran 02, la pluie de 2 222 points, le nuage qui se sépare, les deux gros plans), et le cartouche « RÉSULTATS 02 » manquera. On perd « J’allais vous féliciter, puis je me suis ravisée », « Chacun imaginait que les autres feraient comme lui », qui éclaire aussi la dispute, et les deux moyennes (25 % et 80 %). Avec cette coupe, B01 revient (sinon « Mêmes pilules » suivrait « de vraies pilules »).",
+   "depend": "",
+   "visuel": "P48 (« le nuage des prédictions individuelles, un point par participant, qui se sépare en deux nuages ») disparaît.",
+   "rend": [
+    "C-S07-01"
+   ],
+   "tenue": [],
+   "soutiens": [
+    "propos (2)",
+    "rythme (3, A13 seule)"
+   ],
+   "calcule": {
+    "n": 54,
+    "repliques": [
+     "A11",
+     "A12",
+     "A13",
+     "A14",
+     "A15",
+     "A16",
+     "A17"
+    ],
+    "texte_coupe": "Je vous avais aussi demandé de prédire les choix des autres participants. / En moyenne, vous avez prédit 60,7 % de bleue, très près du vrai chiffre. / J’allais vous féliciter, puis je me suis ravisée en observant les prédictions individuelles. / Ceux qui ont pris la rouge prédisaient en moyenne 25 % de bleue / Ceux qui ont pris la bleue prédisaient en moyenne 80 % / Chacun imaginait que les autres feraient comme lui. / Les deux camps se sont trompés en sens opposés, et la moyenne est tombée juste presque par hasard.",
+    "secondes": 43.1,
+    "sans_voix_emporte": 7,
+    "tenue_image": 0,
+    "gain_15_tout": 38.4,
+    "apres": {
+     "13": {
+      "aucune": 958.3,
+      "sure": 937.6,
+      "resp": 914.5,
+      "tout": 906.5
+     },
+     "14": {
+      "aucune": 902.4,
+      "sure": 881.7,
+      "resp": 858.5,
+      "tout": 850.5
+     },
+     "15": {
+      "aucune": 853.9,
+      "sure": 833.2,
+      "resp": 810,
+      "tout": 802
+     },
+     "16": {
+      "aucune": 811.5,
+      "sure": 790.8,
+      "resp": 767.6,
+      "tout": 759.6
+     }
+    },
+    "plans_sans_voix": [
+     "P47",
+     "P49"
+    ],
+    "rendue_par": null,
+    "recalage": [
+     "plans/tirage-temps.js:91 · mot('A11', 'prédire')",
+     "plans/tirage-temps.js:92 · mot('A12', '60,7')",
+     "plans/tirage-temps.js:93 · mot('A12', 'très près')",
+     "plans/tirage-temps.js:94 · mot('A13', 'féliciter')",
+     "plans/tirage-temps.js:95 · mot('A13', 'ravisée')",
+     "plans/tirage-temps.js:100 · mot('A14', '25 %')",
+     "plans/tirage-temps.js:102 · mot('A15', '80 %')",
+     "plans/tirage-temps.js:107 · mot('A17', 'sens opposés')",
+     "plans/tirage-temps.js:108 · mot('A17', 'presque par hasard')",
+     "plans/tirage-temps.js · si A14 est retirée de texte.js : lignes 97, 100, 101 (de, mot)",
+     "plans/tirage-temps.js · si A16 est retirée de texte.js : lignes 105, 106 (de, fin)",
+     "plans/tirage-temps.js · si A11 est retirée de texte.js : ligne 91 (mot)",
+     "plans/tirage-temps.js · si A12 est retirée de texte.js : lignes 92, 93 (mot)",
+     "plans/tirage-temps.js · si A13 est retirée de texte.js : lignes 94, 95 (mot)",
+     "plans/tirage-temps.js · si A15 est retirée de texte.js : lignes 102, 103 (mot)",
+     "plans/tirage-temps.js · si A17 est retirée de texte.js : lignes 107, 108 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S02-04",
+   "niveau": 3,
+   "dernier_recours": true,
+   "sequence": "S02",
+   "parts": [
+    {
+     "replique": "T09",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "L’épisode n’y revient jamais.",
+   "perte": "La dernière trace dite de la sanction prévue par la règle (T08 part au niveau 1) : l’objection « je ne prends rien » n’est plus traitée. Le plan P16 disparaît (le sujet gris cerclé, le Ø, toute la foule qui part), et avec lui la règle 4 de RÈGLES (« Ø une seule personne sans pilule → tout le monde meurt »), qui s’y écrit : il faudrait l’écrire ailleurs, sous T07.",
+   "depend": "",
+   "visuel": "P16 (« un seul sujet reste gris, cerclé, avec un Ø au-dessus de la tête. Puis toute la foule se dissout ») disparaît.",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "humour (2)",
+    "rythme (3)"
+   ],
+   "calcule": {
+    "n": 55,
+    "repliques": [
+     "T09"
+    ],
+    "texte_coupe": "Si une seule personne ne prend rien, tout le monde meurt.",
+    "secondes": 4.4,
+    "sans_voix_emporte": 2.6,
+    "tenue_image": 0,
+    "gain_15_tout": 5.4,
+    "apres": {
+     "13": {
+      "aucune": 951.3,
+      "sure": 931.6,
+      "resp": 908.5,
+      "tout": 900.5
+     },
+     "14": {
+      "aucune": 895.7,
+      "sure": 876,
+      "resp": 852.8,
+      "tout": 844.8
+     },
+     "15": {
+      "aucune": 847.5,
+      "sure": 827.8,
+      "resp": 804.6,
+      "tout": 796.6
+     },
+     "16": {
+      "aucune": 805.3,
+      "sure": 785.6,
+      "resp": 762.4,
+      "tout": 754.4
+     }
+    },
+    "plans_sans_voix": [
+     "P16"
+    ],
+    "rendue_par": null,
+    "recalage": [
+     "plans/test.js:126 · mot('T09', 'une seule personne')",
+     "plans/test.js:130 · mot('T09', 'ne prend rien')",
+     "plans/test.js:131 · mot('T09', 'tout le monde meurt')",
+     "plans/test.js · si T09 est retirée de texte.js : lignes 126, 130, 131 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S07-04",
+   "niveau": 3,
+   "dernier_recours": true,
+   "sequence": "S07",
+   "parts": [
+    {
+     "replique": "B08",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Le récapitulatif de ce qu’on a vu vingt secondes plus tôt (le tampon « LES BLEUS MEURENT »), dit sur les deux barres qui le montrent.",
+   "perte": "Le résultat central de l’épisode n’est plus dit à voix haute : la devinette B (« Quelle part a pris la bleue ? ») n’a plus de réponse en mots, seulement « Ah. ». Le 12,6 % n’arrive qu’en M10. C’est aussi la réplique qui portera le 12,6 % si Thibaut répond à la question 9 qu’il faut le dire.",
+   "depend": "",
+   "visuel": "",
+   "rend": [],
+   "tenue": [],
+   "soutiens": [
+    "rythme (1)",
+    "humour (1)"
+   ],
+   "calcule": {
+    "n": 56,
+    "repliques": [
+     "B08"
+    ],
+    "texte_coupe": "Avec la description B, la bleue perd et ceux qui l’ont prise meurent.",
+    "secondes": 5.3,
+    "sans_voix_emporte": 0.4,
+    "tenue_image": 0,
+    "gain_15_tout": 4.8,
+    "apres": {
+     "13": {
+      "aucune": 945.6,
+      "sure": 925.9,
+      "resp": 902.9,
+      "tout": 894.9
+     },
+     "14": {
+      "aucune": 890.4,
+      "sure": 870.7,
+      "resp": 847.7,
+      "tout": 839.7
+     },
+     "15": {
+      "aucune": 842.5,
+      "sure": 822.8,
+      "resp": 799.8,
+      "tout": 791.8
+     },
+     "16": {
+      "aucune": 800.6,
+      "sure": 780.9,
+      "resp": 757.9,
+      "tout": 749.9
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/resultats.js:136 · mot('B08', 'description B')",
+     "plans/resultats.js:137 · mot('B08', 'meurent')",
+     "plans/resultats.js · si B08 est retirée de texte.js : lignes 136, 137 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S05-01",
+   "niveau": 3,
+   "dernier_recours": true,
+   "sequence": "S05",
+   "parts": [
+    {
+     "replique": "R07",
+     "extrait": null
+    },
+    {
+     "replique": "R08",
+     "extrait": null
+    }
+   ],
+   "raccord": "",
+   "raccord_auto": [],
+   "pourquoi": "Phi vérifie à notre place juste après « Prenez le temps de vérifier » ; l’image le fait aussi (les fils qui relient chaque morceau à son issue, les deux issues qui s’allument des deux côtés).",
+   "perte": "La démonstration sur laquelle repose tout l’épisode : les deux règles mènent aux mêmes issues. Sans elle, le spectateur doit vérifier seul, en 2,6 s de silence, deux règles entendues à plusieurs minutes d’écart, et l’équivalence ne s’entend plus qu’une fois (R06). Les issues qui s’allument (P41) doivent tenir dans le silence : 1,5 s d’image à garder.",
+   "depend": "",
+   "visuel": "P41 (« Les mêmes issues s’allument en face de chacune ») : gardé, mais sans les deux phrases qu’il illustre.",
+   "rend": [],
+   "tenue": [
+    {
+     "plan": "P41",
+     "secondes": 1.5
+    }
+   ],
+   "soutiens": [
+    "propos (2)",
+    "rythme (2)",
+    "humour (2)"
+   ],
+   "calcule": {
+    "n": 57,
+    "repliques": [
+     "R07",
+     "R08"
+    ],
+    "texte_coupe": "Si la bleue est majoritaire, tout le monde vit. / Sinon, ceux qui ont pris la bleue meurent et ceux qui ont pris la rouge vivent.",
+    "secondes": 9.7,
+    "sans_voix_emporte": 0.8,
+    "tenue_image": 1.5,
+    "gain_15_tout": 7.4,
+    "apres": {
+     "13": {
+      "aucune": 936.6,
+      "sure": 916.9,
+      "resp": 894.2,
+      "tout": 886.2
+     },
+     "14": {
+      "aucune": 882.1,
+      "sure": 862.4,
+      "resp": 839.7,
+      "tout": 831.7
+     },
+     "15": {
+      "aucune": 834.8,
+      "sure": 815.1,
+      "resp": 792.4,
+      "tout": 784.4
+     },
+     "16": {
+      "aucune": 793.4,
+      "sure": 773.7,
+      "resp": 751,
+      "tout": 743
+     }
+    },
+    "plans_sans_voix": [],
+    "rendue_par": null,
+    "recalage": [
+     "plans/tirage-temps.js:52 · mot('R07', 'tout le monde vit')",
+     "plans/tirage-temps.js:53 · mot('R08', 'Sinon')",
+     "plans/tirage-temps.js:54 · mot('R08', 'meurent')",
+     "plans/tirage-temps.js:55 · mot('R08', 'vivent')",
+     "plans/tirage-temps.js · si R07 est retirée de texte.js : ligne 52 (mot)",
+     "plans/tirage-temps.js · si R08 est retirée de texte.js : lignes 53, 54, 55 (mot)"
+    ]
+   }
+  },
+  {
+   "id": "C-S04-06",
+   "niveau": 3,
+   "dernier_recours": true,
+   "sequence": "S04",
+   "parts": [
+    {
+     "replique": "V14",
+     "extrait": null
+    },
+    {
+     "replique": "V16",
+     "extrait": null
+    },
+    {
+     "replique": "V17",
+     "extrait": null
+    }
+   ],
+   "raccord": "aucun : V08 « Mais ce n’était pas la question, justement. » enchaîne sur V18 « Si la bleue l’emporte, on sauve tous ceux qui ont pris ce risque, mais pas un de plus. » (V18 revient, si elle était coupée)",
+   "raccord_auto": [],
+   "pourquoi": "La seconde variante et le point d’équilibre : de l’exposition. Alice, « Félicitations. » et la boucle infinie restent entiers.",
+   "perte": "Une marche que le propos tient pour essentielle : la symétrie de Thibaut (héroïque d’un côté, idiot de l’autre) et le « point d’équilibre », c’est-à-dire la raison pour laquelle le test est construit ainsi. P36 et P37 disparaissent, et le cartouche « DEUX VARIANTES DÉSÉQUILIBRÉES » est à renommer. Avec cette coupe, V18 revient : elle ramène au vrai test (sans elle, le « C’est » de la boucle suivrait la variante d’Alice).",
+   "depend": "",
+   "visuel": "P36 (« un sujet bleu tiré au hasard se dissout quand même ») disparaît.",
+   "rend": [
+    "C-S04-08"
+   ],
+   "tenue": [],
+   "soutiens": [
+    "rythme (3)",
+    "humour (3)"
+   ],
+   "calcule": {
+    "n": 58,
+    "repliques": [
+     "V14",
+     "V16",
+     "V17"
+    ],
+    "texte_coupe": "Dans l’autre sens, supposons que si la bleue l’emporte, une personne prise au hasard parmi les bleus meure tout de même. / Il paraît dès lors complètement idiot de choisir la bleue : ce n’est même plus un dilemme. / Notre test est construit exactement au point d’équilibre entre ces deux variantes.",
+    "secondes": 22.4,
+    "sans_voix_emporte": 1.8,
+    "tenue_image": 0,
+    "gain_15_tout": 14.8,
+    "apres": {
+     "13": {
+      "aucune": 919,
+      "sure": 899.5,
+      "resp": 877.3,
+      "tout": 869.3
+     },
+     "14": {
+      "aucune": 865.6,
+      "sure": 846.1,
+      "resp": 823.9,
+      "tout": 815.9
+     },
+     "15": {
+      "aucune": 819.3,
+      "sure": 799.8,
+      "resp": 777.6,
+      "tout": 769.6
+     },
+     "16": {
+      "aucune": 778.8,
+      "sure": 759.3,
+      "resp": 737,
+      "tout": 729
+     }
+    },
+    "plans_sans_voix": [
+     "P36"
+    ],
+    "rendue_par": null,
+    "recalage": [
+     "plans/variantes.js:124 · mot('V14', 'si la bleue')",
+     "plans/variantes.js:125 · mot('V14', 'prise au hasard')",
+     "plans/variantes.js:126 · mot('V14', 'meure')",
+     "plans/variantes.js:128 · mot('V16', 'complètement idiot')",
+     "plans/variantes.js:131 · mot('V17', 'point d’équilibre')",
+     "plans/variantes.js · si V17 est retirée de texte.js : lignes 130, 131 (de, mot)",
+     "plans/variantes.js · si V14 est retirée de texte.js : lignes 124, 125, 126 (mot)",
+     "plans/variantes.js · si V16 est retirée de texte.js : ligne 128 (mot)"
+    ]
+   }
+  }
+ ],
+ "echanges": [
+  {
+   "n": 1,
+   "si": "Thibaut garde l’exemple de Kant en entier",
+   "retirer": [
+    "C-S03-03",
+    "C-S03-02"
+   ],
+   "note": "Les plans P22–P25 et la rime du dos (P30) restent ; K17 reste entière (le miroir de K14)."
+  },
+  {
+   "n": "1 bis",
+   "si": "Thibaut garde l’exemple de Kant en version courte (sans K09 ni K13, déjà pris au n° 39)",
+   "retirer": [
+    "C-S03-02"
+   ],
+   "note": "La fausse promesse, la règle, « si tout le monde » et la phrase-clé de Kant (K14) restent, avec K17 entière, son miroir. Les plans P22–P25 restent, plus serrés."
+  },
+  {
+   "n": 2,
+   "si": "Thibaut garde les bleus accidentels (V09–V12)",
+   "retirer": [
+    "C-S04-03",
+    "C-S04-04"
+   ],
+   "note": "Les plans P34–P35 restent. S’il préfère garder seulement sa phrase « il est très important » (V09), il faut aussi garder V10–V11, qui disent pourquoi : la coupe n’a alors plus d’objet."
+  },
+  {
+   "n": 3,
+   "si": "Arte tient aux pays, ou ils sont mesurés à temps",
+   "retirer": [
+    "C-S09-03",
+    "C-S09-04"
+   ],
+   "note": "Les 12 s réservées sont comptées comme la durée de la phrase à venir (elle en coûtera 12 à 20 : chaque seconde de plus se paie). Garder les pays oblige aussi à rendre la comparaison de Q06 (« Onze points… seize… »), que Thibaut voulait adapter aux pays, et la ligne « D’UN PAYS À L’AUTRE » de l’écran 10."
+  },
+  {
+   "n": 4,
+   "si": "Thibaut garde l’exemple de Kant et les bleus accidentels",
+   "retirer": [
+    "C-S03-03",
+    "C-S03-02",
+    "C-S04-03",
+    "C-S04-04"
+   ],
+   "note": ""
+  },
+  {
+   "n": 5,
+   "si": "à la place de Q01p (la devinette « qui ? » sans réponse dite), on retire la séquence S09 entière",
+   "retirer": [
+    "C-S09-01"
+   ],
+   "ajouter": {
+    "apres": "C-S10-02",
+    "coupe": {
+     "id": "C-S09-S09",
+     "niveau": 3,
+     "dernier_recours": true,
+     "sequence": "S09",
+     "parts": [
+      {
+       "replique": "Q01",
+       "extrait": null
+      },
+      {
+       "replique": "Q02",
+       "extrait": null
+      },
+      {
+       "replique": "Q05",
+       "extrait": null
+      },
+      {
+       "replique": "Q06",
+       "extrait": "cinquante-trois points pour la façon de dire la règle."
+      }
+     ],
+     "raccord": "",
+     "raccord_auto": [],
+     "pourquoi": "",
+     "perte": "",
+     "depend": "",
+     "visuel": "",
+     "rend": [],
+     "tenue": [],
+     "soutiens": []
+    }
+   },
+   "note": "La devinette « Femmes ou hommes ? Gauche ou droite ? » (P61) part avec la séquence, et les écrans 09 et 10 (P62, P64) aussi : on passe alors directement de « Les humains se font tant d’illusions… » (M18) à « Revenons à la dispute du début » (N01). Un écart de genre ou de politique n’est plus jamais montré."
+  }
+ ],
+ "a_garder": [
+  "T05 « Voici la règle, ou plutôt une formulation possible de la règle » : la graine du tirage au sort et de l’aveu.",
+  "Les deux descriptions mot pour mot (T06–T07 et R04), R01–R03 et R10 (« J’appellerai la première la description A… ») : c’est l’expérience elle-même, et ces deux noms sont le vocabulaire de tout le reste.",
+  "R05–R06 et R09–R11 : « Prenez le temps de vérifier », avec son vrai silence, « Les deux règles décrivent exactement la même situation », « J’ai seulement changé l’ordre et la tournure des phrases ». R07–R08, la vérification elle-même, ne sont qu’en dernier recours : tout l’effet de cadrage repose sur la conviction que les deux descriptions disent la même chose.",
+  "T02, T10 et T12 : l’obligation, le test de compréhension, et « chacun savait que les quatre-vingt-dix-neuf autres l’avaient bien comprise aussi ». C’est ce qui fait du dilemme un vrai dilemme. T09 (la sanction) n’est qu’en dernier recours.",
+  "K01, K02 (les mots de Kant), K04–K05 (« Les humains écrivent si mal, je me permets de le reformuler ») et K06 (« Votre algorithme de décision… ») : la seule explication du test si l’exemple part, et une blague en trois temps.",
+  "K15–K16, le début de K17 (« On ne peut pas faire plus universalisable ») et K19–K21 : les deux choix passent le test, Kant ne tranche pas. C’est le pivot de la partie 1.",
+  "K22–K26 : l’asymétrie. La rouge peut se prendre par égoïsme et « a l’air égoïste » ; la bleue ne se prend qu’en voulant que les autres suivent, c’est un signal. Elle explique les insultes de l’ouverture, et Nietzsche la reprend.",
+  "K27–K32 avec « pas un de plus, pas un de moins » : la circularité, que les variantes déséquilibrent et que la boucle infinie fait entendre.",
+  "V02–V04, V06, V07 « Félicitations. » (à froid) et V08 « Mais ce n’était pas la question, justement » : Alice. V08 empêche de prendre l’héroïsme d’Alice pour la réponse, et « Félicitations » revient ensuite (A06, A13).",
+  "V19–V21, la boucle infinie, et ses 1,8 s de blocage : la chute de la partie 1 et la signature de Phi. Aucune répétition ne se coupe : la blague est dans l’accumulation.",
+  "A01–A02, A04 (« 65,5 %. Presque deux sur trois. »), A06 (« Félicitations, chers humains »), A07–A08 (« c’était une expérience de pensée… la part de bleue aurait-elle été aussi haute ? ») et A09 (« … malheureusement ») : le premier résultat, la précaution qui rend le chiffre honnête et le gag que D02 paie (« enfin le droit »).",
+  "Les prédictions du groupe A avec leurs deux moyennes (A11–A17 : « en moyenne 25 % », « en moyenne 80 % », « Chacun imaginait que les autres feraient comme lui ») : un pilier du mode d’emploi de Thibaut. Elles ne partent qu’en dernier recours, et alors d’un bloc, chiffres compris.",
+  "B02–B03 (la vantardise), B05 « Ah. » et son silence, B06 « des créatures bien frivoles », B08 (« Avec la description B, la bleue perd et ceux qui l’ont prise meurent » : la réponse à la devinette B, en dernier recours seulement), B09–B10 et la fin de B11 (« je ne pensais pas qu’il pouvait être aussi fort ») : la plus grosse blague du numéro, le résultat central et l’effet de cadrage nommé.",
+  "M01–M02 et M08–M17 : « même chose ? » (88 et 93 % jugent les deux descriptions équivalentes, et pourtant…), puis « le même choix ? », dans les mots de Ronan. M09 annonce le jeu (« je peux comparer vos prédictions à la réalité de mon test ») ; « Mon test a montré » (M10, M14) sépare ce que Phi déduit de son test de ce que les gens ont prédit (M12, M15) ; sans lui, le premier 12,6 % dit à voix haute s’entendrait comme la réponse des participants. M16–M17 (« Pour au moins la moitié d’entre eux, c’est faux ») répondent à O03 (« je ne crois pas que vous vous compreniez vous-mêmes »).",
+  "Q01 avec « Les deux groupes confondus » (la précaution sur les chiffres de genre et de politique, qui mériterait de devenir « tous scénarios confondus » : question 3), Q02, Q05 (« aucun n’approche la taille de l’effet de la description ») et la chute de Q06 (« Cinquante-trois points pour la façon de dire la règle ») : la marche « les écarts », et la devinette « qui ? » garde sa réponse. Q01 ne part qu’en dernier recours.",
+  "N01 (« Revenons à la dispute du début »), N04–N09, « un peu bêtes » (N11), N12–N14 et « De là, ces guerres interminables sur les réseaux sociaux » : les deux contraires de « bon » et le mécanisme de la haine, la réponse à la question de l’ouverture (O11). Puis N18–N19 : vous êtes devenus bleus ou rouges à cause de la description, pas de la réflexion.",
+  "D02 (« enfin » gourmand, « leur vraie vie »), le début de D04, D05, D06 (« Que choisissez-vous pour vos participants ? », juste avant le temps de choisir), D07–D11, D13, le temps de choisir (3,2 s) et la question de P76 (2,6 s) : le méta-dilemme. D11 (« Quelle approche minimise le nombre de morts ? ») est la question du numéro.",
+  "E01–E08 en entier, avec la prudence d’E02 (« ou en tout cas pas avec la même violence »), le « peut-être » d’E08, et E05 (« parce que c’est celle du sondage d’origine ») : c’est la seule raison factuelle que Phi donne à son choix ; sans elle, « Je savais déjà… » (E06) sonnerait plus manipulateur, et la règle est de ne jamais changer le sens. E07 (« aucune n’est neutre ») est la conclusion philosophique.",
+  "F01–F07 en entier : la fin donne son sens au numéro (« une partie de vos réponses se trouve dans mes questions » ; la machine, elle aussi, répond selon la façon dont on lui parle).",
+  "O01–O03, O05, O06, O08 et O11 : l’entrée de Phi (le regard puis « Oh, vous êtes là ? »), la prémisse que la fin retourne, « déroutants » avec son vrai temps sur « … », les insultes et la question du numéro.",
+  "Les précautions qui rendent un chiffre honnête restent toutes, à tous les niveaux : « c’était une expérience de pensée » (A07–A08), « environ » (M14), « au moins la moitié » (M17), « ou en tout cas pas avec la même violence » (E02), « peut-être » (E08). « Les deux groupes confondus » (Q01) reste tant que Q01 reste. Une seule précision sur un chiffre est en réserve, signalée : « avec une légère préférence pour la description B » (D07)."
+ ],
+ "sans_voix": {
+  "source": "EPISODE.md, « Sans voix » de chaque plan",
+  "respirations": {
+   "par_replique_coupee": 0.4,
+   "gardee": 0.6,
+   "gardee_par_plan": {
+    "P82": 0.75,
+    "P33": 0.8
+   }
+  },
+  "familles": {
+   "oeil": {
+    "nom": "L’œil de Phi (P01, P82, P84)",
+    "compression": "sure",
+    "comment": "Il s’ouvre et regarde à gauche, à droite, puis vous : de 3,6 à 3,0 s (c’est la préparation de la première blague, « Oh, vous êtes là ? »). Seul, au début de la fin : de 1,4 à 1,0 s. Il se ferme : de 4,0 à 3,0 s (« lentement » reste vrai)."
+   },
+   "ouv": {
+    "nom": "Le générique d’ouverture (P08)",
+    "compression": "sure",
+    "comment": "De 7,6 à 5,0 s : les caractères forment « XPHI » plus vite ; le relais vers le cartouche reste."
+   },
+   "test": {
+    "nom": "Le test rejoué (P09, P12, P14–P18)",
+    "compression": "sure",
+    "comment": "Le terminal, muet après la coupe de T01 : de 2,8 à 1,5 s. L’isoloir du N°48, muet après la coupe de T04 : 1,5 s. La foule illuminée : de 1,2 à 0,8 s ; les derniers caractères : de 1,5 à 1,0 ; le tampon OBLIGATOIRE : de 0,6 à 0,4 ; la foule qui part en caractères : de 2,0 à 1,2 ; la question 1 : de 0,8 à 0,5 ; le tampon « 100 / 100 » : de 1,8 à 1,2."
+   },
+   "kant": {
+    "nom": "Kant et les variantes (P19, P22, P28, P31, P34, P36, P38)",
+    "compression": "sure",
+    "comment": "La fenêtre KANT : de 1,2 à 0,8 s ; Kant lève les yeux : de 1,0 à 0,6 ; deux sujets entrent : de 0,8 à 0,5 ; les deux foules en silence : de 2,4 à 1,4 ; l’anneau tourne seul : de 1,2 à 0,8 ; la coupe sur la grille : de 0,6 à 0,4 ; le retour au test de base : de 0,6 à 0,4 ; la foule qui s’efface après la boucle : de 1,4 à 0,8."
+   },
+   "ecrans": {
+    "nom": "Entrées d’écrans et transitions",
+    "compression": "sure",
+    "comment": "L’écran se dédouble : de 1,4 à 1,0 s. Les entrées des écrans de Thibaut et le retour au fil : de 1,0 à 0,6 s chacune ; les deux colonnes, l’écran 11, le fil qui revient : de 0,8 à 0,5 ; les messages : de 0,6 à 0,4 ; la carte, si les pays restent : de 1,2 à 0,8."
+   },
+   "devinettes": {
+    "nom": "Les devinettes (P44, P51, P61)",
+    "compression": "sure",
+    "comment": "Les questions paraissent en 0,6 s au lieu de 1,0. Comptes à rebours : A de 4,6 à 3,0 s (la phrase promet « quelques secondes ») ; B de 3,2 à 3,0 s ; « qui ? » de 5,6 à 4,8 s (trois lignes à lire, puis 3 s pour réfléchir). « Le même choix ? » reste à 3,0 s. Aucun compte à rebours ne descend sous 3 s : c’est le moment où Thibaut fait jouer le spectateur."
+   },
+   "revelations": {
+    "nom": "Les révélations (P45, P48, P49, P52)",
+    "compression": "sure",
+    "comment": "La jauge A se remplit en 2,0 s au lieu de 2,6 ; la jauge B et la dissolution des bleus, de 4,4 à 3,4 s ; le nuage des prédictions, de 2,4 à 1,8 s ; les deux visages, de 1,2 à 0,8 s. Le silence de 1,6 s avant « Ah. » reste entier."
+   },
+   "resp": {
+    "nom": "Les respirations entre les répliques",
+    "compression": "resp",
+    "comment": "On en garde 60 % au montage (0,24 s entre deux phrases au lieu de 0,4), 75 % pour l’œil seul de la fin (P82), qui doit respirer, et 80 % autour du « Félicitations. » à froid (P33). Ce sont les vrais silences de Ronan qui feront foi : à mesurer sur deux ou trois paragraphes enregistrés."
+   },
+   "fin": {
+    "nom": "Le générique de fin (P85)",
+    "compression": "tout",
+    "comment": "De 16 à 10 s. Les noms ne sont pas encore connus, et Arte a peut-être son propre générique : c’est la chaîne qui décide (s’il sort des 15 minutes, on gagne encore 10 s)."
+   },
+   "teaser": {
+    "nom": "Le teaser du prochain numéro (P83)",
+    "compression": "tout",
+    "comment": "De 8 à 6 s. C’est une place réservée (le carton « PROCHAIN NUMÉRO · à venir ») : le vrai teaser peut durer plus, à revoir quand il existera."
+   },
+   "garde": {
+    "nom": "Les silences qui ne se compressent pas",
+    "compression": null,
+    "comment": "Gardés entiers, parce qu’ils font partie de l’argument ou du jeu : le temps de vérifier (2,6 s, P41), le silence avant « Ah. » (1,6 s, P52), le compte à rebours « le même choix ? » (3,0 s, P58), le temps de choisir (3,2 s, P74), la question du méta-dilemme (2,6 s, P76), le blocage de la boucle (1,8 s, P38), le suspense après la blague (1,2 s, P44, tant que A03 reste), la rime du dos (1,0 s, P30, tant que l’exemple de Kant reste), la foule des vrais humains (1,0 s, P73), « pris » (1,0 s, P79), le sourire (1,0 s, P81) et la place des pays (12 s, P63, tant que les pays restent : c’est de la voix à venir)."
+   }
+  },
+  "postes": [
+   {
+    "plan": "P01",
+    "debut": "l'œil s'ouvre",
+    "compresse": 3,
+    "famille": "oeil",
+    "lie_a": []
+   },
+   {
+    "plan": "P08",
+    "debut": "[GÉNÉRIQUE",
+    "compresse": 5,
+    "famille": "ouv",
+    "lie_a": []
+   },
+   {
+    "plan": "P09",
+    "debut": "le terminal",
+    "compresse": 1.5,
+    "famille": "test",
+    "lie_a": []
+   },
+   {
+    "plan": "P14",
+    "debut": "la foule illuminée",
+    "compresse": 0.8,
+    "famille": "test",
+    "lie_a": []
+   },
+   {
+    "plan": "P15",
+    "debut": "les derniers caractères",
+    "compresse": 1,
+    "famille": "test",
+    "lie_a": []
+   },
+   {
+    "plan": "P16",
+    "debut": "le tampon",
+    "compresse": 0.4,
+    "famille": "test",
+    "lie_a": [
+     "T08",
+     "T09"
+    ]
+   },
+   {
+    "plan": "P16",
+    "debut": "toute la foule part",
+    "compresse": 1.2,
+    "famille": "test",
+    "lie_a": [
+     "T09"
+    ]
+   },
+   {
+    "plan": "P17",
+    "debut": "la foule se recompose",
+    "compresse": 0.5,
+    "famille": "test",
+    "lie_a": []
+   },
+   {
+    "plan": "P18",
+    "debut": "le tampon 100",
+    "compresse": 1.2,
+    "famille": "test",
+    "lie_a": []
+   },
+   {
+    "plan": "P19",
+    "debut": "la fenêtre KANT",
+    "compresse": 0.8,
+    "famille": "kant",
+    "lie_a": []
+   },
+   {
+    "plan": "P19",
+    "debut": "Kant lève les yeux",
+    "compresse": 0.6,
+    "famille": "kant",
+    "lie_a": []
+   },
+   {
+    "plan": "P22",
+    "debut": "deux sujets entrent",
+    "compresse": 0.5,
+    "famille": "kant",
+    "lie_a": []
+   },
+   {
+    "plan": "P28",
+    "debut": "deux foules",
+    "compresse": 1.4,
+    "famille": "kant",
+    "lie_a": [
+     "K22"
+    ]
+   },
+   {
+    "plan": "P30",
+    "debut": "la rime",
+    "compresse": 1,
+    "famille": "garde",
+    "lie_a": [
+     "K10"
+    ]
+   },
+   {
+    "plan": "P31",
+    "debut": "l'anneau tourne seul",
+    "compresse": 0.8,
+    "famille": "kant",
+    "lie_a": []
+   },
+   {
+    "plan": "P34",
+    "debut": "coupe sur la grille",
+    "compresse": 0.4,
+    "famille": "kant",
+    "lie_a": []
+   },
+   {
+    "plan": "P36",
+    "debut": "retour au test de base",
+    "compresse": 0.4,
+    "famille": "kant",
+    "lie_a": [
+     "V14"
+    ]
+   },
+   {
+    "plan": "P38",
+    "debut": "le blocage",
+    "compresse": 1.8,
+    "famille": "garde",
+    "lie_a": []
+   },
+   {
+    "plan": "P38",
+    "debut": "la foule s'efface",
+    "compresse": 0.8,
+    "famille": "kant",
+    "lie_a": []
+   },
+   {
+    "plan": "P39",
+    "debut": "l'écran se dédouble",
+    "compresse": 1,
+    "famille": "ecrans",
+    "lie_a": []
+   },
+   {
+    "plan": "P41",
+    "debut": "le temps de vérifier",
+    "compresse": 2.6,
+    "famille": "garde",
+    "lie_a": []
+   },
+   {
+    "plan": "P44",
+    "debut": "la question paraît",
+    "compresse": 0.6,
+    "famille": "devinettes",
+    "lie_a": []
+   },
+   {
+    "plan": "P44",
+    "debut": "DEVINETTE",
+    "compresse": 3,
+    "famille": "devinettes",
+    "lie_a": []
+   },
+   {
+    "plan": "P44",
+    "debut": "le suspense",
+    "compresse": 1.2,
+    "famille": "garde",
+    "lie_a": [
+     "A03"
+    ]
+   },
+   {
+    "plan": "P45",
+    "debut": "la jauge se remplit",
+    "compresse": 2,
+    "famille": "revelations",
+    "lie_a": []
+   },
+   {
+    "plan": "P47",
+    "debut": "l'écran 02",
+    "compresse": 0.6,
+    "famille": "ecrans",
+    "lie_a": [
+     "A11",
+     "A12",
+     "A13"
+    ]
+   },
+   {
+    "plan": "P48",
+    "debut": "le nuage",
+    "compresse": 1.8,
+    "famille": "revelations",
+    "lie_a": []
+   },
+   {
+    "plan": "P49",
+    "debut": "deux visages",
+    "compresse": 0.8,
+    "famille": "revelations",
+    "lie_a": [
+     "A16"
+    ]
+   },
+   {
+    "plan": "P51",
+    "debut": "la question paraît",
+    "compresse": 0.6,
+    "famille": "devinettes",
+    "lie_a": []
+   },
+   {
+    "plan": "P51",
+    "debut": "DEVINETTE",
+    "compresse": 3,
+    "famille": "devinettes",
+    "lie_a": []
+   },
+   {
+    "plan": "P52",
+    "debut": "la jauge monte à peine",
+    "compresse": 3.4,
+    "famille": "revelations",
+    "lie_a": []
+   },
+   {
+    "plan": "P52",
+    "debut": "silence",
+    "compresse": 1.6,
+    "famille": "garde",
+    "lie_a": []
+   },
+   {
+    "plan": "P53",
+    "debut": "les deux jauges",
+    "compresse": 0.6,
+    "famille": "ecrans",
+    "lie_a": []
+   },
+   {
+    "plan": "P55",
+    "debut": "l'écran 05",
+    "compresse": 0.6,
+    "famille": "ecrans",
+    "lie_a": []
+   },
+   {
+    "plan": "P56",
+    "debut": "l'écran 06",
+    "compresse": 0.6,
+    "famille": "ecrans",
+    "lie_a": []
+   },
+   {
+    "plan": "P58",
+    "debut": "DEVINETTE",
+    "compresse": 3,
+    "famille": "garde",
+    "lie_a": []
+   },
+   {
+    "plan": "P61",
+    "debut": "DEVINETTE",
+    "compresse": 4.8,
+    "famille": "devinettes",
+    "lie_a": [
+     "Q01",
+     "Q02",
+     "Q03",
+     "Q05",
+     "Q06"
+    ]
+   },
+   {
+    "plan": "P63",
+    "debut": "la carte se pose",
+    "compresse": 0.8,
+    "famille": "ecrans",
+    "lie_a": [
+     "Q04"
+    ]
+   },
+   {
+    "plan": "P63",
+    "debut": "[À MESURER",
+    "compresse": 12,
+    "famille": "garde",
+    "lie_a": [
+     "Q04"
+    ]
+   },
+   {
+    "plan": "P64",
+    "debut": "l'écran 10",
+    "compresse": 0.6,
+    "famille": "ecrans",
+    "lie_a": []
+   },
+   {
+    "plan": "P65",
+    "debut": "retour au fil",
+    "compresse": 0.6,
+    "famille": "ecrans",
+    "lie_a": []
+   },
+   {
+    "plan": "P68",
+    "debut": "les deux colonnes",
+    "compresse": 0.5,
+    "famille": "ecrans",
+    "lie_a": []
+   },
+   {
+    "plan": "P70",
+    "debut": "les messages",
+    "compresse": 0.4,
+    "famille": "ecrans",
+    "lie_a": []
+   },
+   {
+    "plan": "P73",
+    "debut": "la foule réapparaît",
+    "compresse": 1,
+    "famille": "garde",
+    "lie_a": []
+   },
+   {
+    "plan": "P74",
+    "debut": "le temps de choisir",
+    "compresse": 3.2,
+    "famille": "garde",
+    "lie_a": []
+   },
+   {
+    "plan": "P75",
+    "debut": "l'écran 11",
+    "compresse": 0.5,
+    "famille": "ecrans",
+    "lie_a": []
+   },
+   {
+    "plan": "P76",
+    "debut": "l'écran 12",
+    "compresse": 0.6,
+    "famille": "ecrans",
+    "lie_a": []
+   },
+   {
+    "plan": "P76",
+    "debut": "la question",
+    "compresse": 2.6,
+    "famille": "garde",
+    "lie_a": []
+   },
+   {
+    "plan": "P78",
+    "debut": "le fil revient",
+    "compresse": 0.5,
+    "famille": "ecrans",
+    "lie_a": []
+   },
+   {
+    "plan": "P79",
+    "debut": "pris",
+    "compresse": 1,
+    "famille": "garde",
+    "lie_a": []
+   },
+   {
+    "plan": "P81",
+    "debut": "un sourire",
+    "compresse": 1,
+    "famille": "garde",
+    "lie_a": []
+   },
+   {
+    "plan": "P82",
+    "debut": "l'œil, seul",
+    "compresse": 1,
+    "famille": "oeil",
+    "lie_a": []
+   },
+   {
+    "plan": "P83",
+    "debut": "[TEASER",
+    "compresse": 6,
+    "famille": "teaser",
+    "lie_a": []
+   },
+   {
+    "plan": "P84",
+    "debut": "l'œil se ferme",
+    "compresse": 3,
+    "famille": "oeil",
+    "lie_a": []
+   },
+   {
+    "plan": "P85",
+    "debut": "GÉNÉRIQUE DE FIN",
+    "compresse": 10,
+    "famille": "fin",
+    "lie_a": []
+   }
+  ],
+  "muets": {
+   "P09": {
+    "sans": 2.8,
+    "avec": 1.5,
+    "famille": "test",
+    "pourquoi": "le terminal : ses caractères forment les pilules de P10"
+   },
+   "P12": {
+    "sans": 2,
+    "avec": 1.5,
+    "famille": "test",
+    "pourquoi": "l’isoloir du N°48, qui revient au méta-dilemme et au générique"
+   },
+   "P48": {
+    "sans": 2.4,
+    "avec": 1.8,
+    "famille": "revelations",
+    "pourquoi": "le nuage qui se sépare : il porte « les deux camps se sont trompés en sens opposés »",
+    "tant_que_restent": [
+     "A16",
+     "A17"
+    ]
+   }
+  },
+  "compressions": {
+   "aucune": "Sans compression : le sans-voix de l’animatique, moins ce que les coupes emportent.",
+   "sure": "Compression sûre : celle que le montage maîtrise seul (l’œil, le générique d’ouverture, le test, Kant, les écrans, les devinettes, les révélations).",
+   "resp": "La même, plus les respirations resserrées (0,24 s entre deux phrases au lieu de 0,4) : elle dépend des vrais silences de Ronan.",
+   "tout": "Tout : la même, plus le générique de fin ramené à 10 s et le teaser à 6 s : c’est Arte qui décide, et le teaser n’existe pas encore."
+  }
+ },
+ "totaux": {
+  "aujourdhui": {
+   "voix_13": 1194.9,
+   "sans_voix": 220.4,
+   "dont_respirations": 89.3,
+   "duree": "23:35,3",
+   "animatique": 1401.4
+  },
+  "caracteres_dits": 15537,
+  "caracteres_ecrits": 15036,
+  "niveaux": {
+   "0": {
+    "coupes": 0,
+    "derniere": null,
+    "voix_coupee_13": 0,
+    "part_de_la_voix": 0,
+    "sans_voix": {
+     "aucune": 220.4,
+     "sure": 197.5,
+     "resp": 163,
+     "tout": 155
+    },
+    "tenue_image": 0,
+    "durees": {
+     "13": {
+      "aucune": 1415.3,
+      "sure": 1392.4,
+      "resp": 1357.9,
+      "tout": 1349.9
+     },
+     "14": {
+      "aucune": 1330,
+      "sure": 1307.1,
+      "resp": 1272.6,
+      "tout": 1264.6
+     },
+     "15": {
+      "aucune": 1256,
+      "sure": 1233.1,
+      "resp": 1198.6,
+      "tout": 1190.6
+     },
+     "16": {
+      "aucune": 1191.3,
+      "sure": 1168.4,
+      "resp": 1133.9,
+      "tout": 1125.9
+     }
+    }
+   },
+   "1": {
+    "coupes": 17,
+    "derniere": "C-S11-05",
+    "voix_coupee_13": 74.2,
+    "part_de_la_voix": 6.2,
+    "sans_voix": {
+     "aucune": 218.3,
+     "sure": 195.4,
+     "resp": 162.1,
+     "tout": 154.1
+    },
+    "tenue_image": 1,
+    "durees": {
+     "13": {
+      "aucune": 1339,
+      "sure": 1316.1,
+      "resp": 1282.8,
+      "tout": 1274.8
+     },
+     "14": {
+      "aucune": 1258.9,
+      "sure": 1236,
+      "resp": 1202.8,
+      "tout": 1194.8
+     },
+     "15": {
+      "aucune": 1189.5,
+      "sure": 1166.6,
+      "resp": 1133.4,
+      "tout": 1125.4
+     },
+     "16": {
+      "aucune": 1128.8,
+      "sure": 1105.9,
+      "resp": 1072.7,
+      "tout": 1064.7
+     }
+    }
+   },
+   "2": {
+    "coupes": 45,
+    "derniere": "C-S03-02",
+    "voix_coupee_13": 330.8,
+    "part_de_la_voix": 27.7,
+    "sans_voix": {
+     "aucune": 184.4,
+     "sure": 162.3,
+     "resp": 137.2,
+     "tout": 129.2
+    },
+    "tenue_image": 3.5,
+    "durees": {
+     "13": {
+      "aucune": 1048.5,
+      "sure": 1026.4,
+      "resp": 1001.3,
+      "tout": 993.3
+     },
+     "14": {
+      "aucune": 986.8,
+      "sure": 964.7,
+      "resp": 939.6,
+      "tout": 931.6
+     },
+     "15": {
+      "aucune": 933.3,
+      "sure": 911.2,
+      "resp": 886.1,
+      "tout": 878.1
+     },
+     "16": {
+      "aucune": 886.5,
+      "sure": 864.4,
+      "resp": 839.3,
+      "tout": 831.3
+     }
+    }
+   },
+   "3": {
+    "coupes": 58,
+    "derniere": "C-S04-06",
+    "voix_coupee_13": 446.8,
+    "part_de_la_voix": 37.4,
+    "sans_voix": {
+     "aucune": 170.9,
+     "sure": 151.4,
+     "resp": 129.2,
+     "tout": 121.2
+    },
+    "tenue_image": 5,
+    "durees": {
+     "13": {
+      "aucune": 919,
+      "sure": 899.5,
+      "resp": 877.3,
+      "tout": 869.3
+     },
+     "14": {
+      "aucune": 865.6,
+      "sure": 846.1,
+      "resp": 823.9,
+      "tout": 815.9
+     },
+     "15": {
+      "aucune": 819.3,
+      "sure": 799.8,
+      "resp": 777.6,
+      "tout": 769.6
+     },
+     "16": {
+      "aucune": 778.8,
+      "sure": 759.3,
+      "resp": 737,
+      "tout": 729
+     }
+    }
+   }
+  },
+  "arrets": [
+   {
+    "debit": 13,
+    "compression": "aucune",
+    "seuil": 870,
+    "n": null,
+    "duree": null
+   },
+   {
+    "debit": 13,
+    "compression": "aucune",
+    "seuil": 900,
+    "n": null,
+    "duree": null
+   },
+   {
+    "debit": 13,
+    "compression": "sure",
+    "seuil": 870,
+    "n": null,
+    "duree": null
+   },
+   {
+    "debit": 13,
+    "compression": "sure",
+    "seuil": 900,
+    "n": 58,
+    "duree": 899.5
+   },
+   {
+    "debit": 13,
+    "compression": "resp",
+    "seuil": 870,
+    "n": null,
+    "duree": null
+   },
+   {
+    "debit": 13,
+    "compression": "resp",
+    "seuil": 900,
+    "n": 57,
+    "duree": 894.2
+   },
+   {
+    "debit": 13,
+    "compression": "tout",
+    "seuil": 870,
+    "n": 58,
+    "duree": 869.3
+   },
+   {
+    "debit": 13,
+    "compression": "tout",
+    "seuil": 900,
+    "n": 56,
+    "duree": 894.9
+   },
+   {
+    "debit": 14,
+    "compression": "aucune",
+    "seuil": 870,
+    "n": 58,
+    "duree": 865.6
+   },
+   {
+    "debit": 14,
+    "compression": "aucune",
+    "seuil": 900,
+    "n": 55,
+    "duree": 895.7
+   },
+   {
+    "debit": 14,
+    "compression": "sure",
+    "seuil": 870,
+    "n": 57,
+    "duree": 862.4
+   },
+   {
+    "debit": 14,
+    "compression": "sure",
+    "seuil": 900,
+    "n": 54,
+    "duree": 881.7
+   },
+   {
+    "debit": 14,
+    "compression": "resp",
+    "seuil": 870,
+    "n": 54,
+    "duree": 858.5
+   },
+   {
+    "debit": 14,
+    "compression": "resp",
+    "seuil": 900,
+    "n": 53,
+    "duree": 899.3
+   },
+   {
+    "debit": 14,
+    "compression": "tout",
+    "seuil": 870,
+    "n": 54,
+    "duree": 850.5
+   },
+   {
+    "debit": 14,
+    "compression": "tout",
+    "seuil": 900,
+    "n": 52,
+    "duree": 898.1
+   },
+   {
+    "debit": 15,
+    "compression": "aucune",
+    "seuil": 870,
+    "n": 54,
+    "duree": 853.9
+   },
+   {
+    "debit": 15,
+    "compression": "aucune",
+    "seuil": 900,
+    "n": 53,
+    "duree": 894.6
+   },
+   {
+    "debit": 15,
+    "compression": "sure",
+    "seuil": 870,
+    "n": 54,
+    "duree": 833.2
+   },
+   {
+    "debit": 15,
+    "compression": "sure",
+    "seuil": 900,
+    "n": 47,
+    "duree": 899.9
+   },
+   {
+    "debit": 15,
+    "compression": "resp",
+    "seuil": 870,
+    "n": 49,
+    "duree": 867.4
+   },
+   {
+    "debit": 15,
+    "compression": "resp",
+    "seuil": 900,
+    "n": 45,
+    "duree": 886.1
+   },
+   {
+    "debit": 15,
+    "compression": "tout",
+    "seuil": 870,
+    "n": 47,
+    "duree": 867.1
+   },
+   {
+    "debit": 15,
+    "compression": "tout",
+    "seuil": 900,
+    "n": 45,
+    "duree": 878.1
+   },
+   {
+    "debit": 16,
+    "compression": "aucune",
+    "seuil": 870,
+    "n": 49,
+    "duree": 868.5
+   },
+   {
+    "debit": 16,
+    "compression": "aucune",
+    "seuil": 900,
+    "n": 45,
+    "duree": 886.5
+   },
+   {
+    "debit": 16,
+    "compression": "sure",
+    "seuil": 870,
+    "n": 45,
+    "duree": 864.4
+   },
+   {
+    "debit": 16,
+    "compression": "sure",
+    "seuil": 900,
+    "n": 45,
+    "duree": 864.4
+   },
+   {
+    "debit": 16,
+    "compression": "resp",
+    "seuil": 870,
+    "n": 45,
+    "duree": 839.3
+   },
+   {
+    "debit": 16,
+    "compression": "resp",
+    "seuil": 900,
+    "n": 43,
+    "duree": 897.3
+   },
+   {
+    "debit": 16,
+    "compression": "tout",
+    "seuil": 870,
+    "n": 45,
+    "duree": 831.3
+   },
+   {
+    "debit": 16,
+    "compression": "tout",
+    "seuil": 900,
+    "n": 43,
+    "duree": 889.3
+   }
+  ],
+  "echanges": [
+   {
+    "n": 1,
+    "si": "Thibaut garde l’exemple de Kant en entier",
+    "retirer": [
+     "C-S03-03",
+     "C-S03-02"
+    ],
+    "note": "Les plans P22–P25 et la rime du dos (P30) restent ; K17 reste entière (le miroir de K14).",
+    "ajout": null,
+    "niveaux12_15_tout": 928.7,
+    "arrets": [
+     {
+      "debit": 15,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S06-04",
+      "n": 54,
+      "duree": 852.6,
+      "possible": true
+     },
+     {
+      "debit": 16,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S04-08",
+      "n": 47,
+      "duree": 868.6,
+      "possible": true
+     },
+     {
+      "debit": 14,
+      "compression": "tout",
+      "seuil": 900,
+      "derniere": "C-S02-04",
+      "n": 55,
+      "duree": 898.7,
+      "possible": true
+     },
+     {
+      "debit": 14,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S04-06",
+      "n": 58,
+      "duree": 869.8,
+      "possible": true
+     }
+    ]
+   },
+   {
+    "n": "1 bis",
+    "si": "Thibaut garde l’exemple de Kant en version courte (sans K09 ni K13, déjà pris au n° 39)",
+    "retirer": [
+     "C-S03-02"
+    ],
+    "note": "La fausse promesse, la règle, « si tout le monde » et la phrase-clé de Kant (K14) restent, avec K17 entière, son miroir. Les plans P22–P25 restent, plus serrés.",
+    "ajout": null,
+    "niveaux12_15_tout": 919.2,
+    "arrets": [
+     {
+      "debit": 15,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S06-04",
+      "n": 54,
+      "duree": 843.1,
+      "possible": true
+     },
+     {
+      "debit": 16,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S10-05",
+      "n": 46,
+      "duree": 865.3,
+      "possible": true
+     },
+     {
+      "debit": 14,
+      "compression": "tout",
+      "seuil": 900,
+      "derniere": "C-S06-04",
+      "n": 54,
+      "duree": 894.3,
+      "possible": true
+     },
+     {
+      "debit": 14,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S04-06",
+      "n": 58,
+      "duree": 859.7,
+      "possible": true
+     }
+    ]
+   },
+   {
+    "n": 2,
+    "si": "Thibaut garde les bleus accidentels (V09–V12)",
+    "retirer": [
+     "C-S04-03",
+     "C-S04-04"
+    ],
+    "note": "Les plans P34–P35 restent. S’il préfère garder seulement sa phrase « il est très important » (V09), il faut aussi garder V10–V11, qui disent pourquoi : la coupe n’a alors plus d’objet.",
+    "ajout": null,
+    "niveaux12_15_tout": 906.9,
+    "arrets": [
+     {
+      "debit": 15,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S09-01",
+      "n": 53,
+      "duree": 869.2,
+      "possible": true
+     },
+     {
+      "debit": 16,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S03-02",
+      "n": 45,
+      "duree": 858.4,
+      "possible": true
+     },
+     {
+      "debit": 14,
+      "compression": "tout",
+      "seuil": 900,
+      "derniere": "C-S06-04",
+      "n": 54,
+      "duree": 881.2,
+      "possible": true
+     },
+     {
+      "debit": 14,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S05-01",
+      "n": 57,
+      "duree": 862.4,
+      "possible": true
+     }
+    ]
+   },
+   {
+    "n": 3,
+    "si": "Arte tient aux pays, ou ils sont mesurés à temps",
+    "retirer": [
+     "C-S09-03",
+     "C-S09-04"
+    ],
+    "note": "Les 12 s réservées sont comptées comme la durée de la phrase à venir (elle en coûtera 12 à 20 : chaque seconde de plus se paie). Garder les pays oblige aussi à rendre la comparaison de Q06 (« Onze points… seize… »), que Thibaut voulait adapter aux pays, et la ligne « D’UN PAYS À L’AUTRE » de l’écran 10.",
+    "ajout": null,
+    "niveaux12_15_tout": 898.4,
+    "arrets": [
+     {
+      "debit": 15,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S10-02",
+      "n": 52,
+      "duree": 867,
+      "possible": true
+     },
+     {
+      "debit": 16,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S03-02",
+      "n": 45,
+      "duree": 851.1,
+      "possible": true
+     },
+     {
+      "debit": 14,
+      "compression": "tout",
+      "seuil": 900,
+      "derniere": "C-S06-04",
+      "n": 54,
+      "duree": 871.3,
+      "possible": true
+     },
+     {
+      "debit": 14,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S02-04",
+      "n": 55,
+      "duree": 865.6,
+      "possible": true
+     }
+    ]
+   },
+   {
+    "n": 4,
+    "si": "Thibaut garde l’exemple de Kant et les bleus accidentels",
+    "retirer": [
+     "C-S03-03",
+     "C-S03-02",
+     "C-S04-03",
+     "C-S04-04"
+    ],
+    "note": "",
+    "ajout": null,
+    "niveaux12_15_tout": 957.5,
+    "arrets": [
+     {
+      "debit": 15,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S05-01",
+      "n": 57,
+      "duree": 863.7,
+      "possible": true
+     },
+     {
+      "debit": 16,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S06-04",
+      "n": 54,
+      "duree": 834.3,
+      "possible": true
+     },
+     {
+      "debit": 14,
+      "compression": "tout",
+      "seuil": 900,
+      "derniere": null,
+      "n": 0,
+      "duree": 900.5,
+      "possible": false
+     },
+     {
+      "debit": 14,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": null,
+      "n": 0,
+      "duree": 900.5,
+      "possible": false
+     }
+    ]
+   },
+   {
+    "n": 5,
+    "si": "à la place de Q01p (la devinette « qui ? » sans réponse dite), on retire la séquence S09 entière",
+    "retirer": [
+     "C-S09-01"
+    ],
+    "note": "La devinette « Femmes ou hommes ? Gauche ou droite ? » (P61) part avec la séquence, et les écrans 09 et 10 (P62, P64) aussi : on passe alors directement de « Les humains se font tant d’illusions… » (M18) à « Revenons à la dispute du début » (N01). Un écart de genre ou de politique n’est plus jamais montré.",
+    "ajout": "C-S09-S09",
+    "niveaux12_15_tout": 878.1,
+    "arrets": [
+     {
+      "debit": 15,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S04-08",
+      "n": 47,
+      "duree": 867.1,
+      "possible": true
+     },
+     {
+      "debit": 16,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S03-02",
+      "n": 45,
+      "duree": 831.3,
+      "possible": true
+     },
+     {
+      "debit": 14,
+      "compression": "tout",
+      "seuil": 900,
+      "derniere": "C-S10-02",
+      "n": 52,
+      "duree": 898.1,
+      "possible": true
+     },
+     {
+      "debit": 14,
+      "compression": "tout",
+      "seuil": 870,
+      "derniere": "C-S09-S09",
+      "n": null,
+      "duree": 868.7,
+      "possible": true
+     }
+    ]
+   }
+  ],
+  "compression_apres_niveau_2": {
+   "oeil": 2,
+   "resp": 25.1,
+   "ouv": 2.6,
+   "test": 4.6,
+   "kant": 3,
+   "ecrans": 3.9,
+   "devinettes": 3.4,
+   "revelations": 2.6,
+   "teaser": 2,
+   "fin": 6
+  },
+  "sequences_apres_niveau_2_a_15": [
+   {
+    "id": "S01",
+    "nom": "Ouverture",
+    "debut": 0,
+    "duree": 58.9,
+    "aujourdhui": 0
+   },
+   {
+    "id": "S02",
+    "nom": "Partie 1 · Le test",
+    "debut": 58.9,
+    "duree": 55.6,
+    "aujourdhui": 87.8
+   },
+   {
+    "id": "S03",
+    "nom": "Partie 1 · Un dilemme kantien ?",
+    "debut": 114.5,
+    "duree": 112.2,
+    "aujourdhui": 171.6
+   },
+   {
+    "id": "S04",
+    "nom": "Partie 1 · Deux variantes déséquilibrées",
+    "debut": 226.8,
+    "duree": 74.2,
+    "aujourdhui": 381.6
+   },
+   {
+    "id": "S05",
+    "nom": "Partie 2 · Le tirage au sort",
+    "debut": 300.9,
+    "duree": 62.6,
+    "aujourdhui": 526.9
+   },
+   {
+    "id": "S06",
+    "nom": "Partie 2 · Description A : la bleue l’emporte",
+    "debut": 363.5,
+    "duree": 83.8,
+    "aujourdhui": 618.2
+   },
+   {
+    "id": "S07",
+    "nom": "Partie 2 · Description B : la bleue s’effondre",
+    "debut": 447.3,
+    "duree": 50.8,
+    "aujourdhui": 756.2
+   },
+   {
+    "id": "S08",
+    "nom": "Partie 2 · Les deux descriptions disent-elles la même chose ?",
+    "debut": 498.1,
+    "duree": 90.1,
+    "aujourdhui": 854.4
+   },
+   {
+    "id": "S09",
+    "nom": "Partie 2 · Qui prend la bleue ?",
+    "debut": 588.2,
+    "duree": 28.9,
+    "aujourdhui": 978.4
+   },
+   {
+    "id": "S10",
+    "nom": "Partie 3 · Mauvais ou méchants",
+    "debut": 617.1,
+    "duree": 80,
+    "aujourdhui": 1043.2
+   },
+   {
+    "id": "S11",
+    "nom": "Partie 3 · Le méta-dilemme",
+    "debut": 697.2,
+    "duree": 75.1,
+    "aujourdhui": 1169.4
+   },
+   {
+    "id": "S12",
+    "nom": "Partie 3 · Qui explique les règles",
+    "debut": 772.3,
+    "duree": 51.6,
+    "aujourdhui": 1271.8
+   },
+   {
+    "id": "S13",
+    "nom": "Partie 3 · La fin : l’œil seul, le teaser, le générique",
+    "debut": 823.9,
+    "duree": 54.2,
+    "aujourdhui": 1332.1
+   }
+  ],
+  "moments_apres_niveau_2_a_15": [
+   {
+    "plan": "P39",
+    "quoi": "le tirage au sort",
+    "aujourdhui": 526.9,
+    "apres": 300.9
+   },
+   {
+    "plan": "P44",
+    "quoi": "la devinette A",
+    "aujourdhui": 618.2,
+    "apres": 363.5
+   },
+   {
+    "plan": "P45",
+    "quoi": "le premier chiffre (65,5 %)",
+    "aujourdhui": 639,
+    "apres": 375.1
+   },
+   {
+    "plan": "P52",
+    "quoi": "« Ah. »",
+    "aujourdhui": 786,
+    "apres": 468.9
+   },
+   {
+    "plan": "P59",
+    "quoi": "le 12,6 % dit à voix haute",
+    "aujourdhui": 925.1,
+    "apres": 533.6
+   }
+  ],
+  "plans_sans_voix": {
+   "1": [
+    {
+     "plan": "P09",
+     "titre": "Le terminal",
+     "duree": 6.2,
+     "muet": 1.5,
+     "coupe": "C-S02-01"
+    },
+    {
+     "plan": "P72",
+     "titre": "De très loin",
+     "duree": 9.1,
+     "muet": 0,
+     "coupe": "C-S10-08"
+    }
+   ],
+   "2": [
+    {
+     "plan": "P06",
+     "titre": "Assez de raisons",
+     "duree": 5.6,
+     "muet": 0,
+     "coupe": "C-S01-04"
+    },
+    {
+     "plan": "P12",
+     "titre": "L’isoloir du N°48",
+     "duree": 6.1,
+     "muet": 1.5,
+     "coupe": "C-S02-02"
+    },
+    {
+     "plan": "P22",
+     "titre": "La fausse promesse",
+     "duree": 14.9,
+     "muet": 0,
+     "coupe": "C-S03-02"
+    },
+    {
+     "plan": "P23",
+     "titre": "Les doigts croisés",
+     "duree": 8.2,
+     "muet": 0,
+     "coupe": "C-S03-02"
+    },
+    {
+     "plan": "P24",
+     "titre": "Si tout le monde",
+     "duree": 12.7,
+     "muet": 0,
+     "coupe": "C-S03-02"
+    },
+    {
+     "plan": "P34",
+     "titre": "Les bleus accidentels",
+     "duree": 26.7,
+     "muet": 0,
+     "coupe": "C-S04-04"
+    },
+    {
+     "plan": "P35",
+     "titre": "En connaissance de cause",
+     "duree": 16.2,
+     "muet": 0,
+     "coupe": "C-S04-04"
+    },
+    {
+     "plan": "P43",
+     "titre": "Un peu mieux compris",
+     "duree": 17.9,
+     "muet": 0,
+     "coupe": "C-S05-02"
+    },
+    {
+     "plan": "P50",
+     "titre": "Leur propre mort",
+     "duree": 21.8,
+     "muet": 0,
+     "coupe": "C-S06-07"
+    },
+    {
+     "plan": "P57",
+     "titre": "Plus ou moins trompeuse ?",
+     "duree": 34.8,
+     "muet": 0,
+     "coupe": "C-S08-01"
+    },
+    {
+     "plan": "P63",
+     "titre": "L’Europe à mesurer",
+     "duree": 14.8,
+     "muet": 0,
+     "coupe": "C-S09-03"
+    }
+   ],
+   "3": [
+    {
+     "plan": "P16",
+     "titre": "Obligatoire",
+     "duree": 9.7,
+     "muet": 0,
+     "coupe": "C-S02-04"
+    },
+    {
+     "plan": "P36",
+     "titre": "Un bleu tiré au hasard",
+     "duree": 24.8,
+     "muet": 0,
+     "coupe": "C-S04-06"
+    },
+    {
+     "plan": "P47",
+     "titre": "Prédire les autres",
+     "duree": 22.5,
+     "muet": 0,
+     "coupe": "C-S06-04"
+    },
+    {
+     "plan": "P49",
+     "titre": "Chacun comme lui",
+     "duree": 13.3,
+     "muet": 0,
+     "coupe": "C-S06-04"
+    }
+   ]
+  },
+  "plans_a_remonter_serre": {
+   "1": [
+    {
+     "plan": "P35",
+     "titre": "En connaissance de cause",
+     "garde": 43
+    }
+   ],
+   "2": [
+    {
+     "plan": "P17",
+     "titre": "Le test de compréhension",
+     "garde": 44
+    },
+    {
+     "plan": "P25",
+     "titre": "Ne marche que si les autres ne la suivent pas",
+     "garde": 0
+    },
+    {
+     "plan": "P55",
+     "titre": "Prédictions B",
+     "garde": 0
+    },
+    {
+     "plan": "P65",
+     "titre": "Les messages, floutés",
+     "garde": 39
+    }
+   ],
+   "3": [
+    {
+     "plan": "P17",
+     "titre": "Le test de compréhension",
+     "garde": 44
+    },
+    {
+     "plan": "P25",
+     "titre": "Ne marche que si les autres ne la suivent pas",
+     "garde": 0
+    },
+    {
+     "plan": "P41",
+     "titre": "Les mêmes issues",
+     "garde": 40
+    },
+    {
+     "plan": "P48",
+     "titre": "Deux nuages",
+     "garde": 1
+    },
+    {
+     "plan": "P53",
+     "titre": "Côte à côte",
+     "garde": 42
+    },
+    {
+     "plan": "P55",
+     "titre": "Prédictions B",
+     "garde": 0
+    },
+    {
+     "plan": "P62",
+     "titre": "Genre, politique",
+     "garde": 27
+    },
+    {
+     "plan": "P65",
+     "titre": "Les messages, floutés",
+     "garde": 39
+    },
+    {
+     "plan": "P70",
+     "titre": "Un virus saisonnier",
+     "garde": 35
+    }
+   ]
+  },
+  "visuels_touches": {
+   "1": [],
+   "2": [
+    {
+     "plan": "P11–P12",
+     "script": "[VISUEL : les cent sujets en pixels apparaissent. Puis le gros plan sur le sujet n°48 dans son isoloir, avec un « ? » au-dessus de ses voisins.]",
+     "etat": "garde 53 % de sa voix",
+     "ratio": 0.5288461538461539
+    },
+    {
+     "plan": "P17",
+     "script": "[VISUEL : les quatre questions de compréhension, puis les coches au-dessus des cent sujets, et le tampon « 100 / 100 ONT COMPRIS ».]",
+     "etat": "garde 44 % de sa voix",
+     "ratio": 0.4369747899159664
+    },
+    {
+     "plan": "P22–P25",
+     "script": "[VISUEL : un sujet en pixels tend la main vers un autre et reçoit une pièce. Une bulle : « Je te rembourse demain. » Ses doigts sont croisés dans son dos.]",
+     "etat": "garde 0 % de sa voix",
+     "ratio": 0.0014698162729658631
+    },
+    {
+     "plan": "P63",
+     "script": "[VISUEL : carte de l’Europe, un chiffre par pays.] — puis, dans le texte : [À MESURER : Allemagne, Espagne, France, Italie, Pologne]",
+     "etat": "disparaît",
+     "ratio": 0
+    },
+    {
+     "plan": "P65",
+     "script": "[VISUEL : retour aux messages haineux du début, floutés.]",
+     "etat": "garde 39 % de sa voix",
+     "ratio": 0.3870967741935483
+    }
+   ],
+   "3": [
+    {
+     "plan": "P11–P12",
+     "script": "[VISUEL : les cent sujets en pixels apparaissent. Puis le gros plan sur le sujet n°48 dans son isoloir, avec un « ? » au-dessus de ses voisins.]",
+     "etat": "garde 53 % de sa voix",
+     "ratio": 0.5288461538461539
+    },
+    {
+     "plan": "P16",
+     "script": "[VISUEL : un seul sujet reste gris, cerclé, avec un Ø au-dessus de la tête. Puis toute la foule se dissout.]",
+     "etat": "disparaît",
+     "ratio": 0
+    },
+    {
+     "plan": "P17",
+     "script": "[VISUEL : les quatre questions de compréhension, puis les coches au-dessus des cent sujets, et le tampon « 100 / 100 ONT COMPRIS ».]",
+     "etat": "garde 44 % de sa voix",
+     "ratio": 0.4369747899159664
+    },
+    {
+     "plan": "P22–P25",
+     "script": "[VISUEL : un sujet en pixels tend la main vers un autre et reçoit une pièce. Une bulle : « Je te rembourse demain. » Ses doigts sont croisés dans son dos.]",
+     "etat": "garde 0 % de sa voix",
+     "ratio": 0.0014698162729658631
+    },
+    {
+     "plan": "P36",
+     "script": "[VISUEL : retour au test de base. La bleue l’emporte, et un sujet bleu tiré au hasard se dissout quand même.]",
+     "etat": "disparaît",
+     "ratio": 0
+    },
+    {
+     "plan": "P41",
+     "script": "[VISUEL : les deux règles côte à côte. Les mêmes issues s’allument en face de chacune.]",
+     "etat": "garde 40 % de sa voix",
+     "ratio": 0.39751552795031053
+    },
+    {
+     "plan": "P45",
+     "script": "[VISUEL : la jauge de l’animation se remplit de bleu et dépasse le trait des 50 %. La foule s’illumine.]",
+     "etat": "garde 59 % de sa voix",
+     "ratio": 0.5948275862068965
+    },
+    {
+     "plan": "P48",
+     "script": "[VISUEL : le nuage des prédictions individuelles, un point par participant, qui se sépare en deux nuages, rouge et bleu.]",
+     "etat": "garde 1 % de sa voix",
+     "ratio": 0.00806480308944947
+    },
+    {
+     "plan": "P53",
+     "script": "[VISUEL : les deux jauges côte à côte, 65,5 % et 12,6 %, l’écart de 53 points matérialisé.]",
+     "etat": "garde 42 % de sa voix",
+     "ratio": 0.4195402298850575
+    },
+    {
+     "plan": "P63",
+     "script": "[VISUEL : carte de l’Europe, un chiffre par pays.] — puis, dans le texte : [À MESURER : Allemagne, Espagne, France, Italie, Pologne]",
+     "etat": "disparaît",
+     "ratio": 0
+    },
+    {
+     "plan": "P65",
+     "script": "[VISUEL : retour aux messages haineux du début, floutés.]",
+     "etat": "garde 39 % de sa voix",
+     "ratio": 0.3870967741935483
+    },
+    {
+     "plan": "P70",
+     "script": "[VISUEL : des tweets et des messages tirés des nombreuses apparitions de ce dilemme sur les réseaux sociaux.]",
+     "etat": "garde 35 % de sa voix",
+     "ratio": 0.3523636363636363
+    }
+   ]
+  },
+  "reperes": {
+   "mots_lus": 319,
+   "sur_un_mot_coupe": 115,
+   "renvois_a_une_replique_coupee": 67,
+   "deja_introuvables": 0
+  },
+  "dite_par_sequence": [
+   {
+    "id": "S01",
+    "nom": "Ouverture",
+    "dite": 70.3
+   },
+   {
+    "id": "S02",
+    "nom": "Partie 1 · Le test",
+    "dite": 69.2
+   },
+   {
+    "id": "S03",
+    "nom": "Partie 1 · Un dilemme kantien ?",
+    "dite": 186
+   },
+   {
+    "id": "S04",
+    "nom": "Partie 1 · Deux variantes déséquilibrées",
+    "dite": 132.2
+   },
+   {
+    "id": "S05",
+    "nom": "Partie 2 · Le tirage au sort",
+    "dite": 80.9
+   },
+   {
+    "id": "S06",
+    "nom": "Partie 2 · Description A : la bleue l’emporte",
+    "dite": 114.9
+   },
+   {
+    "id": "S07",
+    "nom": "Partie 2 · Description B : la bleue s’effondre",
+    "dite": 79.6
+   },
+   {
+    "id": "S08",
+    "nom": "Partie 2 · Les deux descriptions disent-elles la même chose ?",
+    "dite": 128.5
+   },
+   {
+    "id": "S09",
+    "nom": "Partie 2 · Qui prend la bleue ?",
+    "dite": 42.4
+   },
+   {
+    "id": "S10",
+    "nom": "Partie 3 · Mauvais ou méchants",
+    "dite": 112.8
+   },
+   {
+    "id": "S11",
+    "nom": "Partie 3 · Le méta-dilemme",
+    "dite": 87.4
+   },
+   {
+    "id": "S12",
+    "nom": "Partie 3 · Qui explique les règles",
+    "dite": 54.9
+   },
+   {
+    "id": "S13",
+    "nom": "Partie 3 · La fin : l’œil seul, le teaser, le générique",
+    "dite": 35.8
+   }
+  ]
+ }
+}

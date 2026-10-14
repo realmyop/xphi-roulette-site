@@ -1,0 +1,67 @@
+/* ==========================================================================
+   Direction 3 — « Dialogue »
+   Le personnage est présent en buste, au trait, et l'écran se lit comme une
+   conversation : ses répliques s'empilent, les anciennes passent au gris,
+   la dernière est en encre. Les choix sont vos répliques, deux lignes de même
+   poids. Le barillet apparaît dans la conversation, dans un cadre fin.
+   Accent : vert d'eau.
+   ========================================================================== */
+:root { --accent: #00a88f; }
+html.screen { --accent: #19c7aa; }
+
+.top { display: flex; justify-content: space-between; font-size: 12px; color: var(--grey);
+  font-variant-numeric: tabular-nums; }
+.top b { color: var(--ink); font-weight: 600; }
+
+.scene { flex: 1; display: flex; flex-direction: column; }
+.narrator { display: flex; align-items: flex-end; gap: 12px; margin: 22px 0 0; }
+.narrator .phi { width: 54px; flex: none; }
+.narrator .name { font-size: 13px; font-weight: 600; padding-bottom: 6px; }
+.narrator .name span { color: var(--grey); font-weight: 400; }
+
+.lines { margin: 14px 0 0; padding-left: 16px; border-left: 1.5px solid var(--ink); }
+.line { margin: 0 0 12px; font-size: 21px; line-height: 1.3; font-weight: 450; letter-spacing: -.012em; }
+.line.old { color: var(--grey); }
+.line:last-child { margin-bottom: 0; }
+
+.card { margin: 18px 0 0; border: 1px solid var(--line); padding: 16px; display: flex; gap: 16px; align-items: center; }
+.card .barillet { width: 112px; flex: none; }
+.card .risk { font-size: 30px; font-weight: 680; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1; }
+.card .risk-phrase { font-size: 14px; color: var(--grey); margin-top: 6px; }
+
+.push { flex: 1; min-height: 20px; }
+.replies { display: grid; gap: 8px; }
+.reply {
+  display: flex; justify-content: space-between; align-items: center;
+  height: 56px; padding: 0 18px; border: 1px solid var(--ink); background: transparent;
+  font-size: 17px; font-weight: 550; text-align: left; cursor: pointer;
+}
+.reply::after { content: "→"; color: var(--grey); font-weight: 400; }
+.reply.solid { background: var(--ink); color: var(--bg); }
+.reply.solid::after { color: var(--bg); }
+.note { margin: 12px 0 0; font-size: 12px; color: var(--grey); }
+
+.chart-wrap { margin: 16px 0 0; }
+.chart .c-line { stroke-width: 1.8; }
+
+/* --- Écran 16:9 : le personnage à gauche, la conversation à droite ------- */
+html.screen .top { font-size: 20px; }
+html.screen .scene { display: grid; grid-template-columns: 300px 1fr; column-gap: 70px; align-items: end; }
+html.screen .narrator { grid-row: 1 / span 3; flex-direction: column; align-items: flex-start; align-self: end; margin: 0; gap: 18px; }
+html.screen .narrator .phi { width: 300px; }
+html.screen .narrator .name { font-size: 24px; }
+html.screen .lines { margin: 0; padding-left: 30px; border-left-width: 2px; align-self: end; }
+html.screen .line { font-size: 46px; margin-bottom: 22px; }
+html.screen .card { padding: 26px; gap: 34px; margin-top: 30px; }
+html.screen .card .barillet { width: 240px; }
+html.screen .card .risk { font-size: 72px; }
+html.screen .card .risk-phrase { font-size: 26px; margin-top: 12px; }
+html.screen .push { display: none; }
+html.screen .replies { grid-column: 2; margin-top: 36px; grid-template-columns: 1fr 1fr; gap: 18px; }
+html.screen .reply { height: 92px; font-size: 30px; padding: 0 30px; border-width: 1.5px; }
+html.screen .note { grid-column: 2; font-size: 20px; }
+html.screen .chart-wrap { grid-column: 2; margin-top: 24px; }
+html.screen .chart .c-line { stroke-width: 3; }
+html.screen .scene.compact .narrator .phi { width: 220px; }
+.line.after-card { margin-top: 18px; }
+html.screen .line.after-card { margin-top: 30px; }
